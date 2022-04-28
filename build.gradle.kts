@@ -53,6 +53,8 @@ tasks {
 graphql {
     client {
         packageName = "no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated"
+        // uncomment if you need schema to be local
+        // schemaFile = File("src/main/resources/arbeidsgivernotifikasjon/Schema.graphql")
         endpoint = "https://notifikasjon-fake-produsent-api.labs.nais.io/"
         queryFiles = file("src/main/resources/arbeidsgivernotifikasjon").listFiles().toList()
         serializer = com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer.KOTLINX

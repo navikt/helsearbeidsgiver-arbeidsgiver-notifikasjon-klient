@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 object Versions {
     const val graphQLKotlin = "5.3.2"
     const val ktor = "1.6.8"
@@ -11,6 +9,7 @@ object Versions {
 plugins {
     kotlin("jvm") version "1.6.21"
     kotlin("plugin.serialization") version "1.6.21"
+    id("maven-publish")
     id("com.expediagroup.graphql") version "5.3.2"
     id("org.jmailen.kotlinter") version "3.10.0"
 }
@@ -39,9 +38,6 @@ tasks {
     test {
         useJUnitPlatform()
     }
-    withType<KotlinCompile>() {
-        kotlinOptions.jvmTarget = "1.8"
-    }
     lintKotlinMain {
         exclude("no/nav/helsearbeidsgiver/arbeidsgivernotifkasjon/graphql/generated/**/*.kt")
     }
@@ -58,5 +54,22 @@ graphql {
         endpoint = "https://notifikasjon-fake-produsent-api.labs.nais.io/"
         queryFiles = file("src/main/resources/arbeidsgivernotifikasjon").listFiles().toList()
         serializer = com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer.KOTLINX
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+        }
+    }
+    repositories {
+        maven {
+            url = uri("https://maven.pkg.github.com/navikt/${rootProject.name}")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
     }
 }

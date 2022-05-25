@@ -13,6 +13,16 @@ plugins {
     id("com.expediagroup.graphql") version "5.3.2"
     id("org.jmailen.kotlinter") version "3.10.0"
     id("pl.allegro.tech.build.axion-release") version "1.13.6"
+    id("org.sonarqube") version "2.8"    
+}
+
+sonarqube {
+    properties {
+        property("sonar.projectKey", "navikt_helsearbeidsgiver-arbeidsgiver-notifikasjon-klient")
+        property("sonar.organization", "navikt")
+        property("sonar.host.url", "https://sonarcloud.io")
+        property("sonar.login", System.getenv("SONAR_TOKEN"))
+    }
 }
 
 group = "no.nav.helsearbeidsgiver"

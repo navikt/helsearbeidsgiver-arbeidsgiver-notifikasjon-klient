@@ -13,7 +13,7 @@ plugins {
     id("com.expediagroup.graphql") version "5.3.2"
     id("org.jmailen.kotlinter") version "3.10.0"
     id("pl.allegro.tech.build.axion-release") version "1.13.6"
-    id("org.sonarqube") version "2.8"    
+    id("org.sonarqube") version "2.8"
 }
 
 sonarqube {

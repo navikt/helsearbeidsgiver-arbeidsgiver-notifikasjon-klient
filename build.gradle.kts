@@ -1,6 +1,8 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 object Versions {
     const val graphQLKotlin = "5.3.2"
-    const val ktor = "1.6.8"
+    const val ktor = "1.6.0"
     const val logback = "1.2.11"
     const val logstash = "7.1.1"
     const val kotlin = "1.6.21"
@@ -44,6 +46,9 @@ tasks {
     }
     formatKotlinMain {
         exclude("no/nav/helsearbeidsgiver/arbeidsgivernotifkasjon/graphql/generated/**/*.kt")
+    }
+    withType<KotlinCompile> {
+        kotlinOptions.jvmTarget = "11"
     }
 }
 

@@ -14,11 +14,10 @@ plugins {
     id("maven-publish")
     id("com.expediagroup.graphql") version "5.3.2"
     id("org.jmailen.kotlinter") version "3.10.0"
-    id("pl.allegro.tech.build.axion-release") version "1.13.6"
 }
 
 group = "no.nav.helsearbeidsgiver"
-project.version = scmVersion.version
+project.version = "0.1.1"
 
 repositories {
     mavenCentral()
@@ -50,6 +49,11 @@ tasks {
     withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "11"
     }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 graphql {

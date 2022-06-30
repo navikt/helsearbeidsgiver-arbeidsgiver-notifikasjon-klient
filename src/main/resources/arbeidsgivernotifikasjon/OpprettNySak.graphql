@@ -20,6 +20,9 @@ mutation OpprettNySak(
         tittel: $tittel
         lenke: $lenke
         initiellStatus: UNDER_BEHANDLING
+        hardDelete: {
+            den: "P1Y"
+        }
     )
     {
         __typename

@@ -1,0 +1,17 @@
+mutation HardDeleteSak($hardDeleteSakId: String!) {
+  hardDeleteSak(id: $hardDeleteSakId) {
+    __typename
+    ... on HardDeleteSakVellykket {
+      id
+    }
+    ... on UgyldigMerkelapp {
+      feilmelding
+    }
+    ... on SakFinnesIkke {
+      feilmelding
+    }
+    ... on UkjentProdusent {
+      feilmelding
+    }
+  }
+}

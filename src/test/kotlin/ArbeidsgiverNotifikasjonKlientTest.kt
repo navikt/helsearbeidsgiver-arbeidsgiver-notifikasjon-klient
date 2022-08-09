@@ -1,5 +1,6 @@
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.OpprettNyOppgaveException
+import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.hardDeleteSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.nyStatusSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.opprettNyOppgave
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.opprettNySak
@@ -30,6 +31,15 @@ class ArbeidsgiverNotifikasjonKlientTest() {
         val response = getResourceAsText("softDeleteSak/gyldig.json")
         val arbeidsgiverNotifikasjonKlient = buildClient(response)
         val resultat = runBlocking { arbeidsgiverNotifikasjonKlient.softDeleteSak("id") }
+        val expected = "1"
+        assertEquals(expected, resultat)
+    }
+
+    @Test
+    fun `Forventer gyldig respons fra hardDeleteSak`() {
+        val response = getResourceAsText("hardDeleteSak/gyldig.json")
+        val arbeidsgiverNotifikasjonKlient = buildClient(response)
+        val resultat = runBlocking { arbeidsgiverNotifikasjonKlient.hardDeleteSak("id") }
         val expected = "1"
         assertEquals(expected, resultat)
     }

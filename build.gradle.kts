@@ -17,7 +17,7 @@ plugins {
 }
 
 group = "no.nav.helsearbeidsgiver"
-project.version = "0.1.1"
+project.version = "0.1.2"
 
 repositories {
     mavenCentral()

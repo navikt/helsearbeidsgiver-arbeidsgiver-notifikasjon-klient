@@ -21,7 +21,7 @@ mutation OpprettNySak(
         lenke: $lenke
         initiellStatus: UNDER_BEHANDLING
         hardDelete: {
-            den: "P1Y"
+            om: "P1Y"
         }
     )
     {

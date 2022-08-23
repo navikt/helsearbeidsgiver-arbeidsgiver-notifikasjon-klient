@@ -7,7 +7,6 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.opprettNySak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.softDeleteSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.softDeleteSakByGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.whoami
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
 import java.time.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals

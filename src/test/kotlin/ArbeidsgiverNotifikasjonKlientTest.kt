@@ -48,7 +48,7 @@ class ArbeidsgiverNotifikasjonKlientTest() {
     fun `Forventer gyldig respons fra nyStatusSak`() {
         val response = getResourceAsText("nyStatusSak/gyldig.json")
         val arbeidsgiverNotifikasjonKlient = buildClient(response)
-        val resultat = runBlocking { arbeidsgiverNotifikasjonKlient.nyStatusSak("id", SaksStatus.UNDER_BEHANDLING) }
+        val resultat = runBlocking { arbeidsgiverNotifikasjonKlient.nyStatusSak("id", "https://test.no") }
         val expected = "1"
         assertEquals(expected, resultat)
     }

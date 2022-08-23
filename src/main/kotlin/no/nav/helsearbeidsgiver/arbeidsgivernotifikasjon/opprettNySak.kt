@@ -14,7 +14,8 @@ suspend fun ArbeidsgiverNotifikasjonKlient.opprettNySak(
     merkelapp: String,
     virksomhetsnummer: String,
     tittel: String,
-    lenke: String
+    lenke: String,
+    harddeleteOm: String
 ): ID {
     val query = OpprettNySak(
         variables = OpprettNySak.Variables(
@@ -22,7 +23,8 @@ suspend fun ArbeidsgiverNotifikasjonKlient.opprettNySak(
             merkelapp,
             virksomhetsnummer,
             tittel,
-            lenke
+            lenke,
+            harddeleteOm
         )
     )
 

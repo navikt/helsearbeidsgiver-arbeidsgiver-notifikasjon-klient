@@ -4,6 +4,7 @@ mutation OpprettNySak(
     $virksomhetsnummer: String!
     $tittel: String!
     $lenke: String!
+    $harddeleteOm: ISO8601Duration
 ) {
     nySak(
         grupperingsid: $grupperingsid
@@ -21,7 +22,7 @@ mutation OpprettNySak(
         lenke: $lenke
         initiellStatus: UNDER_BEHANDLING
         hardDelete: {
-            om: "P1Y"
+            om: $harddeleteOm
         }
     )
     {

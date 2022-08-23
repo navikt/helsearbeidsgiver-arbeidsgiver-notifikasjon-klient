@@ -92,7 +92,8 @@ class ArbeidsgiverNotifikasjonKlientTest() {
                 lenke = "https://lenke.no",
                 tittel = "test",
                 virksomhetsnummer = "874568112",
-                merkelapp = "Refusjon"
+                merkelapp = "Refusjon",
+                harddeleteOm = "P1Y"
             )
         }
         val expected = "1"

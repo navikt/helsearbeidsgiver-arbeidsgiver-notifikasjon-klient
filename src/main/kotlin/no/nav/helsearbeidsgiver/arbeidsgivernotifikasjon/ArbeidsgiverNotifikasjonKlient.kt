@@ -6,12 +6,9 @@ import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.header
 import io.ktor.http.HttpHeaders.Authorization
+import no.nav.helse.arbeidsgiver.integrasjoner.AccessTokenProvider
 import org.slf4j.LoggerFactory
 import java.net.URL
-
-interface AccessTokenProvider {
-    fun getToken(): String
-}
 
 class ArbeidsgiverNotifikasjonKlient(
     url: URL,

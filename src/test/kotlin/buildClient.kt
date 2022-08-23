@@ -7,7 +7,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
-import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.AccessTokenProvider
+import no.nav.helse.arbeidsgiver.integrasjoner.AccessTokenProvider
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient
 import java.net.URL
 

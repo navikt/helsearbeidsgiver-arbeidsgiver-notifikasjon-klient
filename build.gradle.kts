@@ -8,6 +8,8 @@ object Versions {
     const val kotlin = "1.6.21"
 }
 
+val githubPassword: String by project
+
 plugins {
     kotlin("jvm") version "1.6.21"
     kotlin("plugin.serialization") version "1.6.21"
@@ -21,10 +23,18 @@ project.version = "0.1.4"
 
 repositories {
     mavenCentral()
+    maven {
+        credentials {
+            username = "x-access-token"
+            password = githubPassword
+        }
+        setUrl("https://maven.pkg.github.com/navikt/*")
+    }
 }
 
 dependencies {
     implementation("com.expediagroup:graphql-kotlin-ktor-client:${Versions.graphQLKotlin}")
+    implementation("no.nav.helsearbeidsgiver:helse-arbeidsgiver-felles-backend:2022.01.18-08-47-f6aa0")
 
     runtimeOnly("ch.qos.logback:logback-classic:${Versions.logback}")
 

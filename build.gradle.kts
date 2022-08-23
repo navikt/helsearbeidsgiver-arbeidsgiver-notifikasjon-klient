@@ -26,7 +26,7 @@ repositories {
     maven {
         credentials {
             username = "x-access-token"
-            password = githubPassword
+            password = System.getenv("GITHUB_TOKEN") ?: githubPassword
         }
         setUrl("https://maven.pkg.github.com/navikt/*")
     }

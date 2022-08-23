@@ -34,7 +34,7 @@ suspend fun ArbeidsgiverNotifikasjonKlient.hardDeleteSak(id: String): ID {
                 throw HardDeleteSakException(id, deleteSak.feilmelding)
             }
             else -> {
-                logger.error("Kunne ikke harddelete sak", deleteSak)
+                logger.error("Kunne ikke harddelete sak ${deleteSak}: med feil ${resultat.errors}")
                 throw HardDeleteSakException(id, "ukjent feil: ${resultat.errors}")
             }
         }

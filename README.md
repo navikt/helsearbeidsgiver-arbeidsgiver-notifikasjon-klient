@@ -7,16 +7,18 @@ Klient for å lage oppgaver, saker og notifikasjoner mot [arbeidsgiver-notifikas
 ***gradle.build.kts***
 ```kts
 dependencies {
-  implementation("no.nav.helsearbeidsgiver.helsearbeidsgiver-arbeidsgiver-notifikasjon-klient:${Versions.arbeidsgiverNotifikasjonKlient}")
-  implementation("no.nav.helsearbeidsgiver:helse-arbeidsgiver-felles-backend:${Versions.fellesBackend}")
-  implementation("io.ktor:ktor-client-core:${Versions.ktor}")
-  implementation("io.ktor:ktor-client-content-negotiation:${Versions.ktor}")
+    implementation("io.ktor:ktor-client-content-negotiation:${Versions.ktor}")
+    implementation("io.ktor:ktor-client-core:${Versions.ktor}")
+    implementation("no.nav.helsearbeidsgiver.helsearbeidsgiver-arbeidsgiver-notifikasjon-klient:${Versions.arbeidsgiverNotifikasjonKlient}")
+    implementation("no.nav.helsearbeidsgiver:helse-arbeidsgiver-felles-backend:${Versions.fellesBackend}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}")
 }
 ```
 
 ### Klienten instansieres slik
 
 ```kt
+import kotlinx.coroutines.runBlocking
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import no.nav.helse.arbeidsgiver.integrasjoner.OAuth2TokenProvider
@@ -31,7 +33,7 @@ fun main() {
     val arbeidsgiverNotifikasjonKlient = ArbeidsgiverNotifikasjonKlient(url, httpClient) {
         accessTokenProvider.getToken()
     }
-    val result = arbeidsgiverNotifikasjonKlient.whoami()
+    val result = runBlocking { arbeidsgiverNotifikasjonKlient.whoami() }
     println(result)
 }
 ```

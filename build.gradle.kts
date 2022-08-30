@@ -1,27 +1,19 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-object Versions {
-    const val graphQLKotlin = "5.3.2"
-    const val ktor = "1.6.0"
-    const val logback = "1.2.11"
-    const val logstash = "7.1.1"
-    const val kotlin = "1.6.21"
-}
-
-val githubPassword: String by project
+group = "no.nav.helsearbeidsgiver"
+version = "0.1.9"
 
 plugins {
-    kotlin("jvm") version "1.6.21"
-    kotlin("plugin.serialization") version "1.6.21"
+    kotlin("jvm")
+    kotlin("plugin.serialization")
+    id("com.expediagroup.graphql")
     id("maven-publish")
-    id("com.expediagroup.graphql") version "5.3.2"
-    id("org.jmailen.kotlinter") version "3.10.0"
+    id("org.jmailen.kotlinter")
 }
 
-group = "no.nav.helsearbeidsgiver"
-project.version = "0.1.9"
-
 repositories {
+    val githubPassword: String by project
+
     mavenCentral()
     maven {
         credentials {
@@ -33,17 +25,24 @@ repositories {
 }
 
 dependencies {
-    implementation("com.expediagroup:graphql-kotlin-ktor-client:${Versions.graphQLKotlin}")
-    implementation("no.nav.helsearbeidsgiver:helse-arbeidsgiver-felles-backend:2022.01.18-08-47-f6aa0")
+    val coroutinesVersion: String by project
+    val graphQLKotlinVersion: String by project
+    val ktorVersion: String by project
+    val logbackVersion: String by project
+    val slf4jVersion: String by project
 
-    runtimeOnly("ch.qos.logback:logback-classic:${Versions.logback}")
+    api("com.expediagroup:graphql-kotlin-client:$graphQLKotlinVersion")
+    api("io.ktor:ktor-client-core:$ktorVersion")
+
+    implementation("com.expediagroup:graphql-kotlin-ktor-client:$graphQLKotlinVersion")
+    implementation("org.slf4j:slf4j-api:$slf4jVersion")
+
+    runtimeOnly("ch.qos.logback:logback-classic:$logbackVersion")
 
     testImplementation(kotlin("test"))
-    testImplementation("net.logstash.logback:logstash-logback-encoder:${Versions.logstash}")
-    testImplementation("io.ktor:ktor-client-core:${Versions.ktor}")
-    testImplementation("io.ktor:ktor-client-json:${Versions.ktor}")
-    testImplementation("io.ktor:ktor-client-serialization:${Versions.ktor}")
-    testImplementation("io.ktor:ktor-client-mock:${Versions.ktor}")
+    testImplementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
 }
 
 tasks {

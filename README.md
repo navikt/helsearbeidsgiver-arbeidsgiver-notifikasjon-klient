@@ -5,13 +5,12 @@ Klient for å lage oppgaver, saker og notifikasjoner mot [arbeidsgiver-notifikas
 ### Bruk av helsearbeidsgiver-arbeidsgiver-notifikasjon-klient
 
 ***gradle.build.kts***
-```
+```kts
 dependencies {
   implementation("no.nav.helsearbeidsgiver.helsearbeidsgiver-arbeidsgiver-notifikasjon-klient:${Versions.arbeidsgiverNotifikasjonKlient}")
-  implementation("no.nav.helsearbeidsgiver.access-token-provider:${Versions.arbeidsgiverNotifikasjonKlient}")
+  implementation("no.nav.helsearbeidsgiver:helse-arbeidsgiver-felles-backend:${Versions.fellesBackend}")
   implementation("io.ktor:ktor-client-core:${Versions.ktor}")
-  implementation("io.ktor:ktor-client-json:${Versions.ktor}")
-  implementation("io.ktor:ktor-client-serialization:${Versions.ktor}")
+  implementation("io.ktor:ktor-client-content-negotiation:${Versions.ktor}")
 }
 ```
 
@@ -19,17 +18,18 @@ dependencies {
 
 ```kt
 import io.ktor.client.HttpClient
-import io.ktor.client.features.json.JsonFeature
-import no.nav.helsearbeidsgiver.ArbeidsgiverNotifikasjonKlient
-import no.nav.helsearbeidsgiver.AccessTokenProvider.OAuth2Provider
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import no.nav.helse.arbeidsgiver.integrasjoner.OAuth2TokenProvider
+import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient
+import java.net.URL
 
-fun main () {
+fun main() {
     val url = URL("https://notifikasjon-fake-produsent-api.labs.nais.io/")
-    val httpClient = HttpClient() { install(JsonFeature) }
-    val accessTokenProvider = OAuth2Provider()
+    val httpClient = HttpClient { install(ContentNegotiation) }
+    val accessTokenProvider = OAuth2TokenProvider()
 
-    val arbeidsgiverNotifikasjonKlient = runBlocking {
-        ArbeidsgiverNotifikasjonKlient(url, accessTokenProvider, httpClient)
+    val arbeidsgiverNotifikasjonKlient = ArbeidsgiverNotifikasjonKlient(url, httpClient) {
+        accessTokenProvider.getToken()
     }
     val result = arbeidsgiverNotifikasjonKlient.whoami()
     println(result)

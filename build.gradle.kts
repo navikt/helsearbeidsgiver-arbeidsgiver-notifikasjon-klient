@@ -14,11 +14,13 @@ plugins {
 }
 
 repositories {
+    val githubPassword: String by project
+
     mavenCentral()
     maven {
         credentials {
             username = "x-access-token"
-            password = System.getenv("GITHUB_TOKEN") ?: githubPassword
+            password = githubPassword
         }
         setUrl("https://maven.pkg.github.com/navikt/*")
     }

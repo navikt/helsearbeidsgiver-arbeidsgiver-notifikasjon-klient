@@ -1,7 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "no.nav.helsearbeidsgiver"
-version = "0.1.9"
+version = "0.1.10"
+
+val githubPassword: String by project
 
 plugins {
     kotlin("jvm")
@@ -12,8 +14,6 @@ plugins {
 }
 
 repositories {
-    val githubPassword: String by project
-
     mavenCentral()
     maven {
         credentials {

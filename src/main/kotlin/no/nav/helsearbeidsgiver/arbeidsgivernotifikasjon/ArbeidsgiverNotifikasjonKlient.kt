@@ -11,7 +11,7 @@ import java.net.URL
 class ArbeidsgiverNotifikasjonKlient(
     url: URL,
     httpClient: HttpClient,
-    private val getAccessToken: () -> String,
+    private val getAccessToken: () -> String
 ) {
     internal val logger = LoggerFactory.getLogger(this::class.java)
 

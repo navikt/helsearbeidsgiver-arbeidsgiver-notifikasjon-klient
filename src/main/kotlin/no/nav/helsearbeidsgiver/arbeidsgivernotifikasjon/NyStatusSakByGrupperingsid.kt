@@ -12,7 +12,6 @@ suspend fun ArbeidsgiverNotifikasjonKlient.nyStatusSakByGrupperingsid(
     merkelapp: String,
     nyStatus: SaksStatus
 ): ID {
-
     logger.info("Forsøker å sette ny status $nyStatus for grupperingsid $grupperingsid")
 
     val query = NyStatusSakByGrupperingsid(

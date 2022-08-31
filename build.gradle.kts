@@ -3,8 +3,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "no.nav.helsearbeidsgiver"
 version = "0.1.10"
 
-val githubPassword: String by project
-
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")

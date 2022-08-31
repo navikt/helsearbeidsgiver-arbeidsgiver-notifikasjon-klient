@@ -1,5 +1,3 @@
-rootProject.name = "helsearbeidsgiver-arbeidsgiver-notifikasjon-klient"
-
 pluginManagement {
     plugins {
         val graphQLKotlinVersion: String by settings

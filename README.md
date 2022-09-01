@@ -30,9 +30,8 @@ fun main() {
     val httpClient = HttpClient { install(ContentNegotiation) }
     val accessTokenProvider = OAuth2TokenProvider()
 
-    val arbeidsgiverNotifikasjonKlient = ArbeidsgiverNotifikasjonKlient(url, httpClient) {
-        accessTokenProvider.getToken()
-    }
+    val arbeidsgiverNotifikasjonKlient = ArbeidsgiverNotifikasjonKlient(url, httpClient, accessTokenProvider::getToken)
+
     val result = runBlocking { arbeidsgiverNotifikasjonKlient.whoami() }
     println(result)
 }

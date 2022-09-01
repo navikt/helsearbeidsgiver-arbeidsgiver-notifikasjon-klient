@@ -1,4 +1,5 @@
 package no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon
+
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.Whoami
 
 suspend fun ArbeidsgiverNotifikasjonKlient.whoami(): String? {

@@ -1,4 +1,4 @@
-mutation SoftDeleteSak($softDeleteSakId: String!) {
+mutation SoftDeleteSak($softDeleteSakId: ID!) {
   softDeleteSak(id: $softDeleteSakId) {
     __typename
     ... on SoftDeleteSakVellykket {

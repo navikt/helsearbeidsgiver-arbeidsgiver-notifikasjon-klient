@@ -1,4 +1,4 @@
-mutation OppgaveUtfoert($id: String!) {
+mutation OppgaveUtfoert($id: ID!) {
     oppgaveUtfoert(id: $id) {
         __typename
         ... on OppgaveUtfoertVellykket {

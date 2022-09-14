@@ -9,7 +9,7 @@ Klient for å lage oppgaver, saker og notifikasjoner mot [arbeidsgiver-notifikas
 dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:${Versions.ktor}")
     implementation("io.ktor:ktor-client-core:${Versions.ktor}")
-    implementation("no.nav.helsearbeidsgiver.helsearbeidsgiver-arbeidsgiver-notifikasjon-klient:${Versions.arbeidsgiverNotifikasjonKlient}")
+    implementation("no.nav.helsearbeidsgiver.arbeidsgiver-notifikasjon-klient:${Versions.arbeidsgiverNotifikasjonKlient}")
     implementation("no.nav.helsearbeidsgiver:helse-arbeidsgiver-felles-backend:${Versions.fellesBackend}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}")
 }

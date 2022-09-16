@@ -37,7 +37,7 @@ suspend fun ArbeidsgiverNotifikasjonKlient.nyStatusSakByGrupperingsid(
                 throw NySakStatusException(grupperingsid, nyStatus, nyStatusSak.feilmelding)
             }
             else -> {
-                logger.error("Kunne ikke opprette ny sak $nyStatusSak")
+                logger.error("Kunne ikke opprette ny sak: $nyStatusSak")
                 throw NySakStatusException(grupperingsid, nyStatus, "ukjent feil: ${resultat.errors}")
             }
         }

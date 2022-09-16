@@ -31,7 +31,7 @@ suspend fun ArbeidsgiverNotifikasjonKlient.nyStatusSak(id: String, nyLenkeTilSak
                 throw NyStatusSakException(id, nyStatusSak.feilmelding)
             }
             else -> {
-                logger.error("Kunne ikke opprette ny sak", nyStatusSak)
+                logger.error("Kunne ikke opprette ny sak: $nyStatusSak")
                 throw NyStatusSakException(id, "ukjent feil: ${resultat.errors}")
             }
         }

@@ -32,7 +32,7 @@ suspend fun ArbeidsgiverNotifikasjonKlient.oppgaveUtfoert(id: String): ID {
                 throw OppgaveUtfoertException(id, utfoertOppgave.feilmelding)
             }
             else -> {
-                logger.error("Kunne ikke opprette utføre oppgave", utfoertOppgave)
+                logger.error("Kunne ikke opprette utføre oppgave: $utfoertOppgave")
                 throw OppgaveUtfoertException(id, "ukjent feil: ${resultat.errors}")
             }
         }

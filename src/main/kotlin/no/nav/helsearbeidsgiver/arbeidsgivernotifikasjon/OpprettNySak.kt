@@ -56,7 +56,7 @@ suspend fun ArbeidsgiverNotifikasjonKlient.opprettNySak(
                 throw OpprettNySakFeiletException(nySak.feilmelding)
             }
             else -> {
-                logger.error("Kunne ikke opprette ny sak", nySak)
+                logger.error("Kunne ikke opprette ny sak: $nySak")
                 throw OpprettNySakFeiletException("ukjent feil: ${resultat.errors}")
             }
         }

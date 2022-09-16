@@ -65,19 +65,19 @@ dependencies {
     val graphQLKotlinVersion: String by project
     val ktorVersion: String by project
     val logbackVersion: String by project
+    val mockkVersion: String by project
     val slf4jVersion: String by project
 
-    api("com.expediagroup:graphql-kotlin-client:$graphQLKotlinVersion")
-    api("io.ktor:ktor-client-core:$ktorVersion")
-
     implementation("com.expediagroup:graphql-kotlin-ktor-client:$graphQLKotlinVersion")
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
 
     runtimeOnly("ch.qos.logback:logback-classic:$logbackVersion")
 
     testImplementation(kotlin("test"))
-    testImplementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
+    testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
 }
 

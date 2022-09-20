@@ -58,7 +58,7 @@ suspend fun ArbeidsgiverNotifikasjonKlient.opprettNyOppgave(
                 throw OpprettNyOppgaveException(nyOppgave.feilmelding)
             }
             else -> {
-                logger.error("Kunne ikke opprette ny oppgave", nyOppgave)
+                logger.error("Kunne ikke opprette ny oppgave: $nyOppgave")
                 throw OpprettNyOppgaveException("ukjent feil: ${resultat.errors}")
             }
         }

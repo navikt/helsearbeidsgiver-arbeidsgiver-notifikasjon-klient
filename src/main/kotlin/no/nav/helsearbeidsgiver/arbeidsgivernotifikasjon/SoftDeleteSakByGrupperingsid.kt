@@ -35,7 +35,7 @@ suspend fun ArbeidsgiverNotifikasjonKlient.softDeleteSakByGrupperingsid(grupperi
                 throw SoftDeleteSakException(grupperingsid, deleteSak.feilmelding)
             }
             else -> {
-                logger.error("Kunne ikke softdelete sak", deleteSak)
+                logger.error("Kunne ikke softdelete sak: $deleteSak")
                 throw SoftDeleteSakException(grupperingsid, "ukjent feil: ${resultat.errors}")
             }
         }

@@ -1,25 +1,17 @@
+package no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon
+
 import kotlinx.coroutines.runBlocking
-import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.OpprettNyOppgaveException
-import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.hardDeleteSak
-import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.nyStatusSak
-import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.opprettNyOppgave
-import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.opprettNySak
-import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.softDeleteSak
-import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.softDeleteSakByGrupperingsid
-import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.whoami
 import java.time.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class ArbeidsgiverNotifikasjonKlientTest() {
-    private fun getResourceAsText(filename: String) =
-        this::class.java.classLoader.getResource("responses/$filename")!!.readText()
 
     @Test
     fun `Forventer gyldig respons fra whoami`() {
-        val response = getResourceAsText("whoami/gyldig.json")
-        val arbeidsgiverNotifikasjonKlient = buildClient(response)
+        val response = readResource("whoami/gyldig.json")
+        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
         val resultat = runBlocking { arbeidsgiverNotifikasjonKlient.whoami() }
         val expected = "ut laborum aut laborum quas eos maxime"
         assertEquals(expected, resultat)
@@ -27,8 +19,8 @@ class ArbeidsgiverNotifikasjonKlientTest() {
 
     @Test
     fun `Forventer gyldig respons fra softDeleteSak`() {
-        val response = getResourceAsText("softDeleteSak/gyldig.json")
-        val arbeidsgiverNotifikasjonKlient = buildClient(response)
+        val response = readResource("softDeleteSak/gyldig.json")
+        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
         val resultat = runBlocking { arbeidsgiverNotifikasjonKlient.softDeleteSak("id") }
         val expected = "1"
         assertEquals(expected, resultat)
@@ -36,8 +28,8 @@ class ArbeidsgiverNotifikasjonKlientTest() {
 
     @Test
     fun `Forventer gyldig respons fra hardDeleteSak`() {
-        val response = getResourceAsText("hardDeleteSak/gyldig.json")
-        val arbeidsgiverNotifikasjonKlient = buildClient(response)
+        val response = readResource("hardDeleteSak/gyldig.json")
+        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
         val resultat = runBlocking { arbeidsgiverNotifikasjonKlient.hardDeleteSak("id") }
         val expected = "1"
         assertEquals(expected, resultat)
@@ -45,8 +37,8 @@ class ArbeidsgiverNotifikasjonKlientTest() {
 
     @Test
     fun `Forventer gyldig respons fra nyStatusSak`() {
-        val response = getResourceAsText("nyStatusSak/gyldig.json")
-        val arbeidsgiverNotifikasjonKlient = buildClient(response)
+        val response = readResource("nyStatusSak/gyldig.json")
+        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
         val resultat = runBlocking { arbeidsgiverNotifikasjonKlient.nyStatusSak("id", "https://test.no") }
         val expected = "1"
         assertEquals(expected, resultat)
@@ -54,8 +46,8 @@ class ArbeidsgiverNotifikasjonKlientTest() {
 
     @Test
     fun `Forventer gyldig respons fra softDeleteSakByGrupperingsid`() {
-        val response = getResourceAsText("softDeleteSakByGrupperingsid/gyldig.json")
-        val arbeidsgiverNotifikasjonKlient = buildClient(response)
+        val response = readResource("softDeleteSakByGrupperingsid/gyldig.json")
+        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
         val resultat = runBlocking { arbeidsgiverNotifikasjonKlient.softDeleteSakByGrupperingsid("id", "M") }
         val expected = "1"
         assertEquals(expected, resultat)
@@ -63,8 +55,8 @@ class ArbeidsgiverNotifikasjonKlientTest() {
 
     @Test
     fun `Forventer gyldig respons fra opprettNyOppgave`() {
-        val response = getResourceAsText("nyOppgave/gyldig.json")
-        val arbeidsgiverNotifikasjonKlient = buildClient(response)
+        val response = readResource("nyOppgave/gyldig.json")
+        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
         val resultat = runBlocking {
             arbeidsgiverNotifikasjonKlient.opprettNyOppgave(
@@ -83,8 +75,8 @@ class ArbeidsgiverNotifikasjonKlientTest() {
 
     @Test
     fun `Forventer gyldig respons fra opprettNySak`() {
-        val response = getResourceAsText("opprettNySak/gyldig.json")
-        val arbeidsgiverNotifikasjonKlient = buildClient(response)
+        val response = readResource("opprettNySak/gyldig.json")
+        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
         val resultat = runBlocking {
             arbeidsgiverNotifikasjonKlient.opprettNySak(
                 grupperingsid = "id",
@@ -101,8 +93,8 @@ class ArbeidsgiverNotifikasjonKlientTest() {
 
     @Test
     fun `UgyldigMerkelapp respons fra opprettNyOppgave`() {
-        val response = getResourceAsText("nyOppgave/ugyldigMerkelapp.json")
-        val arbeidsgiverNotifikasjonKlient = buildClient(response)
+        val response = readResource("nyOppgave/ugyldigMerkelapp.json")
+        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
         assertFailsWith(
             exceptionClass = OpprettNyOppgaveException::class,
             block = {
@@ -120,3 +112,6 @@ class ArbeidsgiverNotifikasjonKlientTest() {
         )
     }
 }
+
+private fun readResource(filename: String) =
+    ClassLoader.getSystemResource("responses/$filename").readText()

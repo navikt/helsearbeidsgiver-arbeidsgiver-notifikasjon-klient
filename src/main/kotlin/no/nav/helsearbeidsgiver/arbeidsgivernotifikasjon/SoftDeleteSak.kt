@@ -34,7 +34,7 @@ suspend fun ArbeidsgiverNotifikasjonKlient.softDeleteSak(id: String): ID {
                 throw SoftDeleteSakException(id, deleteSak.feilmelding)
             }
             else -> {
-                logger.error("Kunne ikke softdelete sak", deleteSak)
+                logger.error("Kunne ikke softdelete sak: $deleteSak")
                 throw SoftDeleteSakException(id, "ukjent feil: ${resultat.errors}")
             }
         }

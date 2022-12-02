@@ -11,13 +11,14 @@ import java.net.URL
 
 class ArbeidsgiverNotifikasjonKlient(
     url: String,
+    httpClient: HttpClient = HttpClient(OkHttp),
     private val getAccessToken: () -> String
 ) {
     internal val logger = LoggerFactory.getLogger(this::class.java)
 
     private val graphQLClient = GraphQLKtorClient(
         url = URL(url),
-        httpClient = createHttpClient()
+        httpClient = httpClient
     )
 
     internal suspend fun <T : Any> execute(query: GraphQLClientRequest<T>): GraphQLClientResponse<T> =
@@ -25,6 +26,3 @@ class ArbeidsgiverNotifikasjonKlient(
             bearerAuth(getAccessToken())
         }
 }
-
-internal fun createHttpClient(): HttpClient =
-    HttpClient(OkHttp)

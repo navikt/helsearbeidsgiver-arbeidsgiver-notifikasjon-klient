@@ -15,6 +15,7 @@ suspend fun ArbeidsgiverNotifikasjonKlient.opprettNySak(
     virksomhetsnummer: String,
     tittel: String,
     lenke: String,
+    statusTekst: String?,
     harddeleteOm: String
 ): ID {
     val query = OpprettNySak(
@@ -24,6 +25,7 @@ suspend fun ArbeidsgiverNotifikasjonKlient.opprettNySak(
             virksomhetsnummer,
             tittel,
             lenke,
+            statusTekst,
             harddeleteOm
         )
     )

@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon
 
 import kotlinx.coroutines.runBlocking
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
 import java.time.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -39,7 +40,14 @@ class ArbeidsgiverNotifikasjonKlientTest() {
     fun `Forventer gyldig respons fra nyStatusSak`() {
         val response = readResource("nyStatusSak/gyldig.json")
         val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
-        val resultat = runBlocking { arbeidsgiverNotifikasjonKlient.nyStatusSak("id", "https://test.no") }
+        val resultat = runBlocking {
+            arbeidsgiverNotifikasjonKlient.nyStatusSak(
+                "id",
+                "https://test.no",
+                SaksStatus.FERDIG,
+                "Ny statustekst"
+            )
+        }
         val expected = "1"
         assertEquals(expected, resultat)
     }
@@ -84,7 +92,8 @@ class ArbeidsgiverNotifikasjonKlientTest() {
                 tittel = "test",
                 virksomhetsnummer = "874568112",
                 merkelapp = "Refusjon",
-                harddeleteOm = "P1Y"
+                harddeleteOm = "P1Y",
+                statusTekst = "Ny status"
             )
         }
         val expected = "1"

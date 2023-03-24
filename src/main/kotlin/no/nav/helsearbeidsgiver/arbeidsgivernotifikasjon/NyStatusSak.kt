@@ -2,17 +2,25 @@ package no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon
 
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ID
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.NyStatusSak
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussak.Konflikt
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussak.NyStatusSakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussak.SakFinnesIkke
 
-suspend fun ArbeidsgiverNotifikasjonKlient.nyStatusSak(id: String, nyLenkeTilSak: String): ID {
+suspend fun ArbeidsgiverNotifikasjonKlient.nyStatusSak(
+    id: String,
+    nyLenkeTilSak: String,
+    status: SaksStatus,
+    statusTekst: String?
+): ID {
     logger.info("Forsøker å sette ny status for sak $id")
 
     val query = NyStatusSak(
         variables = NyStatusSak.Variables(
             id,
-            nyLenkeTilSak
+            nyLenkeTilSak,
+            status,
+            statusTekst
         )
     )
 

@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "no.nav.helsearbeidsgiver"
-version = "0.3.3"
+version = "1.0.0"
 
 plugins {
     kotlin("jvm")

@@ -1,5 +1,5 @@
-mutation NyStatusSak($nyStatusSakId: ID!, $nyLenkeTilSak: String) {
-  nyStatusSak(id: $nyStatusSakId, nyStatus: UNDER_BEHANDLING, nyLenkeTilSak: $nyLenkeTilSak) {
+mutation NyStatusSak($nyStatusSakId: ID!, $nyLenkeTilSak: String, $status: SaksStatus!, $statusTekst: String) {
+  nyStatusSak(id: $nyStatusSakId, nyStatus: $status, nyLenkeTilSak: $nyLenkeTilSak, overstyrStatustekstMed: $statusTekst) {
     __typename
     ... on NyStatusSakVellykket {
       id

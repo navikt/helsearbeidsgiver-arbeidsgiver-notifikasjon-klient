@@ -4,7 +4,8 @@ mutation OpprettNyOppgave(
     $tekst: String!,
     $virksomhetsnummer: String!,
     $merkelapp: String!,
-    $tidspunkt: ISO8601DateTime
+    $tidspunkt: ISO8601DateTime,
+    $grupperingsid: String
 ){
     nyOppgave(nyOppgave: {
         mottakere: [
@@ -23,7 +24,8 @@ mutation OpprettNyOppgave(
         metadata: {
             virksomhetsnummer: $virksomhetsnummer,
             eksternId: $eksternId,
-            opprettetTidspunkt: $tidspunkt
+            opprettetTidspunkt: $tidspunkt,
+            grupperingsid: $grupperingsid
         }
     }) {
         __typename

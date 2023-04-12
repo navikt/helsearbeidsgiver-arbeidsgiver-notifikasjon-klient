@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "no.nav.helsearbeidsgiver"
-version = "1.0.0"
+version = "1.1.0"
 
 plugins {
     kotlin("jvm")
@@ -38,7 +38,7 @@ graphql {
         packageName = "no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated"
         // uncomment if you need schema to be local
         // schemaFile = File("src/main/resources/arbeidsgivernotifikasjon/Schema.graphql")
-        endpoint = "https://notifikasjon-fake-produsent-api.labs.nais.io/"
+        endpoint = "https://notifikasjon-fake-produsent-api.ekstern.dev.nav.no"
         queryFiles = file("src/main/resources/arbeidsgivernotifikasjon").listFiles()?.toList().orEmpty()
         serializer = com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer.KOTLINX
     }

@@ -73,7 +73,8 @@ class ArbeidsgiverNotifikasjonKlientTest() {
                 tekst = "test",
                 virksomhetsnummer = "874568112",
                 merkelapp = "Refusjon",
-                tidspunkt = LocalDateTime.now().toString()
+                tidspunkt = LocalDateTime.now().toString(),
+                grupperingsid = null
             )
         }
 
@@ -114,7 +115,8 @@ class ArbeidsgiverNotifikasjonKlientTest() {
                         tekst = "test",
                         virksomhetsnummer = "874568112",
                         merkelapp = "Refusjon",
-                        tidspunkt = LocalDateTime.now().toString()
+                        tidspunkt = LocalDateTime.now().toString(),
+                        grupperingsid = null
                     )
                 }
             }

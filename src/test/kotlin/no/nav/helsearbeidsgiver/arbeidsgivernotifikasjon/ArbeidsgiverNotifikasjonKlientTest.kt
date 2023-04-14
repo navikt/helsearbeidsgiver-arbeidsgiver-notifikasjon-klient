@@ -74,7 +74,9 @@ class ArbeidsgiverNotifikasjonKlientTest() {
                 virksomhetsnummer = "874568112",
                 merkelapp = "Refusjon",
                 tidspunkt = LocalDateTime.now().toString(),
-                grupperingsid = null
+                grupperingsid = null,
+                varslingTittel = "Du har fått oppgave",
+                varslingInnhold = "Logg på nav.no"
             )
         }
 
@@ -116,7 +118,9 @@ class ArbeidsgiverNotifikasjonKlientTest() {
                         virksomhetsnummer = "874568112",
                         merkelapp = "Refusjon",
                         tidspunkt = LocalDateTime.now().toString(),
-                        grupperingsid = null
+                        grupperingsid = null,
+                        varslingTittel = "Du har fått oppgave",
+                        varslingInnhold = "Logg på nav.no"
                     )
                 }
             }

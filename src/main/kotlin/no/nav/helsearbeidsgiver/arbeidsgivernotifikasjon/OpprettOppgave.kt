@@ -17,7 +17,9 @@ suspend fun ArbeidsgiverNotifikasjonKlient.opprettNyOppgave(
     virksomhetsnummer: String,
     merkelapp: String,
     tidspunkt: ISO8601DateTime?,
-    grupperingsid: String?
+    grupperingsid: String?,
+    varslingTittel: String,
+    varslingInnhold: String,
 ): ID {
     val query = OpprettNyOppgave(
         variables = OpprettNyOppgave.Variables(
@@ -27,7 +29,9 @@ suspend fun ArbeidsgiverNotifikasjonKlient.opprettNyOppgave(
             virksomhetsnummer,
             merkelapp,
             tidspunkt,
-            grupperingsid
+            grupperingsid,
+            varslingTittel,
+            varslingInnhold
         )
     )
 

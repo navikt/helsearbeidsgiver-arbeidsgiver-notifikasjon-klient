@@ -19,7 +19,7 @@ suspend fun ArbeidsgiverNotifikasjonKlient.opprettNyOppgave(
     tidspunkt: ISO8601DateTime?,
     grupperingsid: String?,
     varslingTittel: String,
-    varslingInnhold: String,
+    varslingInnhold: String
 ): ID {
     val query = OpprettNyOppgave(
         variables = OpprettNyOppgave.Variables(

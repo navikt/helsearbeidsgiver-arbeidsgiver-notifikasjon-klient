@@ -5,7 +5,9 @@ mutation OpprettNyOppgave(
     $virksomhetsnummer: String!,
     $merkelapp: String!,
     $tidspunkt: ISO8601DateTime,
-    $grupperingsid: String
+    $grupperingsid: String,
+    $varslingTittel: String!,
+    $varslingInnhold: String!
 ){
     nyOppgave(nyOppgave: {
         mottakere: [
@@ -15,18 +17,33 @@ mutation OpprettNyOppgave(
                     serviceEdition: "1"
                 }
             }
-        ]
+        ],
         notifikasjon: {
             lenke: $lenke,
             tekst: $tekst,
             merkelapp: $merkelapp
-        }
+        },
         metadata: {
             virksomhetsnummer: $virksomhetsnummer,
             eksternId: $eksternId,
             opprettetTidspunkt: $tidspunkt,
-            grupperingsid: $grupperingsid
-        }
+            grupperingsid: $grupperingsid,
+        },
+        eksterneVarsler: [
+            {
+                altinntjeneste: {
+                    mottaker: {
+                        serviceCode: "4936"
+                        serviceEdition: "1"
+                    },
+                    tittel: $varslingTittel,
+                    innhold: $varslingInnhold,
+                    sendetidspunkt: {
+                        sendevindu: LOEPENDE
+                    },
+                }
+            }
+        ]
     }) {
         __typename
         ... on NyOppgaveVellykket {

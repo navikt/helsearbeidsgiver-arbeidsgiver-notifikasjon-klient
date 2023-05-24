@@ -4,21 +4,20 @@ import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.engine.apache5.Apache5
 import io.ktor.client.request.bearerAuth
 import org.slf4j.LoggerFactory
 import java.net.URL
 
 class ArbeidsgiverNotifikasjonKlient(
     url: String,
-    httpClient: HttpClient = HttpClient(OkHttp),
     private val getAccessToken: () -> String
 ) {
     internal val logger = LoggerFactory.getLogger(this::class.java)
 
     private val graphQLClient = GraphQLKtorClient(
         url = URL(url),
-        httpClient = httpClient
+        httpClient = createHttpClient()
     )
 
     internal suspend fun <T : Any> execute(query: GraphQLClientRequest<T>): GraphQLClientResponse<T> =
@@ -26,3 +25,6 @@ class ArbeidsgiverNotifikasjonKlient(
             bearerAuth(getAccessToken())
         }
 }
+
+internal fun createHttpClient(): HttpClient =
+    HttpClient(Apache5)

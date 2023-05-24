@@ -7,7 +7,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-class ArbeidsgiverNotifikasjonKlientTest() {
+class ArbeidsgiverNotifikasjonKlientTest {
 
     @Test
     fun `Forventer gyldig respons fra whoami`() {

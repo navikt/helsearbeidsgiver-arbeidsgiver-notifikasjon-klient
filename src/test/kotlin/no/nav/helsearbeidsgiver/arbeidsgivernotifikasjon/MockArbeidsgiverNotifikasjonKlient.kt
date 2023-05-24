@@ -7,6 +7,10 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
+import io.mockk.every
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
+import kotlin.reflect.KFunction
 
 fun mockArbeidsgiverNotifikasjonKlient(content: String): ArbeidsgiverNotifikasjonKlient {
     val mockEngine = MockEngine {
@@ -16,5 +20,20 @@ fun mockArbeidsgiverNotifikasjonKlient(content: String): ArbeidsgiverNotifikasjo
             headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
         )
     }
-    return ArbeidsgiverNotifikasjonKlient("https://url", HttpClient(mockEngine)) { "fake token" }
+
+    val mockHttpClient = HttpClient(mockEngine)
+
+    return mockStatic(::createHttpClient) {
+        every { createHttpClient() } returns mockHttpClient
+        ArbeidsgiverNotifikasjonKlient("https://url") { "fake token" }
+    }
+}
+
+private fun <T> mockStatic(mockFn: KFunction<*>, block: () -> T): T {
+    mockkStatic(mockFn)
+    return try {
+        block()
+    } finally {
+        unmockkStatic(mockFn)
+    }
 }

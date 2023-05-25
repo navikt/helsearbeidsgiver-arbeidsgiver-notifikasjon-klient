@@ -88,10 +88,10 @@ internal object Feil {
 
         if (feilmelding != null) {
             feilmelding.loggFeil()
-            throw NySakStatusException(grupperingsid, nyStatus, feilmelding)
+            throw NyStatusSakByGrupperingsidException(grupperingsid, nyStatus, feilmelding)
         } else {
-            logger.error("Kunne ikke opprette ny sak: $feil")
-            throw NySakStatusException(grupperingsid, nyStatus, feil.ukjentFeil())
+            logger.error("Kunne ikke opprette ny sak (fra grupperingsid): $feil")
+            throw NyStatusSakByGrupperingsidException(grupperingsid, nyStatus, feil.ukjentFeil())
         }
     }
 
@@ -124,10 +124,10 @@ internal object Feil {
 
         if (feilmelding != null) {
             feilmelding.loggFeil()
-            throw OpprettNySakFeiletException(feilmelding)
+            throw OpprettNySakException(feilmelding)
         } else {
             logger.error("Kunne ikke opprette ny sak: $feil")
-            throw OpprettNySakFeiletException(feil.ukjentFeil())
+            throw OpprettNySakException(feil.ukjentFeil())
         }
     }
 
@@ -181,10 +181,10 @@ internal object Feil {
 
         if (feilmelding != null) {
             feilmelding.loggFeil()
-            throw SoftDeleteSakException(grupperingsid, feilmelding)
+            throw SoftDeleteSakByGrupperingsidException(grupperingsid, feilmelding)
         } else {
-            logger.error("Kunne ikke softdelete sak: $feil")
-            throw SoftDeleteSakException(grupperingsid, feil.ukjentFeil())
+            logger.error("Kunne ikke softdelete sak (fra grupperingsid): $feil")
+            throw SoftDeleteSakByGrupperingsidException(grupperingsid, feil.ukjentFeil())
         }
     }
 
@@ -202,13 +202,13 @@ class HardDeleteSakException(id: String, feilmelding: String?) :
 class NyStatusSakException(id: String, feilmelding: String?) :
     Exception("Ny status for sak $id arbeidsgiver-notifikasjon-api feilet med: $feilmelding")
 
-class NySakStatusException(id: String, status: SaksStatus, feilmelding: String?) :
-    Exception("Ny status $status for sak $id arbeidsgiver-notifikasjon-api feilet med: $feilmelding")
+class NyStatusSakByGrupperingsidException(grupperingsid: String, status: SaksStatus, feilmelding: String?) :
+    Exception("Ny status $status for sak $grupperingsid arbeidsgiver-notifikasjon-api feilet med: $feilmelding")
 
 class OppgaveUtfoertException(id: String, feilmelding: String?) :
     Exception("Utføring av oppgave $id mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
 
-class OpprettNySakFeiletException(feilmelding: String?) :
+class OpprettNySakException(feilmelding: String?) :
     Exception("Opprettelse av ny sak mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
 
 class OpprettNyOppgaveException(feilmelding: String?) :
@@ -216,3 +216,6 @@ class OpprettNyOppgaveException(feilmelding: String?) :
 
 class SoftDeleteSakException(id: String, feilmelding: String?) :
     Exception("Sletting av sak $id mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
+
+class SoftDeleteSakByGrupperingsidException(grupperingsid: String, feilmelding: String?) :
+    Exception("Sletting av sak $grupperingsid mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")

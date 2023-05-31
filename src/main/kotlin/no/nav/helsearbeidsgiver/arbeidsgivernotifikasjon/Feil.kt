@@ -53,7 +53,7 @@ internal object Feil {
             feilmelding.loggFeil()
             throw HardDeleteSakException(id, feilmelding)
         } else {
-            logger.error("Kunne ikke harddelete sak $feil: med feil $feil")
+            logger.error("Kunne ikke harddelete sak $resultat: med feil $feil")
             throw HardDeleteSakException(id, feil.ukjentFeil())
         }
     }

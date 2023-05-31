@@ -17,7 +17,7 @@ fun mockArbeidsgiverNotifikasjonKlient(content: String): ArbeidsgiverNotifikasjo
         respond(
             content = content,
             status = HttpStatusCode.OK,
-            headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+            headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
         )
     }
 

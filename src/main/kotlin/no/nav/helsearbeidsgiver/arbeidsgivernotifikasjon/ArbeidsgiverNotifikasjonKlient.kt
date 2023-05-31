@@ -31,24 +31,24 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.softde
 
 class ArbeidsgiverNotifikasjonKlient(
     url: String,
-    private val getAccessToken: () -> String
+    private val getAccessToken: () -> String,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     private val graphQLClient = GraphQLKtorClient(
         url = URL(url),
-        httpClient = createHttpClient()
+        httpClient = createHttpClient(),
     )
 
     suspend fun hardDeleteSak(id: String): ID =
         HardDeleteSak(
-            variables = HardDeleteSak.Variables(id)
+            variables = HardDeleteSak.Variables(id),
         )
             .also { logger.info("Forsøker å slette sak $id") }
             .execute(
                 toResult = HardDeleteSak.Result::hardDeleteSak,
                 toSuccess = { it as? HardDeleteSakVellykket },
-                onError = { res, err -> Feil.hardDeleteSak(id, res, err) }
+                onError = { res, err -> Feil.hardDeleteSak(id, res, err) },
             )
             .id
             .also { logger.info("Slettet sak $it") }
@@ -59,14 +59,14 @@ class ArbeidsgiverNotifikasjonKlient(
                 nyStatusSakId = id,
                 nyLenkeTilSak = nyLenkeTilSak,
                 status = status,
-                statusTekst = statusTekst
-            )
+                statusTekst = statusTekst,
+            ),
         )
             .also { logger.info("Forsøker å sette ny status '$status' for sak $id") }
             .execute(
                 toResult = NyStatusSak.Result::nyStatusSak,
                 toSuccess = { it as? NyStatusSakVellykket },
-                onError = { res, err -> Feil.nyStatusSak(id, res, err) }
+                onError = { res, err -> Feil.nyStatusSak(id, res, err) },
             )
             .id
             .also { logger.info("Satt ny status '$status' for sak $it") }
@@ -76,27 +76,27 @@ class ArbeidsgiverNotifikasjonKlient(
             variables = NyStatusSakByGrupperingsid.Variables(
                 grupperingsid = grupperingsid,
                 merkelapp = merkelapp,
-                nyStatus = nyStatus
-            )
+                nyStatus = nyStatus,
+            ),
         )
             .also { logger.info("Forsøker å sette ny status '$nyStatus' for grupperingsid $grupperingsid") }
             .execute(
                 toResult = NyStatusSakByGrupperingsid.Result::nyStatusSakByGrupperingsid,
                 toSuccess = { it as? NyStatusSakByGrupperingsidVellykket },
-                onError = { res, err -> Feil.nyStatusSakByGrupperingsid(grupperingsid, nyStatus, res, err) }
+                onError = { res, err -> Feil.nyStatusSakByGrupperingsid(grupperingsid, nyStatus, res, err) },
             )
             .id
             .also { logger.info("Satt ny status '$nyStatus' for sak $it") }
 
     suspend fun oppgaveUtfoert(id: String): ID =
         OppgaveUtfoert(
-            variables = OppgaveUtfoert.Variables(id)
+            variables = OppgaveUtfoert.Variables(id),
         )
             .also { logger.info("Forsøker å opprette ny sak mot arbeidsgiver-notifikasjoner") }
             .execute(
                 toResult = OppgaveUtfoert.Result::oppgaveUtfoert,
                 toSuccess = { it as? OppgaveUtfoertVellykket },
-                onError = { res, err -> Feil.oppgaveUtfoert(id, res, err) }
+                onError = { res, err -> Feil.oppgaveUtfoert(id, res, err) },
             )
             .id
             .also { logger.info("Oppgave utført $it") }
@@ -108,7 +108,7 @@ class ArbeidsgiverNotifikasjonKlient(
         tittel: String,
         lenke: String,
         statusTekst: String?,
-        harddeleteOm: String
+        harddeleteOm: String,
     ): ID =
         OpprettNySak(
             variables = OpprettNySak.Variables(
@@ -118,14 +118,14 @@ class ArbeidsgiverNotifikasjonKlient(
                 tittel = tittel,
                 lenke = lenke,
                 statusTekst = statusTekst,
-                harddeleteOm = harddeleteOm
-            )
+                harddeleteOm = harddeleteOm,
+            ),
         )
             .also { logger.info("Forsøker å opprette ny sak mot arbeidsgiver-notifikasjoner") }
             .execute(
                 toResult = OpprettNySak.Result::nySak,
                 toSuccess = { it as? NySakVellykket },
-                onError = Feil::opprettNySak
+                onError = Feil::opprettNySak,
             )
             .id
             .also { logger.info("Opprettet ny sak $it") }
@@ -139,7 +139,7 @@ class ArbeidsgiverNotifikasjonKlient(
         tidspunkt: ISO8601DateTime?,
         grupperingsid: String?,
         varslingTittel: String,
-        varslingInnhold: String
+        varslingInnhold: String,
     ): ID =
         OpprettNyOppgave(
             variables = OpprettNyOppgave.Variables(
@@ -151,27 +151,27 @@ class ArbeidsgiverNotifikasjonKlient(
                 tidspunkt = tidspunkt,
                 grupperingsid = grupperingsid,
                 varslingTittel = varslingTittel,
-                varslingInnhold = varslingInnhold
-            )
+                varslingInnhold = varslingInnhold,
+            ),
         )
             .also { logger.info("Forsøker å opprette ny oppgave mot arbeidsgiver-notifikasjoner") }
             .execute(
                 toResult = OpprettNyOppgave.Result::nyOppgave,
                 toSuccess = { it as? NyOppgaveVellykket },
-                onError = Feil::nyOppgave
+                onError = Feil::nyOppgave,
             )
             .id
             .also { logger.info("Opprettet ny oppgave med id: $it") }
 
     suspend fun softDeleteSak(id: String): ID =
         SoftDeleteSak(
-            variables = SoftDeleteSak.Variables(id)
+            variables = SoftDeleteSak.Variables(id),
         )
             .also { logger.info("Forsøker å slette sak $id") }
             .execute(
                 toResult = SoftDeleteSak.Result::softDeleteSak,
                 toSuccess = { it as? SoftDeleteSakVellykket },
-                onError = { res, err -> Feil.softDeleteSak(id, res, err) }
+                onError = { res, err -> Feil.softDeleteSak(id, res, err) },
             )
             .id
             .also { logger.info("Slettet sak $it") }
@@ -180,14 +180,14 @@ class ArbeidsgiverNotifikasjonKlient(
         SoftDeleteSakByGrupperingsid(
             variables = SoftDeleteSakByGrupperingsid.Variables(
                 grupperingsid = grupperingsid,
-                merkelapp = merkelapp
-            )
+                merkelapp = merkelapp,
+            ),
         )
             .also { logger.info("Forsøker å slette sak med grupperingsid $grupperingsid og merkelapp $merkelapp") }
             .execute(
                 toResult = SoftDeleteSakByGrupperingsid.Result::softDeleteSakByGrupperingsid,
                 toSuccess = { it as? SoftDeleteSakByGrupperingsidVellykket },
-                onError = { res, err -> Feil.softDeleteSakByGrupperingsid(grupperingsid, res, err) }
+                onError = { res, err -> Feil.softDeleteSakByGrupperingsid(grupperingsid, res, err) },
             )
             .id
             .also { logger.info("Slettet sak $it") }
@@ -198,7 +198,7 @@ class ArbeidsgiverNotifikasjonKlient(
             .execute(
                 toResult = { this },
                 toSuccess = { it },
-                onError = { _, _ -> throw RuntimeException("Feil ved henting av 'whoami'") }
+                onError = { _, _ -> throw RuntimeException("Feil ved henting av 'whoami'") },
             )
             .whoami
             .also { logger.info("Whoami: $it") }
@@ -206,7 +206,7 @@ class ArbeidsgiverNotifikasjonKlient(
     private suspend fun <Data : Any, Result : Any, Success : Result> GraphQLClientRequest<Data>.execute(
         toResult: Data.() -> Result,
         toSuccess: (Result?) -> Success?,
-        onError: (Result?, List<GraphQLClientError>?) -> Nothing
+        onError: (Result?, List<GraphQLClientError>?) -> Nothing,
     ): Success {
         val response = graphQLClient.execute(this) {
             bearerAuth(getAccessToken())

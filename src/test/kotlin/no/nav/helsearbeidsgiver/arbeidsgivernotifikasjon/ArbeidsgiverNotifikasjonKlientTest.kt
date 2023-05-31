@@ -45,7 +45,7 @@ class ArbeidsgiverNotifikasjonKlientTest {
                 "id",
                 "https://test.no",
                 SaksStatus.FERDIG,
-                "Ny statustekst"
+                "Ny statustekst",
             )
         }
         val expected = "1"
@@ -76,7 +76,7 @@ class ArbeidsgiverNotifikasjonKlientTest {
                 tidspunkt = LocalDateTime.now().toString(),
                 grupperingsid = null,
                 varslingTittel = "Du har fått oppgave",
-                varslingInnhold = "Logg på nav.no"
+                varslingInnhold = "Logg på nav.no",
             )
         }
 
@@ -96,7 +96,7 @@ class ArbeidsgiverNotifikasjonKlientTest {
                 virksomhetsnummer = "874568112",
                 merkelapp = "Refusjon",
                 harddeleteOm = "P1Y",
-                statusTekst = "Ny status"
+                statusTekst = "Ny status",
             )
         }
         val expected = "1"
@@ -120,10 +120,10 @@ class ArbeidsgiverNotifikasjonKlientTest {
                         tidspunkt = LocalDateTime.now().toString(),
                         grupperingsid = null,
                         varslingTittel = "Du har fått oppgave",
-                        varslingInnhold = "Logg på nav.no"
+                        varslingInnhold = "Logg på nav.no",
                     )
                 }
-            }
+            },
         )
     }
 }

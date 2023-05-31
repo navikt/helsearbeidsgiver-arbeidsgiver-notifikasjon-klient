@@ -78,7 +78,7 @@ internal object Feil {
         grupperingsid: String,
         nyStatus: SaksStatus,
         resultat: NyStatusSakByGrupperingsidResultat?,
-        feil: List<GraphQLClientError>?
+        feil: List<GraphQLClientError>?,
     ): Nothing {
         val feilmelding = when (resultat) {
             is SakFinnesIkkeNyStatusSakByGrupperingsid -> resultat.feilmelding
@@ -170,7 +170,7 @@ internal object Feil {
     fun softDeleteSakByGrupperingsid(
         grupperingsid: String,
         resultat: SoftDeleteSakByGrupperingsidResultat?,
-        feil: List<GraphQLClientError>?
+        feil: List<GraphQLClientError>?,
     ): Nothing {
         val feilmelding = when (resultat) {
             is UgyldigMerkelappSoftDeleteSakByGrupperingsid -> resultat.feilmelding

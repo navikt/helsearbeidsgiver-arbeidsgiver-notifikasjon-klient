@@ -62,14 +62,14 @@ class ArbeidsgiverNotifikasjonKlient(
                 statusTekst = statusTekst
             )
         )
-            .also { logger.info("Forsøker å sette ny status for sak $id") }
+            .also { logger.info("Forsøker å sette ny status '$status' for sak $id") }
             .execute(
                 toResult = NyStatusSak.Result::nyStatusSak,
                 toSuccess = { it as? NyStatusSakVellykket },
                 onError = { res, err -> Feil.nyStatusSak(id, res, err) }
             )
             .id
-            .also { logger.info("Satt ny status for sak $it") }
+            .also { logger.info("Satt ny status '$status' for sak $it") }
 
     suspend fun nyStatusSakByGrupperingsid(grupperingsid: String, merkelapp: String, nyStatus: SaksStatus): ID =
         NyStatusSakByGrupperingsid(
@@ -79,14 +79,14 @@ class ArbeidsgiverNotifikasjonKlient(
                 nyStatus = nyStatus
             )
         )
-            .also { logger.info("Forsøker å sette ny status $nyStatus for grupperingsid $grupperingsid") }
+            .also { logger.info("Forsøker å sette ny status '$nyStatus' for grupperingsid $grupperingsid") }
             .execute(
                 toResult = NyStatusSakByGrupperingsid.Result::nyStatusSakByGrupperingsid,
                 toSuccess = { it as? NyStatusSakByGrupperingsidVellykket },
                 onError = { res, err -> Feil.nyStatusSakByGrupperingsid(grupperingsid, nyStatus, res, err) }
             )
             .id
-            .also { logger.info("Satt ny status $nyStatus for sak $it") }
+            .also { logger.info("Satt ny status '$nyStatus' for sak $it") }
 
     suspend fun oppgaveUtfoert(id: String): ID =
         OppgaveUtfoert(

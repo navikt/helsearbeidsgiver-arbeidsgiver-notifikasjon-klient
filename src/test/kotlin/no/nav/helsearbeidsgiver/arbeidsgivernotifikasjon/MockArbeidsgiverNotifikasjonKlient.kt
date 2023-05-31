@@ -21,10 +21,8 @@ fun mockArbeidsgiverNotifikasjonKlient(content: String): ArbeidsgiverNotifikasjo
         )
     }
 
-    val mockHttpClient = HttpClient(mockEngine)
-
     return mockStatic(::createHttpClient) {
-        every { createHttpClient() } returns mockHttpClient
+        every { createHttpClient() } returns HttpClient(mockEngine)
         ArbeidsgiverNotifikasjonKlient("https://url") { "fake token" }
     }
 }

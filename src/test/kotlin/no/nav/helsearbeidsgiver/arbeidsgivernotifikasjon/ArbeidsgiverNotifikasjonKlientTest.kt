@@ -34,10 +34,10 @@ class ArbeidsgiverNotifikasjonKlientTest {
         val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
         val resultat = runBlocking {
             arbeidsgiverNotifikasjonKlient.nyStatusSak(
-                "id",
-                "https://test.no",
-                SaksStatus.FERDIG,
-                "Ny statustekst",
+                id = "id",
+                status = SaksStatus.FERDIG,
+                statusTekst = "Ny statustekst",
+                nyLenkeTilSak = "https://test.no",
             )
         }
         val expected = "1"

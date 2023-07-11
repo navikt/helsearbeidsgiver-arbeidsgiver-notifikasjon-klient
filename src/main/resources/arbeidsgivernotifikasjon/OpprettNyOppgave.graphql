@@ -64,5 +64,8 @@ mutation OpprettNyOppgave(
         ... on UkjentRolle {
             feilmelding
         }
+        ... on UgyldigPaaminnelseTidspunkt {
+            feilmelding
+        }
     }
 }

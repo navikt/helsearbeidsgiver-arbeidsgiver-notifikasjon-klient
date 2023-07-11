@@ -10,5 +10,11 @@ mutation NyStatusSak($nyStatusSakId: ID!, $nyLenkeTilSak: String, $status: SaksS
     ... on Konflikt {
       feilmelding
     }
+    ... on UgyldigMerkelapp {
+      feilmelding
+    }
+    ... on UkjentProdusent {
+      feilmelding
+    }
   }
 }

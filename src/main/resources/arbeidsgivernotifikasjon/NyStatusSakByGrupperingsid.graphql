@@ -18,5 +18,11 @@ mutation NyStatusSakByGrupperingsid(
         ... on Konflikt {
             feilmelding
         }
+        ... on UgyldigMerkelapp {
+            feilmelding
+        }
+        ... on UkjentProdusent {
+            feilmelding
+        }
     }
 }

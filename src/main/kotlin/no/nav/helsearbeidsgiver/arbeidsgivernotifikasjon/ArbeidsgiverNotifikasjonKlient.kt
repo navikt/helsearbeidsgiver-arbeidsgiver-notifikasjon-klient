@@ -69,13 +69,18 @@ class ArbeidsgiverNotifikasjonKlient(
             .id
             .also { logger.info("Opprettet ny sak $it") }
 
-    suspend fun nyStatusSak(id: String, nyLenkeTilSak: String, status: SaksStatus, statusTekst: String?): ID =
+    suspend fun nyStatusSak(
+        id: String,
+        status: SaksStatus,
+        statusTekst: String? = null,
+        nyLenkeTilSak: String? = null,
+    ): ID =
         NyStatusSak(
             variables = NyStatusSak.Variables(
                 nyStatusSakId = id,
-                nyLenkeTilSak = nyLenkeTilSak,
                 status = status,
                 statusTekst = statusTekst,
+                nyLenkeTilSak = nyLenkeTilSak,
             ),
         )
             .also { logger.info("Forsøker å sette ny status '$status' for sak $id") }

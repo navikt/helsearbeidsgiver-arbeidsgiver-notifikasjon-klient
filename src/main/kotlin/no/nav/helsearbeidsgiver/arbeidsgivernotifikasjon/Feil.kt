@@ -219,7 +219,8 @@ class NyStatusSakException(id: String, nyStatus: SaksStatus, feilmelding: String
 
 class NyStatusSakByGrupperingsidException(grupperingsid: String, nyStatus: SaksStatus, feilmelding: String?) :
     Exception(
-        "Ny status '$nyStatus' for sak med grupperingsid '$grupperingsid' mot arbeidsgiver-notifikasjon-api feilet med: $feilmelding",
+        "Ny status '$nyStatus' for sak med grupperingsid '$grupperingsid' mot " +
+            "arbeidsgiver-notifikasjon-api feilet med: $feilmelding",
     )
 
 class OpprettNyOppgaveException(feilmelding: String?) :

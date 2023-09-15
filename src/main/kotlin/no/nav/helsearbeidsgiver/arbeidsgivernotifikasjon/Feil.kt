@@ -227,7 +227,7 @@ class OpprettNyOppgaveException(feilmelding: String?) :
     Exception("Opprettelse av ny oppgave mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
 
 class OppgaveUtfoertException(id: String, feilmelding: String?) :
-    Exception("Utføring av oppgave '$id' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
+    Exception("Utføring av oppgave med id '$id' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
 
 class SoftDeleteSakException(id: String, feilmelding: String?) :
     Exception("Sletting (soft) av sak med id '$id' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
@@ -238,4 +238,4 @@ class SoftDeleteSakByGrupperingsidException(grupperingsid: String, feilmelding: 
     )
 
 class HardDeleteSakException(id: String, feilmelding: String?) :
-    Exception("Sletting (hard) av sak '$id' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
+    Exception("Sletting (hard) av sak med id '$id' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")

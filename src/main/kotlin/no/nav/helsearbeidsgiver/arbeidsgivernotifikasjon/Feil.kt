@@ -60,12 +60,17 @@ internal object Feil {
             feilmelding.loggFeil()
             throw OpprettNySakException(feilmelding)
         } else {
-            logger.error("Kunne ikke opprette ny sak: $feil")
+            logger.error("Klarte ikke opprette ny sak: $feil")
             throw OpprettNySakException(feil.ukjentFeil())
         }
     }
 
-    fun nyStatusSak(id: String, resultat: NyStatusSakResultat?, feil: List<GraphQLClientError>?): Nothing {
+    fun nyStatusSak(
+        id: String,
+        nyStatus: SaksStatus,
+        resultat: NyStatusSakResultat?,
+        feil: List<GraphQLClientError>?,
+    ): Nothing {
         val feilmelding = when (resultat) {
             is FinnesIkkeNyStatusSak -> resultat.feilmelding
             is KonfliktNyStatusSak -> resultat.feilmelding
@@ -76,10 +81,10 @@ internal object Feil {
 
         if (feilmelding != null) {
             feilmelding.loggFeil()
-            throw NyStatusSakException(id, feilmelding)
+            throw NyStatusSakException(id, nyStatus, feilmelding)
         } else {
-            logger.error("Kunne ikke opprette ny sak: $feil")
-            throw NyStatusSakException(id, feil.ukjentFeil())
+            logger.error("Klarte ikke endre status på sak: $feil")
+            throw NyStatusSakException(id, nyStatus, feil.ukjentFeil())
         }
     }
 
@@ -101,7 +106,7 @@ internal object Feil {
             feilmelding.loggFeil()
             throw NyStatusSakByGrupperingsidException(grupperingsid, nyStatus, feilmelding)
         } else {
-            logger.error("Kunne ikke opprette ny sak (fra grupperingsid): $feil")
+            logger.error("Klarte ikke endre status på sak (fra grupperingsid): $feil")
             throw NyStatusSakByGrupperingsidException(grupperingsid, nyStatus, feil.ukjentFeil())
         }
     }
@@ -121,7 +126,7 @@ internal object Feil {
             feilmelding.loggFeil()
             throw OpprettNyOppgaveException(feilmelding)
         } else {
-            logger.error("Kunne ikke opprette ny oppgave: $feil")
+            logger.error("Klarte ikke opprette ny oppgave: $feil")
             throw OpprettNyOppgaveException(feil.ukjentFeil())
         }
     }
@@ -138,7 +143,7 @@ internal object Feil {
             feilmelding.loggFeil()
             throw OppgaveUtfoertException(id, feilmelding)
         } else {
-            logger.error("Kunne ikke opprette utføre oppgave: $feil")
+            logger.error("Klarte ikke sette oppgave som utført: $feil")
             throw OppgaveUtfoertException(id, feil.ukjentFeil())
         }
     }
@@ -155,7 +160,7 @@ internal object Feil {
             feilmelding.loggFeil()
             throw SoftDeleteSakException(id, feilmelding)
         } else {
-            logger.error("Kunne ikke softdelete sak: $feil")
+            logger.error("Klarte ikke softdelete sak: $feil")
             throw SoftDeleteSakException(id, feil.ukjentFeil())
         }
     }
@@ -176,7 +181,7 @@ internal object Feil {
             feilmelding.loggFeil()
             throw SoftDeleteSakByGrupperingsidException(grupperingsid, feilmelding)
         } else {
-            logger.error("Kunne ikke softdelete sak (fra grupperingsid): $feil")
+            logger.error("Klarte ikke softdelete sak (fra grupperingsid): $feil")
             throw SoftDeleteSakByGrupperingsidException(grupperingsid, feil.ukjentFeil())
         }
     }
@@ -193,7 +198,7 @@ internal object Feil {
             feilmelding.loggFeil()
             throw HardDeleteSakException(id, feilmelding)
         } else {
-            logger.error("Kunne ikke harddelete sak $resultat: med feil $feil")
+            logger.error("Klarte ikke harddelete sak $resultat: med feil $feil")
             throw HardDeleteSakException(id, feil.ukjentFeil())
         }
     }
@@ -209,23 +214,27 @@ internal object Feil {
 class OpprettNySakException(feilmelding: String?) :
     Exception("Opprettelse av ny sak mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
 
-class NyStatusSakException(id: String, feilmelding: String?) :
-    Exception("Ny status for sak $id arbeidsgiver-notifikasjon-api feilet med: $feilmelding")
+class NyStatusSakException(id: String, nyStatus: SaksStatus, feilmelding: String?) :
+    Exception("Ny status '$nyStatus' for sak med id '$id' mot arbeidsgiver-notifikasjon-api feilet med: $feilmelding")
 
-class NyStatusSakByGrupperingsidException(grupperingsid: String, status: SaksStatus, feilmelding: String?) :
-    Exception("Ny status $status for sak $grupperingsid arbeidsgiver-notifikasjon-api feilet med: $feilmelding")
+class NyStatusSakByGrupperingsidException(grupperingsid: String, nyStatus: SaksStatus, feilmelding: String?) :
+    Exception(
+        "Ny status '$nyStatus' for sak med grupperingsid '$grupperingsid' mot arbeidsgiver-notifikasjon-api feilet med: $feilmelding",
+    )
 
 class OpprettNyOppgaveException(feilmelding: String?) :
     Exception("Opprettelse av ny oppgave mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
 
 class OppgaveUtfoertException(id: String, feilmelding: String?) :
-    Exception("Utføring av oppgave $id mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
+    Exception("Utføring av oppgave '$id' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
 
 class SoftDeleteSakException(id: String, feilmelding: String?) :
-    Exception("Sletting av sak $id mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
+    Exception("Sletting (soft) av sak med id '$id' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
 
 class SoftDeleteSakByGrupperingsidException(grupperingsid: String, feilmelding: String?) :
-    Exception("Sletting av sak $grupperingsid mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
+    Exception(
+        "Sletting (soft) av sak med grupperingsid '$grupperingsid' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding",
+    )
 
 class HardDeleteSakException(id: String, feilmelding: String?) :
-    Exception("Sletting av sak $id mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
+    Exception("Sletting (hard) av sak '$id' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")

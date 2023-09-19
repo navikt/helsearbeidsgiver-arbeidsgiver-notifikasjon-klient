@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon
 
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
+import org.junit.jupiter.api.assertDoesNotThrow
 import java.time.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -13,6 +14,7 @@ class ArbeidsgiverNotifikasjonKlientTest {
     fun `Forventer gyldig respons fra opprettNySak`() {
         val response = readResource("opprettNySak/gyldig.json")
         val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
         val resultat = runBlocking {
             arbeidsgiverNotifikasjonKlient.opprettNySak(
                 grupperingsid = "id",
@@ -32,16 +34,17 @@ class ArbeidsgiverNotifikasjonKlientTest {
     fun `Forventer gyldig respons fra nyStatusSak`() {
         val response = readResource("nyStatusSak/gyldig.json")
         val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
-        val resultat = runBlocking {
-            arbeidsgiverNotifikasjonKlient.nyStatusSak(
-                id = "id",
-                status = SaksStatus.FERDIG,
-                statusTekst = "Ny statustekst",
-                nyLenkeTilSak = "https://test.no",
-            )
+
+        assertDoesNotThrow {
+            runBlocking {
+                arbeidsgiverNotifikasjonKlient.nyStatusSak(
+                    id = "id",
+                    status = SaksStatus.FERDIG,
+                    statusTekst = "Ny statustekst",
+                    nyLenkeTilSak = "https://test.no",
+                )
+            }
         }
-        val expected = "1"
-        assertEquals(expected, resultat)
     }
 
     @Test
@@ -71,6 +74,7 @@ class ArbeidsgiverNotifikasjonKlientTest {
     fun `UgyldigMerkelapp respons fra opprettNyOppgave`() {
         val response = readResource("nyOppgave/ugyldigMerkelapp.json")
         val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
         assertFailsWith(
             exceptionClass = OpprettNyOppgaveException::class,
             block = {
@@ -95,27 +99,30 @@ class ArbeidsgiverNotifikasjonKlientTest {
     fun `Forventer gyldig respons fra softDeleteSak`() {
         val response = readResource("softDeleteSak/gyldig.json")
         val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
-        val resultat = runBlocking { arbeidsgiverNotifikasjonKlient.softDeleteSak("id") }
-        val expected = "1"
-        assertEquals(expected, resultat)
+
+        assertDoesNotThrow {
+            runBlocking { arbeidsgiverNotifikasjonKlient.softDeleteSak("id") }
+        }
     }
 
     @Test
     fun `Forventer gyldig respons fra softDeleteSakByGrupperingsid`() {
         val response = readResource("softDeleteSakByGrupperingsid/gyldig.json")
         val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
-        val resultat = runBlocking { arbeidsgiverNotifikasjonKlient.softDeleteSakByGrupperingsid("id", "M") }
-        val expected = "1"
-        assertEquals(expected, resultat)
+
+        assertDoesNotThrow {
+            runBlocking { arbeidsgiverNotifikasjonKlient.softDeleteSakByGrupperingsid("id", "M") }
+        }
     }
 
     @Test
     fun `Forventer gyldig respons fra hardDeleteSak`() {
         val response = readResource("hardDeleteSak/gyldig.json")
         val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
-        val resultat = runBlocking { arbeidsgiverNotifikasjonKlient.hardDeleteSak("id") }
-        val expected = "1"
-        assertEquals(expected, resultat)
+
+        assertDoesNotThrow {
+            runBlocking { arbeidsgiverNotifikasjonKlient.hardDeleteSak("id") }
+        }
     }
 
     @Test

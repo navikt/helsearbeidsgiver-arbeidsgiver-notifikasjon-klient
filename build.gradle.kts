@@ -64,18 +64,24 @@ dependencies {
     val coroutinesVersion: String by project
     val graphQLKotlinVersion: String by project
     val ktorVersion: String by project
+    val logbackVersion: String by project
     val mockkVersion: String by project
     val slf4jVersion: String by project
+    val utilsVersion: String by project
 
     implementation("com.expediagroup:graphql-kotlin-ktor-client:$graphQLKotlinVersion")
     implementation("io.ktor:ktor-client-apache5:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("no.nav.helsearbeidsgiver:utils:$utilsVersion")
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
 
     testImplementation(kotlin("test"))
+    testImplementation(testFixtures("no.nav.helsearbeidsgiver:utils:$utilsVersion"))
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+
+    testRuntimeOnly("ch.qos.logback:logback-classic:$logbackVersion")
 }
 
 fun RepositoryHandler.mavenNav(repo: String): MavenArtifactRepository {

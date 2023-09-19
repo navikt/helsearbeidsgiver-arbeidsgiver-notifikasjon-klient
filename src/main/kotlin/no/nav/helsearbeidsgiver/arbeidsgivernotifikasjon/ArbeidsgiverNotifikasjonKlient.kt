@@ -24,7 +24,8 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgav
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.NyOppgaveVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnysak.NySakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.softdeletesak.SoftDeleteSakVellykket
-import org.slf4j.LoggerFactory
+import no.nav.helsearbeidsgiver.utils.log.logger
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.net.URL
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakVellykket as NyStatusSakByGrupperingsidVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.softdeletesakbygrupperingsid.SoftDeleteSakVellykket as SoftDeleteSakByGrupperingsidVellykket
@@ -33,7 +34,8 @@ class ArbeidsgiverNotifikasjonKlient(
     url: String,
     private val getAccessToken: () -> String,
 ) {
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = logger()
+    private val sikkerLogger = sikkerLogger()
 
     private val graphQLClient = GraphQLKtorClient(
         url = URL(url),
@@ -60,14 +62,14 @@ class ArbeidsgiverNotifikasjonKlient(
                 harddeleteOm = harddeleteOm,
             ),
         )
-            .also { logger.info("Forsøker å opprette ny sak mot arbeidsgiver-notifikasjoner.") }
+            .also { loggInfo("Forsøker å opprette ny sak mot arbeidsgiver-notifikasjoner.") }
             .execute(
                 toResult = OpprettNySak.Result::nySak,
                 toSuccess = { it as? NySakVellykket },
                 onError = Feil::opprettNySak,
             )
             .id
-            .also { logger.info("Opprettet ny sak med id '$it'.") }
+            .also { loggInfo("Opprettet ny sak med id '$it'.") }
 
     suspend fun nyStatusSak(
         id: String,
@@ -75,7 +77,7 @@ class ArbeidsgiverNotifikasjonKlient(
         statusTekst: String? = null,
         nyLenkeTilSak: String? = null,
     ) {
-        logger.info("Forsøker å sette ny status '$status' på sak med id '$id'.")
+        loggInfo("Forsøker å sette ny status '$status' på sak med id '$id'.")
 
         NyStatusSak(
             variables = NyStatusSak.Variables(
@@ -91,11 +93,11 @@ class ArbeidsgiverNotifikasjonKlient(
                 onError = { res, err -> Feil.nyStatusSak(id, status, res, err) },
             )
 
-        logger.info("Satt ny status '$status' på sak for id '$id'.")
+        loggInfo("Satt ny status '$status' på sak for id '$id'.")
     }
 
     suspend fun nyStatusSakByGrupperingsid(grupperingsid: String, merkelapp: String, nyStatus: SaksStatus) {
-        logger.info("Forsøker å sette ny status '$nyStatus' på sak med grupperingsid '$grupperingsid'.")
+        loggInfo("Forsøker å sette ny status '$nyStatus' på sak med grupperingsid '$grupperingsid'.")
 
         NyStatusSakByGrupperingsid(
             variables = NyStatusSakByGrupperingsid.Variables(
@@ -110,7 +112,7 @@ class ArbeidsgiverNotifikasjonKlient(
                 onError = { res, err -> Feil.nyStatusSakByGrupperingsid(grupperingsid, nyStatus, res, err) },
             )
 
-        logger.info("Satt ny status '$nyStatus' på sak med grupperingsid '$grupperingsid'.")
+        loggInfo("Satt ny status '$nyStatus' på sak med grupperingsid '$grupperingsid'.")
     }
 
     suspend fun opprettNyOppgave(
@@ -137,17 +139,17 @@ class ArbeidsgiverNotifikasjonKlient(
                 varslingInnhold = varslingInnhold,
             ),
         )
-            .also { logger.info("Forsøker å opprette ny oppgave mot arbeidsgiver-notifikasjoner.") }
+            .also { loggInfo("Forsøker å opprette ny oppgave mot arbeidsgiver-notifikasjoner.") }
             .execute(
                 toResult = OpprettNyOppgave.Result::nyOppgave,
                 toSuccess = { it as? NyOppgaveVellykket },
                 onError = Feil::nyOppgave,
             )
             .id
-            .also { logger.info("Opprettet ny oppgave med id: '$it'.") }
+            .also { loggInfo("Opprettet ny oppgave med id: '$it'.") }
 
     suspend fun oppgaveUtfoert(id: String) {
-        logger.info("Forsøker å sette oppgave med id '$id' som utført mot arbeidsgiver-notifikasjoner.")
+        loggInfo("Forsøker å sette oppgave med id '$id' som utført mot arbeidsgiver-notifikasjoner.")
 
         OppgaveUtfoert(
             variables = OppgaveUtfoert.Variables(id),
@@ -158,24 +160,24 @@ class ArbeidsgiverNotifikasjonKlient(
                 onError = { res, err -> Feil.oppgaveUtfoert(id, res, err) },
             )
 
-        logger.info("Oppgave med id '$id' satt til utført.")
+        loggInfo("Oppgave med id '$id' satt til utført.")
     }
 
     suspend fun softDeleteSak(id: String): ID =
         SoftDeleteSak(
             variables = SoftDeleteSak.Variables(id),
         )
-            .also { logger.info("Forsøker å slette (soft) sak med id '$id'.") }
+            .also { loggInfo("Forsøker å slette (soft) sak med id '$id'.") }
             .execute(
                 toResult = SoftDeleteSak.Result::softDeleteSak,
                 toSuccess = { it as? SoftDeleteSakVellykket },
                 onError = { res, err -> Feil.softDeleteSak(id, res, err) },
             )
             .id
-            .also { logger.info("Slettet (soft) sak med id '$id'.") }
+            .also { loggInfo("Slettet (soft) sak med id '$id'.") }
 
     suspend fun softDeleteSakByGrupperingsid(grupperingsid: String, merkelapp: String) {
-        logger.info("Forsøker å slette sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
+        loggInfo("Forsøker å slette sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
 
         SoftDeleteSakByGrupperingsid(
             variables = SoftDeleteSakByGrupperingsid.Variables(
@@ -189,11 +191,11 @@ class ArbeidsgiverNotifikasjonKlient(
                 onError = { res, err -> Feil.softDeleteSakByGrupperingsid(grupperingsid, res, err) },
             )
 
-        logger.info("Slettet sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
+        loggInfo("Slettet sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
     }
 
     suspend fun hardDeleteSak(id: String) {
-        logger.info("Forsøker å slette (hard) sak med id '$id'.")
+        loggInfo("Forsøker å slette (hard) sak med id '$id'.")
 
         HardDeleteSak(
             variables = HardDeleteSak.Variables(id),
@@ -204,19 +206,19 @@ class ArbeidsgiverNotifikasjonKlient(
                 onError = { res, err -> Feil.hardDeleteSak(id, res, err) },
             )
 
-        logger.info("Slettet (hard) sak med id '$id'.")
+        loggInfo("Slettet (hard) sak med id '$id'.")
     }
 
     suspend fun whoami(): String? =
         Whoami()
-            .also { logger.info("Henter 'whoami' info fra arbeidsgiver-notifikasjon-api.") }
+            .also { loggInfo("Henter 'whoami' info fra arbeidsgiver-notifikasjon-api.") }
             .execute(
                 toResult = { this },
                 toSuccess = { it },
                 onError = { _, _ -> throw RuntimeException("Feil ved henting av 'whoami'") },
             )
             .whoami
-            .also { logger.info("Whoami: '$it'.") }
+            .also { loggInfo("Whoami: '$it'.") }
 
     private suspend fun <Data : Any, Result : Any, Success : Result> GraphQLClientRequest<Data>.execute(
         toResult: Data.() -> Result,
@@ -232,6 +234,11 @@ class ArbeidsgiverNotifikasjonKlient(
         return runCatching { toSuccess(result) }
             .getOrNull()
             ?: onError(result, response.errors)
+    }
+
+    private fun loggInfo(feilmelding: String) {
+        logger.info(feilmelding)
+        sikkerLogger.info(feilmelding)
     }
 }
 

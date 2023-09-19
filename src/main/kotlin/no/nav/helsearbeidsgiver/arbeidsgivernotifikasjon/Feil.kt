@@ -8,7 +8,8 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgav
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.NyOppgaveResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnysak.NySakResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.softdeletesak.SoftDeleteSakResultat
-import org.slf4j.LoggerFactory
+import no.nav.helsearbeidsgiver.utils.log.logger
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.SakFinnesIkke as FinnesIkkeHardDeleteSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.UgyldigMerkelapp as UgyldigMerkelappHardDeleteSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.UkjentProdusent as UkjentProdusentHardDeleteSak
@@ -44,7 +45,8 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.softde
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.softdeletesakbygrupperingsid.UkjentProdusent as UkjentProdusentSoftDeleteSakByGrupperingsid
 
 internal object Feil {
-    private val logger = LoggerFactory.getLogger(ArbeidsgiverNotifikasjonKlient::class.java)
+    private val logger = ArbeidsgiverNotifikasjonKlient::class.logger()
+    private val sikkerLogger = sikkerLogger()
 
     fun opprettNySak(resultat: NySakResultat?, feil: List<GraphQLClientError>?): Nothing {
         val feilmelding = when (resultat) {
@@ -57,10 +59,10 @@ internal object Feil {
         }
 
         if (feilmelding != null) {
-            feilmelding.loggFeil()
+            feilmelding.loggFeilmelding()
             throw OpprettNySakException(feilmelding)
         } else {
-            logger.error("Klarte ikke opprette ny sak: $feil")
+            loggError("Klarte ikke opprette ny sak: $feil")
             throw OpprettNySakException(feil.ukjentFeil())
         }
     }
@@ -80,10 +82,10 @@ internal object Feil {
         }
 
         if (feilmelding != null) {
-            feilmelding.loggFeil()
+            feilmelding.loggFeilmelding()
             throw NyStatusSakException(id, nyStatus, feilmelding)
         } else {
-            logger.error("Klarte ikke endre status på sak: $feil")
+            loggError("Klarte ikke endre status på sak: $feil")
             throw NyStatusSakException(id, nyStatus, feil.ukjentFeil())
         }
     }
@@ -103,10 +105,10 @@ internal object Feil {
         }
 
         if (feilmelding != null) {
-            feilmelding.loggFeil()
+            feilmelding.loggFeilmelding()
             throw NyStatusSakByGrupperingsidException(grupperingsid, nyStatus, feilmelding)
         } else {
-            logger.error("Klarte ikke endre status på sak (fra grupperingsid): $feil")
+            loggError("Klarte ikke endre status på sak (fra grupperingsid): $feil")
             throw NyStatusSakByGrupperingsidException(grupperingsid, nyStatus, feil.ukjentFeil())
         }
     }
@@ -123,10 +125,10 @@ internal object Feil {
         }
 
         if (feilmelding != null) {
-            feilmelding.loggFeil()
+            feilmelding.loggFeilmelding()
             throw OpprettNyOppgaveException(feilmelding)
         } else {
-            logger.error("Klarte ikke opprette ny oppgave: $feil")
+            loggError("Klarte ikke opprette ny oppgave: $feil")
             throw OpprettNyOppgaveException(feil.ukjentFeil())
         }
     }
@@ -140,10 +142,10 @@ internal object Feil {
         }
 
         if (feilmelding != null) {
-            feilmelding.loggFeil()
+            feilmelding.loggFeilmelding()
             throw OppgaveUtfoertException(id, feilmelding)
         } else {
-            logger.error("Klarte ikke sette oppgave som utført: $feil")
+            loggError("Klarte ikke sette oppgave som utført: $feil")
             throw OppgaveUtfoertException(id, feil.ukjentFeil())
         }
     }
@@ -157,10 +159,10 @@ internal object Feil {
         }
 
         if (feilmelding != null) {
-            feilmelding.loggFeil()
+            feilmelding.loggFeilmelding()
             throw SoftDeleteSakException(id, feilmelding)
         } else {
-            logger.error("Klarte ikke softdelete sak: $feil")
+            loggError("Klarte ikke softdelete sak: $feil")
             throw SoftDeleteSakException(id, feil.ukjentFeil())
         }
     }
@@ -178,10 +180,10 @@ internal object Feil {
         }
 
         if (feilmelding != null) {
-            feilmelding.loggFeil()
+            feilmelding.loggFeilmelding()
             throw SoftDeleteSakByGrupperingsidException(grupperingsid, feilmelding)
         } else {
-            logger.error("Klarte ikke softdelete sak (fra grupperingsid): $feil")
+            loggError("Klarte ikke softdelete sak (fra grupperingsid): $feil")
             throw SoftDeleteSakByGrupperingsidException(grupperingsid, feil.ukjentFeil())
         }
     }
@@ -195,16 +197,24 @@ internal object Feil {
         }
 
         if (feilmelding != null) {
-            feilmelding.loggFeil()
+            feilmelding.loggFeilmelding()
             throw HardDeleteSakException(id, feilmelding)
         } else {
-            logger.error("Klarte ikke harddelete sak $resultat: med feil $feil")
+            loggError("Klarte ikke harddelete sak $resultat: med feil $feil")
             throw HardDeleteSakException(id, feil.ukjentFeil())
         }
     }
 
-    private fun String.loggFeil() {
-        logger.error("Feilmelding $this")
+    private fun String.loggFeilmelding() {
+        "Feilmelding: $this".also {
+            logger.error(it)
+            sikkerLogger.error(it)
+        }
+    }
+
+    private fun loggError(feilmelding: String) {
+        logger.error(feilmelding)
+        sikkerLogger.error(feilmelding)
     }
 
     private fun List<GraphQLClientError>?.ukjentFeil(): String =

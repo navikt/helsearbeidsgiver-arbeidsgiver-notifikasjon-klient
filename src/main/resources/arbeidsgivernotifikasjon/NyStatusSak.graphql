@@ -1,20 +1,29 @@
-mutation NyStatusSak($nyStatusSakId: ID!, $nyLenkeTilSak: String, $status: SaksStatus!, $statusTekst: String) {
-  nyStatusSak(id: $nyStatusSakId, nyStatus: $status, nyLenkeTilSak: $nyLenkeTilSak, overstyrStatustekstMed: $statusTekst) {
-    __typename
-    ... on NyStatusSakVellykket {
-      id
+mutation NyStatusSak(
+    $nyStatusSakId: ID!,
+    $nyLenkeTilSak: String,
+    $status: SaksStatus!,
+    $statusTekst: String,
+    $tidspunkt: ISO8601DateTime) {
+        nyStatusSak(id: $nyStatusSakId,
+        nyStatus: $status,
+        nyLenkeTilSak: $nyLenkeTilSak,
+        overstyrStatustekstMed: $statusTekst,
+        tidspunkt: $tidspunkt) {
+            __typename
+            ... on NyStatusSakVellykket {
+              id
+            }
+            ... on SakFinnesIkke {
+              feilmelding
+            }
+            ... on Konflikt {
+              feilmelding
+            }
+            ... on UgyldigMerkelapp {
+              feilmelding
+            }
+            ... on UkjentProdusent {
+              feilmelding
+            }
+        }
     }
-    ... on SakFinnesIkke {
-      feilmelding
-    }
-    ... on Konflikt {
-      feilmelding
-    }
-    ... on UgyldigMerkelapp {
-      feilmelding
-    }
-    ... on UkjentProdusent {
-      feilmelding
-    }
-  }
-}

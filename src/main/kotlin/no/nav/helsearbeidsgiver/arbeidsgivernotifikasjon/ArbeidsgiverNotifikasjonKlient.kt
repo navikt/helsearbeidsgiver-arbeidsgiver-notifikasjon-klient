@@ -76,6 +76,7 @@ class ArbeidsgiverNotifikasjonKlient(
         status: SaksStatus,
         statusTekst: String? = null,
         nyLenkeTilSak: String? = null,
+        tidspunkt: ISO8601DateTime? = null,
     ) {
         loggInfo("Forsøker å sette ny status '$status' på sak med id '$id'.")
 
@@ -85,6 +86,7 @@ class ArbeidsgiverNotifikasjonKlient(
                 status = status,
                 statusTekst = statusTekst,
                 nyLenkeTilSak = nyLenkeTilSak,
+                tidspunkt = tidspunkt,
             ),
         )
             .execute(
@@ -96,7 +98,12 @@ class ArbeidsgiverNotifikasjonKlient(
         loggInfo("Satt ny status '$status' på sak for id '$id'.")
     }
 
-    suspend fun nyStatusSakByGrupperingsid(grupperingsid: String, merkelapp: String, nyStatus: SaksStatus) {
+    suspend fun nyStatusSakByGrupperingsid(
+        grupperingsid: String,
+        merkelapp: String,
+        nyStatus: SaksStatus,
+        tidspunkt: ISO8601DateTime?,
+    ) {
         loggInfo("Forsøker å sette ny status '$nyStatus' på sak med grupperingsid '$grupperingsid'.")
 
         NyStatusSakByGrupperingsid(
@@ -104,6 +111,7 @@ class ArbeidsgiverNotifikasjonKlient(
                 grupperingsid = grupperingsid,
                 merkelapp = merkelapp,
                 nyStatus = nyStatus,
+                tidspunkt = tidspunkt,
             ),
         )
             .execute(

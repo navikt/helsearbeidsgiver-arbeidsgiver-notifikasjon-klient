@@ -1,12 +1,14 @@
 mutation NyStatusSakByGrupperingsid(
     $grupperingsid: String!
     $merkelapp: String!
-    $nyStatus: SaksStatus!
+    $nyStatus: SaksStatus!,
+    $tidspunkt: ISO8601DateTime
 ) {
     nyStatusSakByGrupperingsid(
         grupperingsid: $grupperingsid
         merkelapp: $merkelapp
         nyStatus: $nyStatus
+        tidspunkt: $tidspunkt
     ) {
         __typename
         ... on NyStatusSakVellykket {

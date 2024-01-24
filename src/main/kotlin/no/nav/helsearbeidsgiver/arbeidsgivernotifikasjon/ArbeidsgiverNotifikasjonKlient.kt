@@ -37,10 +37,11 @@ class ArbeidsgiverNotifikasjonKlient(
     private val logger = logger()
     private val sikkerLogger = sikkerLogger()
 
-    private val graphQLClient = GraphQLKtorClient(
-        url = URL(url),
-        httpClient = createHttpClient(),
-    )
+    private val graphQLClient =
+        GraphQLKtorClient(
+            url = URL(url),
+            httpClient = createHttpClient(),
+        )
 
     suspend fun opprettNySak(
         grupperingsid: String,
@@ -52,15 +53,16 @@ class ArbeidsgiverNotifikasjonKlient(
         harddeleteOm: String,
     ): ID =
         OpprettNySak(
-            variables = OpprettNySak.Variables(
-                grupperingsid = grupperingsid,
-                merkelapp = merkelapp,
-                virksomhetsnummer = virksomhetsnummer,
-                tittel = tittel,
-                lenke = lenke,
-                statusTekst = statusTekst,
-                harddeleteOm = harddeleteOm,
-            ),
+            variables =
+                OpprettNySak.Variables(
+                    grupperingsid = grupperingsid,
+                    merkelapp = merkelapp,
+                    virksomhetsnummer = virksomhetsnummer,
+                    tittel = tittel,
+                    lenke = lenke,
+                    statusTekst = statusTekst,
+                    harddeleteOm = harddeleteOm,
+                ),
         )
             .also { loggInfo("Forsøker å opprette ny sak mot arbeidsgiver-notifikasjoner.") }
             .execute(
@@ -81,13 +83,14 @@ class ArbeidsgiverNotifikasjonKlient(
         loggInfo("Forsøker å sette ny status '$status' på sak med id '$id'.")
 
         NyStatusSak(
-            variables = NyStatusSak.Variables(
-                nyStatusSakId = id,
-                status = status,
-                statusTekst = statusTekst,
-                nyLenkeTilSak = nyLenkeTilSak,
-                tidspunkt = tidspunkt,
-            ),
+            variables =
+                NyStatusSak.Variables(
+                    nyStatusSakId = id,
+                    status = status,
+                    statusTekst = statusTekst,
+                    nyLenkeTilSak = nyLenkeTilSak,
+                    tidspunkt = tidspunkt,
+                ),
         )
             .execute(
                 toResult = NyStatusSak.Result::nyStatusSak,
@@ -107,12 +110,13 @@ class ArbeidsgiverNotifikasjonKlient(
         loggInfo("Forsøker å sette ny status '$nyStatus' på sak med grupperingsid '$grupperingsid'.")
 
         NyStatusSakByGrupperingsid(
-            variables = NyStatusSakByGrupperingsid.Variables(
-                grupperingsid = grupperingsid,
-                merkelapp = merkelapp,
-                nyStatus = nyStatus,
-                tidspunkt = tidspunkt,
-            ),
+            variables =
+                NyStatusSakByGrupperingsid.Variables(
+                    grupperingsid = grupperingsid,
+                    merkelapp = merkelapp,
+                    nyStatus = nyStatus,
+                    tidspunkt = tidspunkt,
+                ),
         )
             .execute(
                 toResult = NyStatusSakByGrupperingsid.Result::nyStatusSakByGrupperingsid,
@@ -135,17 +139,18 @@ class ArbeidsgiverNotifikasjonKlient(
         varslingInnhold: String,
     ): ID =
         OpprettNyOppgave(
-            variables = OpprettNyOppgave.Variables(
-                eksternId = eksternId,
-                lenke = lenke,
-                tekst = tekst,
-                virksomhetsnummer = virksomhetsnummer,
-                merkelapp = merkelapp,
-                tidspunkt = tidspunkt,
-                grupperingsid = grupperingsid,
-                varslingTittel = varslingTittel,
-                varslingInnhold = varslingInnhold,
-            ),
+            variables =
+                OpprettNyOppgave.Variables(
+                    eksternId = eksternId,
+                    lenke = lenke,
+                    tekst = tekst,
+                    virksomhetsnummer = virksomhetsnummer,
+                    merkelapp = merkelapp,
+                    tidspunkt = tidspunkt,
+                    grupperingsid = grupperingsid,
+                    varslingTittel = varslingTittel,
+                    varslingInnhold = varslingInnhold,
+                ),
         )
             .also { loggInfo("Forsøker å opprette ny oppgave mot arbeidsgiver-notifikasjoner.") }
             .execute(
@@ -184,14 +189,18 @@ class ArbeidsgiverNotifikasjonKlient(
             .id
             .also { loggInfo("Slettet (soft) sak med id '$id'.") }
 
-    suspend fun softDeleteSakByGrupperingsid(grupperingsid: String, merkelapp: String) {
+    suspend fun softDeleteSakByGrupperingsid(
+        grupperingsid: String,
+        merkelapp: String,
+    ) {
         loggInfo("Forsøker å slette sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
 
         SoftDeleteSakByGrupperingsid(
-            variables = SoftDeleteSakByGrupperingsid.Variables(
-                grupperingsid = grupperingsid,
-                merkelapp = merkelapp,
-            ),
+            variables =
+                SoftDeleteSakByGrupperingsid.Variables(
+                    grupperingsid = grupperingsid,
+                    merkelapp = merkelapp,
+                ),
         )
             .execute(
                 toResult = SoftDeleteSakByGrupperingsid.Result::softDeleteSakByGrupperingsid,
@@ -233,9 +242,10 @@ class ArbeidsgiverNotifikasjonKlient(
         toSuccess: (Result?) -> Success?,
         onError: (Result?, List<GraphQLClientError>?) -> Nothing,
     ): Success {
-        val response = graphQLClient.execute(this) {
-            bearerAuth(getAccessToken())
-        }
+        val response =
+            graphQLClient.execute(this) {
+                bearerAuth(getAccessToken())
+            }
 
         val result = response.data?.toResult()
 
@@ -250,5 +260,4 @@ class ArbeidsgiverNotifikasjonKlient(
     }
 }
 
-internal fun createHttpClient(): HttpClient =
-    HttpClient(Apache5)
+internal fun createHttpClient(): HttpClient = HttpClient(Apache5)

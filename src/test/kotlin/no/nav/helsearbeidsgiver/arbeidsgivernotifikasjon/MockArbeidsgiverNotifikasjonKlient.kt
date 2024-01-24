@@ -11,13 +11,14 @@ import io.mockk.every
 import no.nav.helsearbeidsgiver.utils.test.mock.mockStatic
 
 fun mockArbeidsgiverNotifikasjonKlient(content: String): ArbeidsgiverNotifikasjonKlient {
-    val mockEngine = MockEngine {
-        respond(
-            content = content,
-            status = HttpStatusCode.OK,
-            headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
-        )
-    }
+    val mockEngine =
+        MockEngine {
+            respond(
+                content = content,
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+            )
+        }
 
     return mockStatic(::createHttpClient) {
         every { createHttpClient() } returns HttpClient(mockEngine)

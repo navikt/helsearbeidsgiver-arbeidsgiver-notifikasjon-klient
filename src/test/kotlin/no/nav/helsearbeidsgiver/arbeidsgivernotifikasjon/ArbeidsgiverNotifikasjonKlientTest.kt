@@ -10,23 +10,23 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class ArbeidsgiverNotifikasjonKlientTest {
-
     @Test
     fun `Forventer gyldig respons fra opprettNySak`() {
         val response = "responses/opprettNySak/gyldig.json".readResource()
         val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
-        val resultat = runBlocking {
-            arbeidsgiverNotifikasjonKlient.opprettNySak(
-                grupperingsid = "id",
-                lenke = "https://lenke.no",
-                tittel = "test",
-                virksomhetsnummer = "874568112",
-                merkelapp = "Refusjon",
-                harddeleteOm = "P1Y",
-                statusTekst = "Ny status",
-            )
-        }
+        val resultat =
+            runBlocking {
+                arbeidsgiverNotifikasjonKlient.opprettNySak(
+                    grupperingsid = "id",
+                    lenke = "https://lenke.no",
+                    tittel = "test",
+                    virksomhetsnummer = "874568112",
+                    merkelapp = "Refusjon",
+                    harddeleteOm = "P1Y",
+                    statusTekst = "Ny status",
+                )
+            }
         val expected = "1"
         assertEquals(expected, resultat)
     }
@@ -53,19 +53,20 @@ class ArbeidsgiverNotifikasjonKlientTest {
         val response = "responses/nyOppgave/gyldig.json".readResource()
         val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
-        val resultat = runBlocking {
-            arbeidsgiverNotifikasjonKlient.opprettNyOppgave(
-                eksternId = "id",
-                lenke = "https://lenke.no",
-                tekst = "test",
-                virksomhetsnummer = "874568112",
-                merkelapp = "Refusjon",
-                tidspunkt = LocalDateTime.now().toString(),
-                grupperingsid = null,
-                varslingTittel = "Du har fått oppgave",
-                varslingInnhold = "Logg på nav.no",
-            )
-        }
+        val resultat =
+            runBlocking {
+                arbeidsgiverNotifikasjonKlient.opprettNyOppgave(
+                    eksternId = "id",
+                    lenke = "https://lenke.no",
+                    tekst = "test",
+                    virksomhetsnummer = "874568112",
+                    merkelapp = "Refusjon",
+                    tidspunkt = LocalDateTime.now().toString(),
+                    grupperingsid = null,
+                    varslingTittel = "Du har fått oppgave",
+                    varslingInnhold = "Logg på nav.no",
+                )
+            }
 
         val expected = "1"
         assertEquals(expected, resultat)

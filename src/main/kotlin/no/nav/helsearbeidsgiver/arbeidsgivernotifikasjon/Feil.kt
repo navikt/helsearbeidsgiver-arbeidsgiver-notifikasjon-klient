@@ -48,15 +48,19 @@ internal object Feil {
     private val logger = ArbeidsgiverNotifikasjonKlient::class.logger()
     private val sikkerLogger = sikkerLogger()
 
-    fun opprettNySak(resultat: NySakResultat?, feil: List<GraphQLClientError>?): Nothing {
-        val feilmelding = when (resultat) {
-            is DuplikatGrupperingsidNySak -> resultat.feilmelding
-            is UgyldigMerkelappNySak -> resultat.feilmelding
-            is UgyldigMottakerNySak -> resultat.feilmelding
-            is UkjentProdusentNySak -> resultat.feilmelding
-            is UkjentRolleNySak -> resultat.feilmelding
-            else -> null
-        }
+    fun opprettNySak(
+        resultat: NySakResultat?,
+        feil: List<GraphQLClientError>?,
+    ): Nothing {
+        val feilmelding =
+            when (resultat) {
+                is DuplikatGrupperingsidNySak -> resultat.feilmelding
+                is UgyldigMerkelappNySak -> resultat.feilmelding
+                is UgyldigMottakerNySak -> resultat.feilmelding
+                is UkjentProdusentNySak -> resultat.feilmelding
+                is UkjentRolleNySak -> resultat.feilmelding
+                else -> null
+            }
 
         if (feilmelding != null) {
             feilmelding.loggFeilmelding()
@@ -73,13 +77,14 @@ internal object Feil {
         resultat: NyStatusSakResultat?,
         feil: List<GraphQLClientError>?,
     ): Nothing {
-        val feilmelding = when (resultat) {
-            is FinnesIkkeNyStatusSak -> resultat.feilmelding
-            is KonfliktNyStatusSak -> resultat.feilmelding
-            is UgyldigMerkelappNyStatusSak -> resultat.feilmelding
-            is UkjentProdusentNyStatusSak -> resultat.feilmelding
-            else -> null
-        }
+        val feilmelding =
+            when (resultat) {
+                is FinnesIkkeNyStatusSak -> resultat.feilmelding
+                is KonfliktNyStatusSak -> resultat.feilmelding
+                is UgyldigMerkelappNyStatusSak -> resultat.feilmelding
+                is UkjentProdusentNyStatusSak -> resultat.feilmelding
+                else -> null
+            }
 
         if (feilmelding != null) {
             feilmelding.loggFeilmelding()
@@ -96,13 +101,14 @@ internal object Feil {
         resultat: NyStatusSakByGrupperingsidResultat?,
         feil: List<GraphQLClientError>?,
     ): Nothing {
-        val feilmelding = when (resultat) {
-            is KonfliktNyStatusSakByGrupperingsid -> resultat.feilmelding
-            is SakFinnesIkkeNyStatusSakByGrupperingsid -> resultat.feilmelding
-            is UgyldigMerkelappByGrupperingsid -> resultat.feilmelding
-            is UkjentProdusentByGrupperingsid -> resultat.feilmelding
-            else -> null
-        }
+        val feilmelding =
+            when (resultat) {
+                is KonfliktNyStatusSakByGrupperingsid -> resultat.feilmelding
+                is SakFinnesIkkeNyStatusSakByGrupperingsid -> resultat.feilmelding
+                is UgyldigMerkelappByGrupperingsid -> resultat.feilmelding
+                is UkjentProdusentByGrupperingsid -> resultat.feilmelding
+                else -> null
+            }
 
         if (feilmelding != null) {
             feilmelding.loggFeilmelding()
@@ -113,16 +119,20 @@ internal object Feil {
         }
     }
 
-    fun nyOppgave(resultat: NyOppgaveResultat?, feil: List<GraphQLClientError>?): Nothing {
-        val feilmelding = when (resultat) {
-            is DuplikatEksternIdOgMerkelappNyOppgave -> resultat.feilmelding
-            is UgyldigMerkelappNyOppgave -> resultat.feilmelding
-            is UgyldigMottakerNyOppgave -> resultat.feilmelding
-            is UgyldigPaaminnelseTidspunktNyOppgave -> resultat.feilmelding
-            is UkjentProdusentNyOppgave -> resultat.feilmelding
-            is UkjentRolleNyOppgave -> resultat.feilmelding
-            else -> null
-        }
+    fun nyOppgave(
+        resultat: NyOppgaveResultat?,
+        feil: List<GraphQLClientError>?,
+    ): Nothing {
+        val feilmelding =
+            when (resultat) {
+                is DuplikatEksternIdOgMerkelappNyOppgave -> resultat.feilmelding
+                is UgyldigMerkelappNyOppgave -> resultat.feilmelding
+                is UgyldigMottakerNyOppgave -> resultat.feilmelding
+                is UgyldigPaaminnelseTidspunktNyOppgave -> resultat.feilmelding
+                is UkjentProdusentNyOppgave -> resultat.feilmelding
+                is UkjentRolleNyOppgave -> resultat.feilmelding
+                else -> null
+            }
 
         if (feilmelding != null) {
             feilmelding.loggFeilmelding()
@@ -133,13 +143,18 @@ internal object Feil {
         }
     }
 
-    fun oppgaveUtfoert(id: String, resultat: OppgaveUtfoertResultat?, feil: List<GraphQLClientError>?): Nothing {
-        val feilmelding = when (resultat) {
-            is NotifikasjonFinnesIkkeOppgaveUtfoert -> resultat.feilmelding
-            is UgyldigMerkelappOppgaveUtfoert -> resultat.feilmelding
-            is UkjentProdusentOppgaveUtfoert -> resultat.feilmelding
-            else -> null
-        }
+    fun oppgaveUtfoert(
+        id: String,
+        resultat: OppgaveUtfoertResultat?,
+        feil: List<GraphQLClientError>?,
+    ): Nothing {
+        val feilmelding =
+            when (resultat) {
+                is NotifikasjonFinnesIkkeOppgaveUtfoert -> resultat.feilmelding
+                is UgyldigMerkelappOppgaveUtfoert -> resultat.feilmelding
+                is UkjentProdusentOppgaveUtfoert -> resultat.feilmelding
+                else -> null
+            }
 
         if (feilmelding != null) {
             feilmelding.loggFeilmelding()
@@ -150,13 +165,18 @@ internal object Feil {
         }
     }
 
-    fun softDeleteSak(id: String, resultat: SoftDeleteSakResultat?, feil: List<GraphQLClientError>?): Nothing {
-        val feilmelding = when (resultat) {
-            is SakFinnesIkkeSoftDeleteSak -> resultat.feilmelding
-            is UgyldigMerkelappSoftDeleteSak -> resultat.feilmelding
-            is UkjentProdusentSoftDeleteSak -> resultat.feilmelding
-            else -> null
-        }
+    fun softDeleteSak(
+        id: String,
+        resultat: SoftDeleteSakResultat?,
+        feil: List<GraphQLClientError>?,
+    ): Nothing {
+        val feilmelding =
+            when (resultat) {
+                is SakFinnesIkkeSoftDeleteSak -> resultat.feilmelding
+                is UgyldigMerkelappSoftDeleteSak -> resultat.feilmelding
+                is UkjentProdusentSoftDeleteSak -> resultat.feilmelding
+                else -> null
+            }
 
         if (feilmelding != null) {
             feilmelding.loggFeilmelding()
@@ -172,12 +192,13 @@ internal object Feil {
         resultat: SoftDeleteSakByGrupperingsidResultat?,
         feil: List<GraphQLClientError>?,
     ): Nothing {
-        val feilmelding = when (resultat) {
-            is SakFinnesIkkeSoftDeleteSakByGrupperingsid -> resultat.feilmelding
-            is UgyldigMerkelappSoftDeleteSakByGrupperingsid -> resultat.feilmelding
-            is UkjentProdusentSoftDeleteSakByGrupperingsid -> resultat.feilmelding
-            else -> null
-        }
+        val feilmelding =
+            when (resultat) {
+                is SakFinnesIkkeSoftDeleteSakByGrupperingsid -> resultat.feilmelding
+                is UgyldigMerkelappSoftDeleteSakByGrupperingsid -> resultat.feilmelding
+                is UkjentProdusentSoftDeleteSakByGrupperingsid -> resultat.feilmelding
+                else -> null
+            }
 
         if (feilmelding != null) {
             feilmelding.loggFeilmelding()
@@ -188,13 +209,18 @@ internal object Feil {
         }
     }
 
-    fun hardDeleteSak(id: String, resultat: HardDeleteSakResultat?, feil: List<GraphQLClientError>?): Nothing {
-        val feilmelding = when (resultat) {
-            is FinnesIkkeHardDeleteSak -> resultat.feilmelding
-            is UgyldigMerkelappHardDeleteSak -> resultat.feilmelding
-            is UkjentProdusentHardDeleteSak -> resultat.feilmelding
-            else -> null
-        }
+    fun hardDeleteSak(
+        id: String,
+        resultat: HardDeleteSakResultat?,
+        feil: List<GraphQLClientError>?,
+    ): Nothing {
+        val feilmelding =
+            when (resultat) {
+                is FinnesIkkeHardDeleteSak -> resultat.feilmelding
+                is UgyldigMerkelappHardDeleteSak -> resultat.feilmelding
+                is UkjentProdusentHardDeleteSak -> resultat.feilmelding
+                else -> null
+            }
 
         if (feilmelding != null) {
             feilmelding.loggFeilmelding()
@@ -217,8 +243,7 @@ internal object Feil {
         sikkerLogger.error(feilmelding)
     }
 
-    private fun List<GraphQLClientError>?.ukjentFeil(): String =
-        "ukjent feil: $this"
+    private fun List<GraphQLClientError>?.ukjentFeil(): String = "ukjent feil: $this"
 }
 
 class OpprettNySakException(feilmelding: String?) :

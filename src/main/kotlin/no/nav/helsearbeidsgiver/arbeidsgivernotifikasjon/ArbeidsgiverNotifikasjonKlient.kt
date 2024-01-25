@@ -27,6 +27,7 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.softde
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.net.URL
+import kotlin.time.Duration
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakVellykket as NyStatusSakByGrupperingsidVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.softdeletesakbygrupperingsid.SoftDeleteSakVellykket as SoftDeleteSakByGrupperingsidVellykket
 
@@ -44,13 +45,14 @@ class ArbeidsgiverNotifikasjonKlient(
         )
 
     suspend fun opprettNySak(
-        grupperingsid: String,
-        merkelapp: String,
         virksomhetsnummer: String,
-        tittel: String,
+        merkelapp: String,
+        grupperingsid: String,
         lenke: String,
+        tittel: String,
         statusTekst: String?,
-        harddeleteOm: String,
+        initiellStatus: SaksStatus,
+        harddeleteOm: Duration,
     ): ID =
         OpprettNySak(
             variables =
@@ -60,8 +62,10 @@ class ArbeidsgiverNotifikasjonKlient(
                     virksomhetsnummer = virksomhetsnummer,
                     tittel = tittel,
                     lenke = lenke,
+                    initiellStatus = initiellStatus,
                     statusTekst = statusTekst,
-                    harddeleteOm = harddeleteOm,
+                    // https://en.wikipedia.org/wiki/ISO_8601#Durations
+                    harddeleteOm = "P${harddeleteOm.inWholeDays}D",
                 ),
         )
             .also { loggInfo("Forsøker å opprette ny sak mot arbeidsgiver-notifikasjoner.") }

@@ -243,7 +243,7 @@ internal object Feil {
         sikkerLogger.error(feilmelding)
     }
 
-    private fun List<GraphQLClientError>?.ukjentFeil(): String = "ukjent feil: $this"
+    private fun List<GraphQLClientError>?.ukjentFeil(): String = "Ukjent feil: $this"
 }
 
 class OpprettNySakException(feilmelding: String?) :

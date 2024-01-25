@@ -8,6 +8,7 @@ import java.time.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.days
 
 class ArbeidsgiverNotifikasjonKlientTest {
     @Test
@@ -18,13 +19,14 @@ class ArbeidsgiverNotifikasjonKlientTest {
         val resultat =
             runBlocking {
                 arbeidsgiverNotifikasjonKlient.opprettNySak(
+                    virksomhetsnummer = "874568112",
+                    merkelapp = "Refusjon",
                     grupperingsid = "id",
                     lenke = "https://lenke.no",
                     tittel = "test",
-                    virksomhetsnummer = "874568112",
-                    merkelapp = "Refusjon",
-                    harddeleteOm = "P1Y",
                     statusTekst = "Ny status",
+                    initiellStatus = SaksStatus.UNDER_BEHANDLING,
+                    harddeleteOm = 180.days,
                 )
             }
         val expected = "1"

@@ -4,6 +4,7 @@ mutation OpprettNySak(
     $virksomhetsnummer: String!
     $tittel: String!
     $lenke: String!
+    $initiellStatus: SaksStatus!
     $statusTekst: String
     $harddeleteOm: ISO8601Duration
 ) {
@@ -21,7 +22,7 @@ mutation OpprettNySak(
         ]
         tittel: $tittel
         lenke: $lenke
-        initiellStatus: UNDER_BEHANDLING
+        initiellStatus: $initiellStatus
         overstyrStatustekstMed: $statusTekst
         hardDelete: {
             om: $harddeleteOm

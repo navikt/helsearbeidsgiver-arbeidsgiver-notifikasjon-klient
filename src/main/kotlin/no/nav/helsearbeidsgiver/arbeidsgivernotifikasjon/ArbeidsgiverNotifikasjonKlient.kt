@@ -69,7 +69,7 @@ class ArbeidsgiverNotifikasjonKlient(
                 ),
         )
             .also { loggInfo("Forsøker å opprette ny sak mot arbeidsgiver-notifikasjoner.") }
-            .execute(
+            .executeOrThrow(
                 toResult = OpprettNySak.Result::nySak,
                 toSuccess = { it as? NySakVellykket },
                 onError = Feil::opprettNySak,
@@ -122,7 +122,7 @@ class ArbeidsgiverNotifikasjonKlient(
                     tidspunkt = tidspunkt,
                 ),
         )
-            .execute(
+            .executeOrThrow(
                 toResult = NyStatusSakByGrupperingsid.Result::nyStatusSakByGrupperingsid,
                 toSuccess = { it as? NyStatusSakByGrupperingsidVellykket },
                 onError = { res, err -> Feil.nyStatusSakByGrupperingsid(grupperingsid, nyStatus, res, err) },
@@ -157,7 +157,7 @@ class ArbeidsgiverNotifikasjonKlient(
                 ),
         )
             .also { loggInfo("Forsøker å opprette ny oppgave mot arbeidsgiver-notifikasjoner.") }
-            .execute(
+            .executeOrThrow(
                 toResult = OpprettNyOppgave.Result::nyOppgave,
                 toSuccess = { it as? NyOppgaveVellykket },
                 onError = Feil::nyOppgave,
@@ -185,7 +185,7 @@ class ArbeidsgiverNotifikasjonKlient(
             variables = SoftDeleteSak.Variables(id),
         )
             .also { loggInfo("Forsøker å slette (soft) sak med id '$id'.") }
-            .execute(
+            .executeOrThrow(
                 toResult = SoftDeleteSak.Result::softDeleteSak,
                 toSuccess = { it as? SoftDeleteSakVellykket },
                 onError = { res, err -> Feil.softDeleteSak(id, res, err) },
@@ -206,7 +206,7 @@ class ArbeidsgiverNotifikasjonKlient(
                     merkelapp = merkelapp,
                 ),
         )
-            .execute(
+            .executeOrThrow(
                 toResult = SoftDeleteSakByGrupperingsid.Result::softDeleteSakByGrupperingsid,
                 toSuccess = { it as? SoftDeleteSakByGrupperingsidVellykket },
                 onError = { res, err -> Feil.softDeleteSakByGrupperingsid(grupperingsid, res, err) },
@@ -221,7 +221,7 @@ class ArbeidsgiverNotifikasjonKlient(
         HardDeleteSak(
             variables = HardDeleteSak.Variables(id),
         )
-            .execute(
+            .executeOrThrow(
                 toResult = HardDeleteSak.Result::hardDeleteSak,
                 toSuccess = { it as? HardDeleteSakVellykket },
                 onError = { res, err -> Feil.hardDeleteSak(id, res, err) },
@@ -233,7 +233,7 @@ class ArbeidsgiverNotifikasjonKlient(
     suspend fun whoami(): String? =
         Whoami()
             .also { loggInfo("Henter 'whoami' info fra arbeidsgiver-notifikasjon-api.") }
-            .execute(
+            .executeOrThrow(
                 toResult = { this },
                 toSuccess = { it },
                 onError = { _, _ -> throw RuntimeException("Feil ved henting av 'whoami'") },
@@ -244,8 +244,30 @@ class ArbeidsgiverNotifikasjonKlient(
     private suspend fun <Data : Any, Result : Any, Success : Result> GraphQLClientRequest<Data>.execute(
         toResult: Data.() -> Result,
         toSuccess: (Result?) -> Success?,
+        onError: (Result?, List<GraphQLClientError>?) -> Unit,
+    ) {
+        val (success, handleError) = executeOrError(toResult, toSuccess, onError)
+
+        if (success == null) {
+            handleError()
+        }
+    }
+
+    private suspend fun <Data : Any, Result : Any, Success : Result> GraphQLClientRequest<Data>.executeOrThrow(
+        toResult: Data.() -> Result,
+        toSuccess: (Result?) -> Success?,
         onError: (Result?, List<GraphQLClientError>?) -> Nothing,
     ): Success {
+        val (success, handleError) = executeOrError(toResult, toSuccess, onError)
+
+        return success ?: handleError()
+    }
+
+    private suspend fun <Data : Any, Result : Any, Success : Result, Error : Unit> GraphQLClientRequest<Data>.executeOrError(
+        toResult: Data.() -> Result,
+        toSuccess: (Result?) -> Success?,
+        onError: (Result?, List<GraphQLClientError>?) -> Error,
+    ): Pair<Success?, () -> Error> {
         val response =
             graphQLClient.execute(this) {
                 bearerAuth(getAccessToken())
@@ -253,9 +275,10 @@ class ArbeidsgiverNotifikasjonKlient(
 
         val result = response.data?.toResult()
 
-        return runCatching { toSuccess(result) }
-            .getOrNull()
-            ?: onError(result, response.errors)
+        return Pair(
+            first = runCatching { toSuccess(result) }.getOrNull(),
+            second = { onError(result, response.errors) },
+        )
     }
 
     private fun loggInfo(feilmelding: String) {

@@ -12,7 +12,7 @@ jobs:
       - name: "Install ktlint"
         uses: nbadal/action-ktlint-setup@v1
         with:
-          ktlint_version: '1.1.1'
+          ktlint_version: '1.2.1'
 
       - run: ktlint
         shell: bash

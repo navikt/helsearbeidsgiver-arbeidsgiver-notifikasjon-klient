@@ -76,22 +76,25 @@ internal object Feil {
         nyStatus: SaksStatus,
         resultat: NyStatusSakResultat?,
         feil: List<GraphQLClientError>?,
-    ): Nothing {
-        val feilmelding =
-            when (resultat) {
-                is FinnesIkkeNyStatusSak -> resultat.feilmelding
-                is KonfliktNyStatusSak -> resultat.feilmelding
-                is UgyldigMerkelappNyStatusSak -> resultat.feilmelding
-                is UkjentProdusentNyStatusSak -> resultat.feilmelding
-                else -> null
-            }
-
-        if (feilmelding != null) {
-            feilmelding.loggFeilmelding()
-            throw NyStatusSakException(id, nyStatus, feilmelding)
+    ) {
+        if (resultat is FinnesIkkeNyStatusSak) {
+            loggWarning("Sak finnes ikke. Trolig slettet pga. levetid. Feilmelding: '${resultat.feilmelding}'.")
         } else {
-            loggError("Klarte ikke endre status på sak: $feil")
-            throw NyStatusSakException(id, nyStatus, feil.ukjentFeil())
+            val feilmelding =
+                when (resultat) {
+                    is KonfliktNyStatusSak -> resultat.feilmelding
+                    is UgyldigMerkelappNyStatusSak -> resultat.feilmelding
+                    is UkjentProdusentNyStatusSak -> resultat.feilmelding
+                    else -> null
+                }
+
+            if (feilmelding != null) {
+                feilmelding.loggFeilmelding()
+                throw NyStatusSakException(id, nyStatus, feilmelding)
+            } else {
+                loggError("Klarte ikke endre status på sak: $feil")
+                throw NyStatusSakException(id, nyStatus, feil.ukjentFeil())
+            }
         }
     }
 
@@ -147,21 +150,24 @@ internal object Feil {
         id: String,
         resultat: OppgaveUtfoertResultat?,
         feil: List<GraphQLClientError>?,
-    ): Nothing {
-        val feilmelding =
-            when (resultat) {
-                is NotifikasjonFinnesIkkeOppgaveUtfoert -> resultat.feilmelding
-                is UgyldigMerkelappOppgaveUtfoert -> resultat.feilmelding
-                is UkjentProdusentOppgaveUtfoert -> resultat.feilmelding
-                else -> null
-            }
-
-        if (feilmelding != null) {
-            feilmelding.loggFeilmelding()
-            throw OppgaveUtfoertException(id, feilmelding)
+    ) {
+        if (resultat is NotifikasjonFinnesIkkeOppgaveUtfoert) {
+            loggWarning("Oppgave finnes ikke. Trolig slettet pga. levetid. Feilmelding: '${resultat.feilmelding}'.")
         } else {
-            loggError("Klarte ikke sette oppgave som utført: $feil")
-            throw OppgaveUtfoertException(id, feil.ukjentFeil())
+            val feilmelding =
+                when (resultat) {
+                    is UgyldigMerkelappOppgaveUtfoert -> resultat.feilmelding
+                    is UkjentProdusentOppgaveUtfoert -> resultat.feilmelding
+                    else -> null
+                }
+
+            if (feilmelding != null) {
+                feilmelding.loggFeilmelding()
+                throw OppgaveUtfoertException(id, feilmelding)
+            } else {
+                loggError("Klarte ikke sette oppgave som utført: $feil")
+                throw OppgaveUtfoertException(id, feil.ukjentFeil())
+            }
         }
     }
 
@@ -236,6 +242,11 @@ internal object Feil {
             logger.error(it)
             sikkerLogger.error(it)
         }
+    }
+
+    private fun loggWarning(feilmelding: String) {
+        logger.warn(feilmelding)
+        sikkerLogger.warn(feilmelding)
     }
 
     private fun loggError(feilmelding: String) {

@@ -5,6 +5,11 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussak.NyStatusSakResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutfoert.OppgaveUtfoertResultat
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaatt.NotifikasjonFinnesIkke
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaatt.OppgaveUtgaattResultat
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaatt.OppgavenErAlleredeUtfoert
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaatt.UgyldigMerkelapp
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaatt.UkjentProdusent
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.NyOppgaveResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnysak.NySakResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.softdeletesak.SoftDeleteSakResultat
@@ -158,6 +163,32 @@ internal object Feil {
                 when (resultat) {
                     is UgyldigMerkelappOppgaveUtfoert -> resultat.feilmelding
                     is UkjentProdusentOppgaveUtfoert -> resultat.feilmelding
+                    else -> null
+                }
+
+            if (feilmelding != null) {
+                feilmelding.loggFeilmelding()
+                throw OppgaveUtfoertException(id, feilmelding)
+            } else {
+                loggError("Klarte ikke sette oppgave som utført: $feil")
+                throw OppgaveUtfoertException(id, feil.ukjentFeil())
+            }
+        }
+    }
+
+    fun oppgaveUtgaatt(
+        id: String,
+        resultat: OppgaveUtgaattResultat?,
+        feil: List<GraphQLClientError>?,
+    ) {
+        if (resultat is NotifikasjonFinnesIkke) {
+            loggWarning("Oppgave finnes ikke. Trolig slettet pga. levetid. Feilmelding: '${resultat.feilmelding}'.")
+        } else {
+            val feilmelding =
+                when (resultat) {
+                    is UgyldigMerkelapp -> resultat.feilmelding
+                    is UkjentProdusent -> resultat.feilmelding
+                    is OppgavenErAlleredeUtfoert -> resultat.feilmelding
                     else -> null
                 }
 

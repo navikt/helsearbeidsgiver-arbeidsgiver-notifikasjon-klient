@@ -1,0 +1,20 @@
+mutation oppgaveUtgaatt($id: ID!) {
+    oppgaveUtgaatt(id: $id) {
+        __typename
+        ... on OppgaveUtgaattVellykket {
+            id
+        }
+        ... on UgyldigMerkelapp {
+            feilmelding
+        }
+        ... on OppgavenErAlleredeUtfoert {
+            feilmelding
+        }
+        ... on NotifikasjonFinnesIkke {
+            feilmelding
+        }
+        ... on UkjentProdusent {
+            feilmelding
+        }
+    }
+}

@@ -1,0 +1,28 @@
+mutation oppgaveUtgaattByEksternId(
+    $merkelapp: String!,
+    $eksternId: String!,
+    $nyLenke: String,
+) {
+    oppgaveUtgaattByEksternId(
+        merkelapp: $merkelapp,
+        eksternId: $eksternId,
+        nyLenke: $nyLenke,
+    ) {
+        __typename
+        ... on OppgaveUtgaattVellykket {
+            id
+        }
+        ... on UgyldigMerkelapp {
+            feilmelding
+        }
+        ... on OppgavenErAlleredeUtfoert {
+            feilmelding
+        }
+        ... on NotifikasjonFinnesIkke {
+            feilmelding
+        }
+        ... on UkjentProdusent {
+            feilmelding
+        }
+    }
+}

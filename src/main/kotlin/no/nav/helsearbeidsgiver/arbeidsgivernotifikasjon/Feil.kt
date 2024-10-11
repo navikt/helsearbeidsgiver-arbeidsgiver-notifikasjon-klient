@@ -30,6 +30,11 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutfoert.NotifikasjonFinnesIkke as NotifikasjonFinnesIkkeOppgaveUtfoert
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutfoert.UgyldigMerkelapp as UgyldigMerkelappOppgaveUtfoert
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutfoert.UkjentProdusent as UkjentProdusentOppgaveUtfoert
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaattbyeksternid.NotifikasjonFinnesIkke as NotifikasjonFinnesIkkeByEksternId
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaattbyeksternid.OppgaveUtgaattResultat as OppgaveUtgaattByEksternIdResultat
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaattbyeksternid.OppgavenErAlleredeUtfoert as OppgavenErAlleredeUtfoertByEksternId
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaattbyeksternid.UgyldigMerkelapp as UgyldigMerkelappByEksternId
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaattbyeksternid.UkjentProdusent as UkjentProdusentByEksternId
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.DuplikatEksternIdOgMerkelapp as DuplikatEksternIdOgMerkelappNyOppgave
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.UgyldigMerkelapp as UgyldigMerkelappNyOppgave
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.UgyldigMottaker as UgyldigMottakerNyOppgave
@@ -194,10 +199,38 @@ internal object Feil {
 
             if (feilmelding != null) {
                 feilmelding.loggFeilmelding()
-                throw OppgaveUtfoertException(id, feilmelding)
+                throw OppgaveUtgaattException(id, feilmelding)
             } else {
-                loggError("Klarte ikke sette oppgave som utført: $feil")
-                throw OppgaveUtfoertException(id, feil.ukjentFeil())
+                loggError("Klarte ikke sette oppgave som utgått: $feil")
+                throw OppgaveUtgaattException(id, feil.ukjentFeil())
+            }
+        }
+    }
+
+    fun oppgaveUtgaattByEksternId(
+        eksternId: String,
+        resultat: OppgaveUtgaattByEksternIdResultat?,
+        feil: List<GraphQLClientError>?,
+    ) {
+        if (resultat is NotifikasjonFinnesIkkeByEksternId) {
+            loggWarning(
+                "Oppgave finnes ikke. Trolig slettet pga. levetid. Feilmelding: '${resultat.feilmelding}'.",
+            )
+        } else {
+            val feilmelding =
+                when (resultat) {
+                    is UgyldigMerkelappByEksternId -> resultat.feilmelding
+                    is UkjentProdusentByEksternId -> resultat.feilmelding
+                    is OppgavenErAlleredeUtfoertByEksternId -> resultat.feilmelding
+                    else -> null
+                }
+
+            if (feilmelding != null) {
+                feilmelding.loggFeilmelding()
+                throw OppgaveUtgaattByEksternIdException(eksternId, feilmelding)
+            } else {
+                loggError("Klarte ikke sette oppgave som utgått: $feil")
+                throw OppgaveUtgaattByEksternIdException(eksternId, feil.ukjentFeil())
             }
         }
     }
@@ -288,31 +321,60 @@ internal object Feil {
     private fun List<GraphQLClientError>?.ukjentFeil(): String = "Ukjent feil: $this"
 }
 
-class OpprettNySakException(feilmelding: String?) :
-    Exception("Opprettelse av ny sak mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
+class OpprettNySakException(
+    feilmelding: String?,
+) : Exception("Opprettelse av ny sak mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
 
-class NyStatusSakException(id: String, nyStatus: SaksStatus, feilmelding: String?) :
-    Exception("Ny status '$nyStatus' for sak med id '$id' mot arbeidsgiver-notifikasjon-api feilet med: $feilmelding")
+class NyStatusSakException(
+    id: String,
+    nyStatus: SaksStatus,
+    feilmelding: String?,
+) : Exception("Ny status '$nyStatus' for sak med id '$id' mot arbeidsgiver-notifikasjon-api feilet med: $feilmelding")
 
-class NyStatusSakByGrupperingsidException(grupperingsid: String, nyStatus: SaksStatus, feilmelding: String?) :
-    Exception(
+class NyStatusSakByGrupperingsidException(
+    grupperingsid: String,
+    nyStatus: SaksStatus,
+    feilmelding: String?,
+) : Exception(
         "Ny status '$nyStatus' for sak med grupperingsid '$grupperingsid' mot " +
             "arbeidsgiver-notifikasjon-api feilet med: $feilmelding",
     )
 
-class OpprettNyOppgaveException(feilmelding: String?) :
-    Exception("Opprettelse av ny oppgave mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
+class OpprettNyOppgaveException(
+    feilmelding: String?,
+) : Exception("Opprettelse av ny oppgave mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
 
-class OppgaveUtfoertException(id: String, feilmelding: String?) :
-    Exception("Utføring av oppgave med id '$id' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
+class OppgaveUtfoertException(
+    id: String,
+    feilmelding: String?,
+) : Exception("Utføring av oppgave med id '$id' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
 
-class SoftDeleteSakException(id: String, feilmelding: String?) :
-    Exception("Sletting (soft) av sak med id '$id' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
+class OppgaveUtgaattException(
+    id: String,
+    feilmelding: String?,
+) : Exception("Oppdatering av oppgave med id '$id' til utgått mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
 
-class SoftDeleteSakByGrupperingsidException(grupperingsid: String, feilmelding: String?) :
-    Exception(
+class OppgaveUtgaattByEksternIdException(
+    eksternId: String,
+    feilmelding: String?,
+) : Exception(
+        "Oppdatering av oppgave med eksternId '$eksternId' til " +
+            "utgått mot arbeidsgiver-notifikasjon-api feilet: $feilmelding",
+    )
+
+class SoftDeleteSakException(
+    id: String,
+    feilmelding: String?,
+) : Exception("Sletting (soft) av sak med id '$id' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
+
+class SoftDeleteSakByGrupperingsidException(
+    grupperingsid: String,
+    feilmelding: String?,
+) : Exception(
         "Sletting (soft) av sak med grupperingsid '$grupperingsid' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding",
     )
 
-class HardDeleteSakException(id: String, feilmelding: String?) :
-    Exception("Sletting (hard) av sak med id '$id' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
+class HardDeleteSakException(
+    id: String,
+    feilmelding: String?,
+) : Exception("Sletting (hard) av sak med id '$id' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")

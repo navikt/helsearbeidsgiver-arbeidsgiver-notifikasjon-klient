@@ -130,6 +130,36 @@ class ArbeidsgiverNotifikasjonKlientTest {
     }
 
     @Test
+    fun `Forventer gyldig respons fra oppgaveUtgaattByEksternId`() {
+        val response = "responses/oppgaveUtgaatt/gyldig.json".readResource()
+        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+        assertDoesNotThrow {
+            runBlocking {
+                arbeidsgiverNotifikasjonKlient.oppgaveUtgaattByEksternId("Inntektsmelding sykepenger", "id")
+            }
+        }
+    }
+
+    @Test
+    fun `UgyldigMerkelapp respons fra oppgaveUtgaattByEksternId`() {
+        val response = "responses/oppgaveUtgaatt/ugyldigMerkelapp.json".readResource()
+        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+        assertFailsWith(
+            exceptionClass = OppgaveUtgaattByEksternIdException::class,
+            block = {
+                runBlocking {
+                    arbeidsgiverNotifikasjonKlient.oppgaveUtgaattByEksternId(
+                        merkelapp = "Refusjon",
+                        eksternId = "id",
+                    )
+                }
+            },
+        )
+    }
+
+    @Test
     fun `Forventer gyldig respons fra whoami`() {
         val response = "responses/whoami/gyldig.json".readResource()
         val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)

@@ -12,6 +12,7 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ISO860
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.NyStatusSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.NyStatusSakByGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OppgaveUtfoert
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OppgaveUtfoertByEksternIdV2
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OppgaveUtgaatt
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OppgaveUtgaattByEksternId
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OpprettNyOppgave
@@ -32,6 +33,7 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.net.URI
 import kotlin.time.Duration
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakVellykket as NyStatusSakByGrupperingsidVellykket
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutfoertbyeksternidv2.OppgaveUtfoertVellykket as OppgaveUtfoertByEksternIdV2Vellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaattbyeksternid.OppgaveUtgaattVellykket as OppgaveUtgaattByEksternIdVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.softdeletesakbygrupperingsid.SoftDeleteSakVellykket as SoftDeleteSakByGrupperingsidVellykket
 
@@ -109,26 +111,30 @@ class ArbeidsgiverNotifikasjonKlient(
     suspend fun nyStatusSakByGrupperingsid(
         grupperingsid: String,
         merkelapp: String,
-        nyStatus: SaksStatus,
-        tidspunkt: ISO8601DateTime?,
+        status: SaksStatus,
+        statusTekst: String? = null,
+        nyLenke: String? = null,
+        tidspunkt: ISO8601DateTime? = null,
     ) {
-        loggInfo("Forsøker å sette ny status '$nyStatus' på sak med grupperingsid '$grupperingsid'.")
+        loggInfo("Forsøker å sette ny status '$status' på sak med grupperingsid '$grupperingsid'.")
 
         NyStatusSakByGrupperingsid(
             variables =
                 NyStatusSakByGrupperingsid.Variables(
                     grupperingsid = grupperingsid,
                     merkelapp = merkelapp,
-                    nyStatus = nyStatus,
+                    nyStatus = status,
+                    overstyrStatustekstMed = statusTekst,
+                    nyLenkeTilSak = nyLenke,
                     tidspunkt = tidspunkt,
                 ),
         ).executeOrThrow(
             toResult = NyStatusSakByGrupperingsid.Result::nyStatusSakByGrupperingsid,
             toSuccess = { it as? NyStatusSakByGrupperingsidVellykket },
-            onError = { res, err -> Feil.nyStatusSakByGrupperingsid(grupperingsid, nyStatus, res, err) },
+            onError = { res, err -> Feil.nyStatusSakByGrupperingsid(grupperingsid, merkelapp, status, res, err) },
         )
 
-        loggInfo("Satt ny status '$nyStatus' på sak med grupperingsid '$grupperingsid'.")
+        loggInfo("Satt ny status '$status' på sak med grupperingsid '$grupperingsid'.")
     }
 
     suspend fun opprettNyOppgave(
@@ -175,6 +181,29 @@ class ArbeidsgiverNotifikasjonKlient(
         )
 
         loggInfo("Oppgave med id '$id' satt til utført.")
+    }
+
+    suspend fun oppgaveUtfoertByEksternIdV2(
+        eksternId: String,
+        merkelapp: String,
+        nyLenke: String? = null,
+    ) {
+        loggInfo("Forsøker å sette oppgave med ekstern ID '$eksternId' som utført mot arbeidsgiver-notifikasjoner.")
+
+        OppgaveUtfoertByEksternIdV2(
+            variables =
+                OppgaveUtfoertByEksternIdV2.Variables(
+                    eksternId = eksternId,
+                    merkelapp = merkelapp,
+                    nyLenke = nyLenke,
+                ),
+        ).execute(
+            toResult = OppgaveUtfoertByEksternIdV2.Result::oppgaveUtfoertByEksternId_V2,
+            toSuccess = { it as? OppgaveUtfoertByEksternIdV2Vellykket },
+            onError = { res, err -> Feil.oppgaveUtfoertByEksternIdV2(eksternId, merkelapp, res, err) },
+        )
+
+        loggInfo("Oppgave med ekstern ID '$eksternId' satt til utført.")
     }
 
     suspend fun softDeleteSak(id: String): ID =
@@ -305,9 +334,9 @@ class ArbeidsgiverNotifikasjonKlient(
         )
     }
 
-    private fun loggInfo(feilmelding: String) {
-        logger.info(feilmelding)
-        sikkerLogger.info(feilmelding)
+    private fun loggInfo(melding: String) {
+        logger.info(melding)
+        sikkerLogger.info(melding)
     }
 }
 

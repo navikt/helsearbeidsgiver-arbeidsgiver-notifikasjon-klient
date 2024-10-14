@@ -51,6 +51,24 @@ class ArbeidsgiverNotifikasjonKlientTest {
     }
 
     @Test
+    fun `Forventer gyldig respons fra nyStatusSakByGrupperingsid`() {
+        val response = "responses/nyStatusSakByGrupperingsid/gyldig.json".readResource()
+        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+        assertDoesNotThrow {
+            runBlocking {
+                arbeidsgiverNotifikasjonKlient.nyStatusSakByGrupperingsid(
+                    grupperingsid = "mock grupperingsid",
+                    merkelapp = "mock merkelapp",
+                    status = SaksStatus.FERDIG,
+                    statusTekst = "mock statustekst",
+                    nyLenke = "mock nyLenke",
+                )
+            }
+        }
+    }
+
+    @Test
     fun `Forventer gyldig respons fra opprettNyOppgave`() {
         val response = "responses/nyOppgave/gyldig.json".readResource()
         val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
@@ -97,6 +115,22 @@ class ArbeidsgiverNotifikasjonKlientTest {
                 }
             },
         )
+    }
+
+    @Test
+    fun `Forventer gyldig respons fra oppgaveUtfoertByEksternIdV2`() {
+        val response = "responses/oppgaveUtfoertByEksternIdV2/gyldig.json".readResource()
+        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+        assertDoesNotThrow {
+            runBlocking {
+                arbeidsgiverNotifikasjonKlient.oppgaveUtfoertByEksternIdV2(
+                    eksternId = "mock eksternId",
+                    merkelapp = "mock merkelapp",
+                    nyLenke = "mock nyLenke",
+                )
+            }
+        }
     }
 
     @Test

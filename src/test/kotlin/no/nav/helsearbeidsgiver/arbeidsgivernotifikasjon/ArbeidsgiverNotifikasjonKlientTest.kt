@@ -4,6 +4,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
 import no.nav.helsearbeidsgiver.utils.test.resource.readResource
 import org.junit.jupiter.api.assertDoesNotThrow
+import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -51,11 +52,46 @@ class ArbeidsgiverNotifikasjonKlientTest {
     }
 
     @Test
+    fun `nyStatusSak - dersom sak ikke finnes så kastes egendefinert exception`() {
+        val response = "responses/nyStatusSak/finnesIkke.json".readResource()
+        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+        assertThrows<SakEllerOppgaveFinnesIkkeException> {
+            runBlocking {
+                arbeidsgiverNotifikasjonKlient.nyStatusSak(
+                    id = "mock id",
+                    status = SaksStatus.FERDIG,
+                    statusTekst = "mock statusTekst",
+                    nyLenkeTilSak = "mock nyLenke",
+                )
+            }
+        }
+    }
+
+    @Test
     fun `Forventer gyldig respons fra nyStatusSakByGrupperingsid`() {
         val response = "responses/nyStatusSakByGrupperingsid/gyldig.json".readResource()
         val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
         assertDoesNotThrow {
+            runBlocking {
+                arbeidsgiverNotifikasjonKlient.nyStatusSakByGrupperingsid(
+                    grupperingsid = "mock grupperingsid",
+                    merkelapp = "mock merkelapp",
+                    status = SaksStatus.FERDIG,
+                    statusTekst = "mock statustekst",
+                    nyLenke = "mock nyLenke",
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `nyStatusSakByGrupperingsid - dersom sak ikke finnes så kastes egendefinert exception`() {
+        val response = "responses/nyStatusSakByGrupperingsid/finnesIkke.json".readResource()
+        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+        assertThrows<SakEllerOppgaveFinnesIkkeException> {
             runBlocking {
                 arbeidsgiverNotifikasjonKlient.nyStatusSakByGrupperingsid(
                     grupperingsid = "mock grupperingsid",
@@ -118,11 +154,55 @@ class ArbeidsgiverNotifikasjonKlientTest {
     }
 
     @Test
+    fun `Forventer gyldig respons fra oppgaveUtfoert`() {
+        val response = "responses/oppgaveUtfoert/gyldig.json".readResource()
+        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+        assertDoesNotThrow {
+            runBlocking {
+                arbeidsgiverNotifikasjonKlient.oppgaveUtfoert(
+                    id = "mock id",
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `oppgaveUtfoert - dersom sak ikke finnes så kastes egendefinert exception`() {
+        val response = "responses/oppgaveUtfoert/finnesIkke.json".readResource()
+        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+        assertThrows<SakEllerOppgaveFinnesIkkeException> {
+            runBlocking {
+                arbeidsgiverNotifikasjonKlient.oppgaveUtfoert(
+                    id = "mock id",
+                )
+            }
+        }
+    }
+
+    @Test
     fun `Forventer gyldig respons fra oppgaveUtfoertByEksternIdV2`() {
         val response = "responses/oppgaveUtfoertByEksternIdV2/gyldig.json".readResource()
         val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
         assertDoesNotThrow {
+            runBlocking {
+                arbeidsgiverNotifikasjonKlient.oppgaveUtfoertByEksternIdV2(
+                    eksternId = "mock eksternId",
+                    merkelapp = "mock merkelapp",
+                    nyLenke = "mock nyLenke",
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `oppgaveUtfoertByEksternIdV2 - dersom sak ikke finnes så kastes egendefinert exception`() {
+        val response = "responses/oppgaveUtfoertByEksternIdV2/finnesIkke.json".readResource()
+        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+        assertThrows<SakEllerOppgaveFinnesIkkeException> {
             runBlocking {
                 arbeidsgiverNotifikasjonKlient.oppgaveUtfoertByEksternIdV2(
                     eksternId = "mock eksternId",

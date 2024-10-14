@@ -1,0 +1,8 @@
+{
+  "data": {
+    "oppgaveUtfoert": {
+      "__typename": "NotifikasjonFinnesIkke",
+      "feilmelding": "uffda"
+    }
+  }
+}

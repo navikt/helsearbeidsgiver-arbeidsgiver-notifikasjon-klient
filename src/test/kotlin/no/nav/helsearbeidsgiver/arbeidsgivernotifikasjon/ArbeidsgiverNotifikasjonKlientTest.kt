@@ -244,8 +244,32 @@ class ArbeidsgiverNotifikasjonKlientTest {
     }
 
     @Test
-    fun `Forventer gyldig respons fra oppgaveUtgaattByEksternId`() {
+    fun `Forventer gyldig respons fra oppgaveUtgaatt)`() {
         val response = "responses/oppgaveUtgaatt/gyldig.json".readResource()
+        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+        assertDoesNotThrow {
+            runBlocking {
+                arbeidsgiverNotifikasjonKlient.oppgaveUtgaatt("mock id")
+            }
+        }
+    }
+
+    @Test
+    fun `oppgaveUtgaatt - dersom sak ikke finnes så kastes egendefinert exception`() {
+        val response = "responses/oppgaveUtgaatt/finnesIkke.json".readResource()
+        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+        assertThrows<SakEllerOppgaveFinnesIkkeException> {
+            runBlocking {
+                arbeidsgiverNotifikasjonKlient.oppgaveUtgaatt("mock id")
+            }
+        }
+    }
+
+    @Test
+    fun `Forventer gyldig respons fra oppgaveUtgaattByEksternId`() {
+        val response = "responses/oppgaveUtgaattByEksternId/gyldig.json".readResource()
         val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
         assertDoesNotThrow {
@@ -256,8 +280,20 @@ class ArbeidsgiverNotifikasjonKlientTest {
     }
 
     @Test
+    fun `oppgaveUtgaattByEksternId - dersom sak ikke finnes så kastes egendefinert exception`() {
+        val response = "responses/oppgaveUtgaattByEksternId/finnesIkke.json".readResource()
+        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+        assertThrows<SakEllerOppgaveFinnesIkkeException> {
+            runBlocking {
+                arbeidsgiverNotifikasjonKlient.oppgaveUtgaattByEksternId("Inntektsmelding sykepenger", "id")
+            }
+        }
+    }
+
+    @Test
     fun `UgyldigMerkelapp respons fra oppgaveUtgaattByEksternId`() {
-        val response = "responses/oppgaveUtgaatt/ugyldigMerkelapp.json".readResource()
+        val response = "responses/oppgaveUtgaattByEksternId/ugyldigMerkelapp.json".readResource()
         val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
         assertFailsWith(

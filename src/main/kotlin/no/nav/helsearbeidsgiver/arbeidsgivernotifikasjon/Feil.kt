@@ -219,9 +219,9 @@ internal object Feil {
         id: String,
         resultat: OppgaveUtgaattResultat?,
         feil: List<GraphQLClientError>?,
-    ) {
+    ): Nothing {
         if (resultat is NotifikasjonFinnesIkke) {
-            loggWarning("Oppgave finnes ikke. Trolig slettet pga. levetid. Feilmelding: '${resultat.feilmelding}'.")
+            throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
         } else {
             val feilmelding =
                 when (resultat) {
@@ -245,11 +245,9 @@ internal object Feil {
         eksternId: String,
         resultat: OppgaveUtgaattByEksternIdResultat?,
         feil: List<GraphQLClientError>?,
-    ) {
+    ): Nothing {
         if (resultat is NotifikasjonFinnesIkkeByEksternId) {
-            loggWarning(
-                "Oppgave finnes ikke. Trolig slettet pga. levetid. Feilmelding: '${resultat.feilmelding}'.",
-            )
+            throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
         } else {
             val feilmelding =
                 when (resultat) {

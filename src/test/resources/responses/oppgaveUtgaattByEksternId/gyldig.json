@@ -1,6 +1,6 @@
 {
   "data": {
-    "oppgaveUtgaatt": {
+    "oppgaveUtgaattByEksternId": {
       "__typename": "OppgaveUtgaattVellykket",
       "id": "1"
     }

@@ -90,9 +90,9 @@ internal object Feil {
         nyStatus: SaksStatus,
         resultat: NyStatusSakResultat?,
         feil: List<GraphQLClientError>?,
-    ) {
+    ): Nothing {
         if (resultat is FinnesIkkeNyStatusSak) {
-            loggWarning("Sak finnes ikke. Trolig slettet pga. levetid. Feilmelding: '${resultat.feilmelding}'.")
+            throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
         } else {
             val feilmelding =
                 when (resultat) {
@@ -119,21 +119,24 @@ internal object Feil {
         resultat: NyStatusSakByGrupperingsidResultat?,
         feil: List<GraphQLClientError>?,
     ): Nothing {
-        val feilmelding =
-            when (resultat) {
-                is KonfliktNyStatusSakByGrupperingsid -> resultat.feilmelding
-                is SakFinnesIkkeNyStatusSakByGrupperingsid -> resultat.feilmelding
-                is UgyldigMerkelappByGrupperingsid -> resultat.feilmelding
-                is UkjentProdusentByGrupperingsid -> resultat.feilmelding
-                else -> null
-            }
-
-        if (feilmelding != null) {
-            feilmelding.loggFeilmelding()
-            throw NyStatusSakByGrupperingsidException(grupperingsid, merkelapp, nyStatus, feilmelding)
+        if (resultat is SakFinnesIkkeNyStatusSakByGrupperingsid) {
+            throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
         } else {
-            loggError("Klarte ikke endre status på sak (fra grupperingsid): $feil")
-            throw NyStatusSakByGrupperingsidException(grupperingsid, merkelapp, nyStatus, feil.ukjentFeil())
+            val feilmelding =
+                when (resultat) {
+                    is KonfliktNyStatusSakByGrupperingsid -> resultat.feilmelding
+                    is UgyldigMerkelappByGrupperingsid -> resultat.feilmelding
+                    is UkjentProdusentByGrupperingsid -> resultat.feilmelding
+                    else -> null
+                }
+
+            if (feilmelding != null) {
+                feilmelding.loggFeilmelding()
+                throw NyStatusSakByGrupperingsidException(grupperingsid, merkelapp, nyStatus, feilmelding)
+            } else {
+                loggError("Klarte ikke endre status på sak (fra grupperingsid): $feil")
+                throw NyStatusSakByGrupperingsidException(grupperingsid, merkelapp, nyStatus, feil.ukjentFeil())
+            }
         }
     }
 
@@ -165,9 +168,9 @@ internal object Feil {
         id: String,
         resultat: OppgaveUtfoertResultat?,
         feil: List<GraphQLClientError>?,
-    ) {
+    ): Nothing {
         if (resultat is NotifikasjonFinnesIkkeOppgaveUtfoert) {
-            loggWarning("Oppgave finnes ikke. Trolig slettet pga. levetid. Feilmelding: '${resultat.feilmelding}'.")
+            throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
         } else {
             val feilmelding =
                 when (resultat) {
@@ -191,9 +194,9 @@ internal object Feil {
         merkelapp: String,
         resultat: OppgaveUtfoertByEksternIdV2Resultat?,
         feil: List<GraphQLClientError>?,
-    ) {
+    ): Nothing {
         if (resultat is NotifikasjonFinnesIkkeOppgaveUtfoertByEksternIdV2) {
-            loggWarning("Oppgave finnes ikke. Trolig slettet pga. levetid. Feilmelding: '${resultat.feilmelding}'.")
+            throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
         } else {
             val feilmelding =
                 when (resultat) {
@@ -216,9 +219,9 @@ internal object Feil {
         id: String,
         resultat: OppgaveUtgaattResultat?,
         feil: List<GraphQLClientError>?,
-    ) {
+    ): Nothing {
         if (resultat is NotifikasjonFinnesIkke) {
-            loggWarning("Oppgave finnes ikke. Trolig slettet pga. levetid. Feilmelding: '${resultat.feilmelding}'.")
+            throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
         } else {
             val feilmelding =
                 when (resultat) {
@@ -242,11 +245,9 @@ internal object Feil {
         eksternId: String,
         resultat: OppgaveUtgaattByEksternIdResultat?,
         feil: List<GraphQLClientError>?,
-    ) {
+    ): Nothing {
         if (resultat is NotifikasjonFinnesIkkeByEksternId) {
-            loggWarning(
-                "Oppgave finnes ikke. Trolig slettet pga. levetid. Feilmelding: '${resultat.feilmelding}'.",
-            )
+            throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
         } else {
             val feilmelding =
                 when (resultat) {
@@ -351,6 +352,10 @@ internal object Feil {
 
     private fun List<GraphQLClientError>?.ukjentFeil(): String = "Ukjent feil: $this"
 }
+
+class SakEllerOppgaveFinnesIkkeException(
+    feilmelding: String,
+) : Exception("Sak/oppgave finnes ikke. Trolig slettet pga. levetid. Feilmelding: '$feilmelding'.")
 
 class OpprettNySakException(
     feilmelding: String?,

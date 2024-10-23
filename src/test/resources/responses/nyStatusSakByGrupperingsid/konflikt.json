@@ -1,0 +1,8 @@
+{
+  "data": {
+    "nyStatusSakByGrupperingsid": {
+      "__typename": "Konflikt",
+      "feilmelding": "uffda"
+    }
+  }
+}

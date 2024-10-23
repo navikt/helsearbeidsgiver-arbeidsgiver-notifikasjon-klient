@@ -1,0 +1,8 @@
+{
+  "data": {
+    "hardDeleteSak": {
+      "__typename": "UgyldigMerkelapp",
+      "feilmelding": "uffda"
+    }
+  }
+}

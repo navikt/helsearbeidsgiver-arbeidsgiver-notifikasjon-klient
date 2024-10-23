@@ -2,28 +2,40 @@ package no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon
 
 import com.expediagroup.graphql.client.types.GraphQLClientError
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.DefaultHardDeleteSakResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakResultat
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakVellykket
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.DefaultNyStatusSakResultatImplementation
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakResultat
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakVellykket
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutfoertbyeksternidv2.DefaultOppgaveUtfoertResultatImplementation
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutfoertbyeksternidv2.OppgaveUtfoertResultat
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutfoertbyeksternidv2.OppgaveUtfoertVellykket
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaattbyeksternid.DefaultOppgaveUtgaattResultatImplementation
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaattbyeksternid.OppgaveUtgaattResultat
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaattbyeksternid.OppgaveUtgaattVellykket
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.DefaultNyOppgaveResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.NyOppgaveResultat
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.NyOppgaveVellykket
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnysak.DefaultNySakResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnysak.NySakResultat
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnysak.NySakVellykket
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.SakFinnesIkke as FinnesIkkeHardDeleteSak
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.SakFinnesIkke as SakFinnesIkkeHardDeleteSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.UgyldigMerkelapp as UgyldigMerkelappHardDeleteSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.UkjentProdusent as UkjentProdusentHardDeleteSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.Konflikt as KonfliktNyStatusSakByGrupperingsid
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakResultat as NyStatusSakByGrupperingsidResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.SakFinnesIkke as SakFinnesIkkeNyStatusSakByGrupperingsid
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.UgyldigMerkelapp as UgyldigMerkelappByGrupperingsid
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.UkjentProdusent as UkjentProdusentByGrupperingsid
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.UgyldigMerkelapp as UgyldigMerkelappNyStatusSakByGrupperingsid
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.UkjentProdusent as UkjentProdusentNyStatusSakByGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutfoertbyeksternidv2.NotifikasjonFinnesIkke as NotifikasjonFinnesIkkeOppgaveUtfoertByEksternIdV2
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutfoertbyeksternidv2.OppgaveUtfoertResultat as OppgaveUtfoertByEksternIdV2Resultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutfoertbyeksternidv2.UgyldigMerkelapp as UgyldigMerkelappOppgaveUtfoertByEksternIdV2
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutfoertbyeksternidv2.UkjentProdusent as UkjentProdusentOppgaveUtfoertByEksternIdV2
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaattbyeksternid.NotifikasjonFinnesIkke as NotifikasjonFinnesIkkeByEksternId
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaattbyeksternid.OppgaveUtgaattResultat as OppgaveUtgaattByEksternIdResultat
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaattbyeksternid.OppgavenErAlleredeUtfoert as OppgavenErAlleredeUtfoertByEksternId
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaattbyeksternid.UgyldigMerkelapp as UgyldigMerkelappByEksternId
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaattbyeksternid.UkjentProdusent as UkjentProdusentByEksternId
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaattbyeksternid.NotifikasjonFinnesIkke as NotifikasjonFinnesIkkeOppgaveUtgaattByEksternId
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaattbyeksternid.OppgavenErAlleredeUtfoert as OppgavenErAlleredeUtfoertOppgaveUtgaattByEksternId
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaattbyeksternid.UgyldigMerkelapp as UgyldigMerkelappOppgaveUtgaattByEksternId
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaattbyeksternid.UkjentProdusent as UkjentProdusentOppgaveUtgaattByEksternId
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.DuplikatEksternIdOgMerkelapp as DuplikatEksternIdOgMerkelappNyOppgave
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.UgyldigMerkelapp as UgyldigMerkelappNyOppgave
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.UgyldigMottaker as UgyldigMottakerNyOppgave
@@ -41,8 +53,9 @@ internal object Feil {
     private val sikkerLogger = sikkerLogger()
 
     fun opprettNySak(
-        resultat: NySakResultat?,
-        feil: List<GraphQLClientError>?,
+        grupperingsid: String,
+        resultat: NySakResultat,
+        feil: List<GraphQLClientError>,
     ): Nothing {
         val feilmelding =
             when (resultat) {
@@ -51,49 +64,41 @@ internal object Feil {
                 is UgyldigMottakerNySak -> resultat.feilmelding
                 is UkjentProdusentNySak -> resultat.feilmelding
                 is UkjentRolleNySak -> resultat.feilmelding
-                else -> null
+                is DefaultNySakResultatImplementation,
+                is NySakVellykket,
+                -> feilmeldingUkjent(feil)
             }
 
-        if (feilmelding != null) {
-            feilmelding.loggFeilmelding()
-            throw OpprettNySakException(feilmelding)
-        } else {
-            loggError("Klarte ikke opprette ny sak: $feil")
-            throw OpprettNySakException(feil.ukjentFeil())
-        }
+        loggFeilmelding(feilmelding)
+        throw OpprettNySakException(grupperingsid, feilmelding)
     }
 
     fun nyStatusSakByGrupperingsid(
         grupperingsid: String,
         merkelapp: String,
         nyStatus: SaksStatus,
-        resultat: NyStatusSakByGrupperingsidResultat?,
-        feil: List<GraphQLClientError>?,
+        resultat: NyStatusSakResultat,
+        feil: List<GraphQLClientError>,
     ): Nothing {
-        if (resultat is SakFinnesIkkeNyStatusSakByGrupperingsid) {
-            throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
-        } else {
-            val feilmelding =
-                when (resultat) {
-                    is KonfliktNyStatusSakByGrupperingsid -> resultat.feilmelding
-                    is UgyldigMerkelappByGrupperingsid -> resultat.feilmelding
-                    is UkjentProdusentByGrupperingsid -> resultat.feilmelding
-                    else -> null
-                }
-
-            if (feilmelding != null) {
-                feilmelding.loggFeilmelding()
-                throw NyStatusSakByGrupperingsidException(grupperingsid, merkelapp, nyStatus, feilmelding)
-            } else {
-                loggError("Klarte ikke endre status på sak (fra grupperingsid): $feil")
-                throw NyStatusSakByGrupperingsidException(grupperingsid, merkelapp, nyStatus, feil.ukjentFeil())
+        val feilmelding =
+            when (resultat) {
+                is SakFinnesIkkeNyStatusSakByGrupperingsid ->
+                    throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
+                is KonfliktNyStatusSakByGrupperingsid -> resultat.feilmelding
+                is UgyldigMerkelappNyStatusSakByGrupperingsid -> resultat.feilmelding
+                is UkjentProdusentNyStatusSakByGrupperingsid -> resultat.feilmelding
+                is DefaultNyStatusSakResultatImplementation,
+                is NyStatusSakVellykket,
+                -> feilmeldingUkjent(feil)
             }
-        }
+
+        loggFeilmelding(feilmelding)
+        throw NyStatusSakByGrupperingsidException(grupperingsid, merkelapp, nyStatus, feilmelding)
     }
 
     fun nyOppgave(
-        resultat: NyOppgaveResultat?,
-        feil: List<GraphQLClientError>?,
+        resultat: NyOppgaveResultat,
+        feil: List<GraphQLClientError>,
     ): Nothing {
         val feilmelding =
             when (resultat) {
@@ -103,110 +108,86 @@ internal object Feil {
                 is UgyldigPaaminnelseTidspunktNyOppgave -> resultat.feilmelding
                 is UkjentProdusentNyOppgave -> resultat.feilmelding
                 is UkjentRolleNyOppgave -> resultat.feilmelding
-                else -> null
+                is DefaultNyOppgaveResultatImplementation,
+                is NyOppgaveVellykket,
+                -> feilmeldingUkjent(feil)
             }
 
-        if (feilmelding != null) {
-            feilmelding.loggFeilmelding()
-            throw OpprettNyOppgaveException(feilmelding)
-        } else {
-            loggError("Klarte ikke opprette ny oppgave: $feil")
-            throw OpprettNyOppgaveException(feil.ukjentFeil())
-        }
+        loggFeilmelding(feilmelding)
+        throw OpprettNyOppgaveException(feilmelding)
     }
 
     fun oppgaveUtfoertByEksternIdV2(
         eksternId: String,
         merkelapp: String,
-        resultat: OppgaveUtfoertByEksternIdV2Resultat?,
-        feil: List<GraphQLClientError>?,
+        resultat: OppgaveUtfoertResultat,
+        feil: List<GraphQLClientError>,
     ): Nothing {
-        if (resultat is NotifikasjonFinnesIkkeOppgaveUtfoertByEksternIdV2) {
-            throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
-        } else {
-            val feilmelding =
-                when (resultat) {
-                    is UgyldigMerkelappOppgaveUtfoertByEksternIdV2 -> resultat.feilmelding
-                    is UkjentProdusentOppgaveUtfoertByEksternIdV2 -> resultat.feilmelding
-                    else -> null
-                }
-
-            if (feilmelding != null) {
-                feilmelding.loggFeilmelding()
-                throw OppgaveUtfoertByEksternIdV2Exception(eksternId, merkelapp, feilmelding)
-            } else {
-                loggError("Klarte ikke sette oppgave som utført: $feil")
-                throw OppgaveUtfoertByEksternIdV2Exception(eksternId, merkelapp, feil.ukjentFeil())
+        val feilmelding =
+            when (resultat) {
+                is NotifikasjonFinnesIkkeOppgaveUtfoertByEksternIdV2 ->
+                    throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
+                is UgyldigMerkelappOppgaveUtfoertByEksternIdV2 -> resultat.feilmelding
+                is UkjentProdusentOppgaveUtfoertByEksternIdV2 -> resultat.feilmelding
+                is DefaultOppgaveUtfoertResultatImplementation,
+                is OppgaveUtfoertVellykket,
+                -> feilmeldingUkjent(feil)
             }
-        }
+
+        loggFeilmelding(feilmelding)
+        throw OppgaveUtfoertByEksternIdV2Exception(eksternId, merkelapp, feilmelding)
     }
 
     fun oppgaveUtgaattByEksternId(
         eksternId: String,
-        resultat: OppgaveUtgaattByEksternIdResultat?,
-        feil: List<GraphQLClientError>?,
+        resultat: OppgaveUtgaattResultat,
+        feil: List<GraphQLClientError>,
     ): Nothing {
-        if (resultat is NotifikasjonFinnesIkkeByEksternId) {
-            throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
-        } else {
-            val feilmelding =
-                when (resultat) {
-                    is UgyldigMerkelappByEksternId -> resultat.feilmelding
-                    is UkjentProdusentByEksternId -> resultat.feilmelding
-                    is OppgavenErAlleredeUtfoertByEksternId -> resultat.feilmelding
-                    else -> null
-                }
-
-            if (feilmelding != null) {
-                feilmelding.loggFeilmelding()
-                throw OppgaveUtgaattByEksternIdException(eksternId, feilmelding)
-            } else {
-                loggError("Klarte ikke sette oppgave som utgått: $feil")
-                throw OppgaveUtgaattByEksternIdException(eksternId, feil.ukjentFeil())
+        val feilmelding =
+            when (resultat) {
+                is NotifikasjonFinnesIkkeOppgaveUtgaattByEksternId ->
+                    throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
+                is OppgavenErAlleredeUtfoertOppgaveUtgaattByEksternId -> resultat.feilmelding
+                is UgyldigMerkelappOppgaveUtgaattByEksternId -> resultat.feilmelding
+                is UkjentProdusentOppgaveUtgaattByEksternId -> resultat.feilmelding
+                is DefaultOppgaveUtgaattResultatImplementation,
+                is OppgaveUtgaattVellykket,
+                -> feilmeldingUkjent(feil)
             }
-        }
+
+        loggFeilmelding(feilmelding)
+        throw OppgaveUtgaattByEksternIdException(eksternId, feilmelding)
     }
 
     fun hardDeleteSak(
         id: String,
-        resultat: HardDeleteSakResultat?,
-        feil: List<GraphQLClientError>?,
+        resultat: HardDeleteSakResultat,
+        feil: List<GraphQLClientError>,
     ): Nothing {
         val feilmelding =
             when (resultat) {
-                is FinnesIkkeHardDeleteSak -> resultat.feilmelding
+                is SakFinnesIkkeHardDeleteSak ->
+                    throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
                 is UgyldigMerkelappHardDeleteSak -> resultat.feilmelding
                 is UkjentProdusentHardDeleteSak -> resultat.feilmelding
-                else -> null
+                is DefaultHardDeleteSakResultatImplementation,
+                is HardDeleteSakVellykket,
+                -> feilmeldingUkjent(feil)
             }
 
-        if (feilmelding != null) {
-            feilmelding.loggFeilmelding()
-            throw HardDeleteSakException(id, feilmelding)
-        } else {
-            loggError("Klarte ikke harddelete sak $resultat: med feil $feil")
-            throw HardDeleteSakException(id, feil.ukjentFeil())
-        }
+        loggFeilmelding(feilmelding)
+        throw HardDeleteSakException(id, feilmelding)
     }
 
-    private fun String.loggFeilmelding() {
-        "Feilmelding: $this".also {
+    private fun feilmeldingUkjent(feil: List<GraphQLClientError>): String =
+        "Klarte ikke kalle arbeidsgiver-notifikasjon pga. ukjent feil: '$feil'"
+
+    private fun loggFeilmelding(feilmelding: String) {
+        "Feilmelding: $feilmelding".also {
             logger.error(it)
             sikkerLogger.error(it)
         }
     }
-
-    private fun loggWarning(feilmelding: String) {
-        logger.warn(feilmelding)
-        sikkerLogger.warn(feilmelding)
-    }
-
-    private fun loggError(feilmelding: String) {
-        logger.error(feilmelding)
-        sikkerLogger.error(feilmelding)
-    }
-
-    private fun List<GraphQLClientError>?.ukjentFeil(): String = "Ukjent feil: $this"
 }
 
 class SakEllerOppgaveFinnesIkkeException(
@@ -214,17 +195,20 @@ class SakEllerOppgaveFinnesIkkeException(
 ) : Exception("Sak/oppgave finnes ikke. Trolig slettet pga. levetid. Feilmelding: '$feilmelding'.")
 
 class OpprettNySakException(
-    feilmelding: String?,
-) : Exception("Opprettelse av ny sak mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
+    grupperingsid: String,
+    feilmelding: String,
+) : Exception(
+        "Opprettelse av ny sak med grupperingsid '$grupperingsid' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding",
+    )
 
 class NyStatusSakByGrupperingsidException(
     grupperingsid: String,
     merkelapp: String,
     nyStatus: SaksStatus,
-    feilmelding: String?,
+    feilmelding: String,
 ) : Exception(
         "Ny status '$nyStatus' for sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp' mot " +
-            "arbeidsgiver-notifikasjon-api feilet med: $feilmelding",
+            "arbeidsgiver-notifikasjon-api feilet: $feilmelding",
     )
 
 class OpprettNyOppgaveException(
@@ -234,7 +218,7 @@ class OpprettNyOppgaveException(
 class OppgaveUtfoertByEksternIdV2Exception(
     eksternId: String,
     merkelapp: String,
-    feilmelding: String?,
+    feilmelding: String,
 ) : Exception(
         "Utføring av oppgave med ekstern ID '$eksternId' og merkelapp '$merkelapp' mot " +
             "arbeidsgiver-notifikasjon-api feilet: $feilmelding",
@@ -242,7 +226,7 @@ class OppgaveUtfoertByEksternIdV2Exception(
 
 class OppgaveUtgaattByEksternIdException(
     eksternId: String,
-    feilmelding: String?,
+    feilmelding: String,
 ) : Exception(
         "Oppdatering av oppgave med eksternId '$eksternId' til " +
             "utgått mot arbeidsgiver-notifikasjon-api feilet: $feilmelding",
@@ -250,5 +234,7 @@ class OppgaveUtgaattByEksternIdException(
 
 class HardDeleteSakException(
     id: String,
-    feilmelding: String?,
+    feilmelding: String,
 ) : Exception("Sletting (hard) av sak med id '$id' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
+
+class TomResponseException : Exception("Fikk tom response fra arbeidsgiver-notifikasjon.")

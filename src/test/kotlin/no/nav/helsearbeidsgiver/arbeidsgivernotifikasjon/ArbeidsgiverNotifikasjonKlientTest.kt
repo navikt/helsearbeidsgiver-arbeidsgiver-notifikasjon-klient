@@ -1,131 +1,201 @@
 package no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon
 
-import kotlinx.coroutines.runBlocking
+import io.kotest.assertions.throwables.shouldNotThrowAny
+import io.kotest.assertions.throwables.shouldThrowExactly
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.datatest.withData
+import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
 import no.nav.helsearbeidsgiver.utils.test.resource.readResource
-import org.junit.jupiter.api.assertDoesNotThrow
-import org.junit.jupiter.api.assertThrows
-import java.time.LocalDateTime
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.days
 
-class ArbeidsgiverNotifikasjonKlientTest {
-    @Test
-    fun `Forventer gyldig respons fra opprettNySak`() {
-        val response = "responses/opprettNySak/gyldig.json".readResource()
-        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
+    context(ArbeidsgiverNotifikasjonKlient::opprettNySak.name) {
+        test("vellykket - ny sak") {
+            val response = "responses/opprettNySak/vellykket.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
-        val resultat =
-            runBlocking {
+            val resultat =
                 arbeidsgiverNotifikasjonKlient.opprettNySak(
-                    virksomhetsnummer = "874568112",
-                    merkelapp = "Refusjon",
-                    grupperingsid = "id",
-                    lenke = "https://lenke.no",
-                    tittel = "test",
-                    statusTekst = "Ny status",
+                    virksomhetsnummer = "mock virksomhetsnummer",
+                    merkelapp = "mock merkelapp",
+                    grupperingsid = "mock grupperingsid",
+                    lenke = "mock lenke",
+                    tittel = "mock tittel",
+                    statusTekst = "mock statusTekst",
                     initiellStatus = SaksStatus.UNDER_BEHANDLING,
-                    harddeleteOm = 180.days,
+                    harddeleteOm = 10.days,
+                )
+
+            resultat shouldBe "269752"
+        }
+
+        withData(
+            "duplikatGrupperingsid",
+            "ugyldigMerkelapp",
+            "ugyldigMottaker",
+            "ukjentProdusent",
+            "ukjentRolle",
+            "ukjentFeil",
+        ) { jsonFilename ->
+            val response = "responses/opprettNySak/$jsonFilename.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+            shouldThrowExactly<OpprettNySakException> {
+                arbeidsgiverNotifikasjonKlient.opprettNySak(
+                    virksomhetsnummer = "mock virksomhetsnummer",
+                    merkelapp = "mock merkelapp",
+                    grupperingsid = "mock grupperingsid",
+                    lenke = "mock lenke",
+                    tittel = "mock tittel",
+                    statusTekst = "mock statusTekst",
+                    initiellStatus = SaksStatus.UNDER_BEHANDLING,
+                    harddeleteOm = 10.days,
                 )
             }
-        val expected = "1"
-        assertEquals(expected, resultat)
+        }
     }
 
-    @Test
-    fun `Forventer gyldig respons fra nyStatusSakByGrupperingsid`() {
-        val response = "responses/nyStatusSakByGrupperingsid/gyldig.json".readResource()
-        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+    context(ArbeidsgiverNotifikasjonKlient::nyStatusSakByGrupperingsid.name) {
+        test("vellykket - ny status sak") {
+            val response = "responses/nyStatusSakByGrupperingsid/vellykket.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
-        assertDoesNotThrow {
-            runBlocking {
+            shouldNotThrowAny {
                 arbeidsgiverNotifikasjonKlient.nyStatusSakByGrupperingsid(
                     grupperingsid = "mock grupperingsid",
                     merkelapp = "mock merkelapp",
                     status = SaksStatus.FERDIG,
                     statusTekst = "mock statustekst",
                     nyLenke = "mock nyLenke",
+                    tidspunkt = "mock tidspunkt",
                 )
             }
         }
-    }
 
-    @Test
-    fun `nyStatusSakByGrupperingsid - dersom sak ikke finnes så kastes egendefinert exception`() {
-        val response = "responses/nyStatusSakByGrupperingsid/finnesIkke.json".readResource()
-        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+        test("sak finnes ikke - ny status sak") {
+            val response = "responses/nyStatusSakByGrupperingsid/sakFinnesIkke.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
-        assertThrows<SakEllerOppgaveFinnesIkkeException> {
-            runBlocking {
+            shouldThrowExactly<SakEllerOppgaveFinnesIkkeException> {
                 arbeidsgiverNotifikasjonKlient.nyStatusSakByGrupperingsid(
                     grupperingsid = "mock grupperingsid",
                     merkelapp = "mock merkelapp",
                     status = SaksStatus.FERDIG,
                     statusTekst = "mock statustekst",
                     nyLenke = "mock nyLenke",
+                    tidspunkt = "mock tidspunkt",
+                )
+            }
+        }
+
+        withData(
+            "konflikt",
+            "ugyldigMerkelapp",
+            "ukjentProdusent",
+            "ukjentFeil",
+        ) { jsonFilename ->
+            val response = "responses/nyStatusSakByGrupperingsid/$jsonFilename.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+            shouldThrowExactly<NyStatusSakByGrupperingsidException> {
+                arbeidsgiverNotifikasjonKlient.nyStatusSakByGrupperingsid(
+                    grupperingsid = "mock grupperingsid",
+                    merkelapp = "mock merkelapp",
+                    status = SaksStatus.FERDIG,
+                    statusTekst = "mock statustekst",
+                    nyLenke = "mock nyLenke",
+                    tidspunkt = "mock tidspunkt",
                 )
             }
         }
     }
 
-    @Test
-    fun `Forventer gyldig respons fra opprettNyOppgave`() {
-        val response = "responses/nyOppgave/gyldig.json".readResource()
-        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+    context(ArbeidsgiverNotifikasjonKlient::opprettNyOppgave.name) {
+        test("vellykket - ny oppgave") {
+            val response = "responses/nyOppgave/vellykket.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
-        val resultat =
-            runBlocking {
+            val resultat =
                 arbeidsgiverNotifikasjonKlient.opprettNyOppgave(
-                    eksternId = "id",
-                    lenke = "https://lenke.no",
-                    tekst = "test",
-                    virksomhetsnummer = "874568112",
-                    merkelapp = "Refusjon",
-                    tidspunkt = LocalDateTime.now().toString(),
-                    grupperingsid = null,
-                    varslingTittel = "Du har fått oppgave",
-                    varslingInnhold = "Logg på nav.no",
+                    eksternId = "mock eksternId",
+                    lenke = "mock lenke",
+                    tekst = "mock tekst",
+                    virksomhetsnummer = "mock virksomhetsnummer",
+                    merkelapp = "mock merkelapp",
+                    tidspunkt = "mock tidspunkt",
+                    grupperingsid = "mock grupperingsid",
+                    varslingTittel = "mock varslingTittel",
+                    varslingInnhold = "mock varslingInnhold",
+                )
+
+            resultat shouldBe "752444"
+        }
+
+        withData(
+            "duplikatEksternIdOgMerkelapp",
+            "ugyldigMerkelapp",
+            "ugyldigMottaker",
+            "ugyldigPaaminnelseTidspunkt",
+            "ukjentProdusent",
+            "ukjentRolle",
+            "ukjentFeil",
+        ) { jsonFilename ->
+            val response = "responses/nyOppgave/$jsonFilename.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+            shouldThrowExactly<OpprettNyOppgaveException> {
+                arbeidsgiverNotifikasjonKlient.opprettNyOppgave(
+                    eksternId = "mock eksternId",
+                    lenke = "mock lenke",
+                    tekst = "mock tekst",
+                    virksomhetsnummer = "mock virksomhetsnummer",
+                    merkelapp = "mock merkelapp",
+                    tidspunkt = "mock tidspunkt",
+                    grupperingsid = "mock grupperingsid",
+                    varslingTittel = "mock varslingTittel",
+                    varslingInnhold = "mock varslingInnhold",
                 )
             }
-
-        val expected = "1"
-        assertEquals(expected, resultat)
+        }
     }
 
-    @Test
-    fun `UgyldigMerkelapp respons fra opprettNyOppgave`() {
-        val response = "responses/nyOppgave/ugyldigMerkelapp.json".readResource()
-        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+    context(ArbeidsgiverNotifikasjonKlient::oppgaveUtfoertByEksternIdV2.name) {
+        test("vellykket - oppgave utfoert") {
+            val response = "responses/oppgaveUtfoertByEksternIdV2/vellykket.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
-        assertFailsWith(
-            exceptionClass = OpprettNyOppgaveException::class,
-            block = {
-                runBlocking {
-                    arbeidsgiverNotifikasjonKlient.opprettNyOppgave(
-                        eksternId = "id",
-                        lenke = "https://lenke.no",
-                        tekst = "test",
-                        virksomhetsnummer = "874568112",
-                        merkelapp = "Refusjon",
-                        tidspunkt = LocalDateTime.now().toString(),
-                        grupperingsid = null,
-                        varslingTittel = "Du har fått oppgave",
-                        varslingInnhold = "Logg på nav.no",
-                    )
-                }
-            },
-        )
-    }
+            shouldNotThrowAny {
+                arbeidsgiverNotifikasjonKlient.oppgaveUtfoertByEksternIdV2(
+                    eksternId = "mock eksternId",
+                    merkelapp = "mock merkelapp",
+                    nyLenke = "mock nyLenke",
+                )
+            }
+        }
 
-    @Test
-    fun `Forventer gyldig respons fra oppgaveUtfoertByEksternIdV2`() {
-        val response = "responses/oppgaveUtfoertByEksternIdV2/gyldig.json".readResource()
-        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+        test("notifikasjon finnes ikke - oppgave utfoert") {
+            val response = "responses/oppgaveUtfoertByEksternIdV2/notifikasjonFinnesIkke.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
-        assertDoesNotThrow {
-            runBlocking {
+            shouldThrowExactly<SakEllerOppgaveFinnesIkkeException> {
+                arbeidsgiverNotifikasjonKlient.oppgaveUtfoertByEksternIdV2(
+                    eksternId = "mock eksternId",
+                    merkelapp = "mock merkelapp",
+                    nyLenke = "mock nyLenke",
+                )
+            }
+        }
+
+        withData(
+            "ugyldigMerkelapp",
+            "ukjentProdusent",
+            "ukjentFeil",
+        ) { jsonFilename ->
+            val response = "responses/oppgaveUtfoertByEksternIdV2/$jsonFilename.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+            shouldThrowExactly<OppgaveUtfoertByEksternIdV2Exception> {
                 arbeidsgiverNotifikasjonKlient.oppgaveUtfoertByEksternIdV2(
                     eksternId = "mock eksternId",
                     merkelapp = "mock merkelapp",
@@ -135,71 +205,100 @@ class ArbeidsgiverNotifikasjonKlientTest {
         }
     }
 
-    @Test
-    fun `oppgaveUtfoertByEksternIdV2 - dersom sak ikke finnes så kastes egendefinert exception`() {
-        val response = "responses/oppgaveUtfoertByEksternIdV2/finnesIkke.json".readResource()
-        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+    context(ArbeidsgiverNotifikasjonKlient::oppgaveUtgaattByEksternId.name) {
+        test("vellykket - oppgave utgaatt") {
+            val response = "responses/oppgaveUtgaattByEksternId/vellykket.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
-        assertThrows<SakEllerOppgaveFinnesIkkeException> {
-            runBlocking {
-                arbeidsgiverNotifikasjonKlient.oppgaveUtfoertByEksternIdV2(
-                    eksternId = "mock eksternId",
+            shouldNotThrowAny {
+                arbeidsgiverNotifikasjonKlient.oppgaveUtgaattByEksternId(
                     merkelapp = "mock merkelapp",
+                    eksternId = "mock eksternId",
+                    nyLenke = "mock nyLenke",
+                )
+            }
+        }
+
+        test("notifikasjon finnes ikke - oppgave utgatt") {
+            val response = "responses/oppgaveUtgaattByEksternId/notifikasjonFinnesIkke.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+            shouldThrowExactly<SakEllerOppgaveFinnesIkkeException> {
+                arbeidsgiverNotifikasjonKlient.oppgaveUtgaattByEksternId(
+                    merkelapp = "mock merkelapp",
+                    eksternId = "mock eksternId",
+                    nyLenke = "mock nyLenke",
+                )
+            }
+        }
+
+        withData(
+            "oppgavenErAlleredeUtfoert",
+            "ugyldigMerkelapp",
+            "ukjentProdusent",
+            "ukjentFeil",
+        ) { jsonFilename ->
+            val response = "responses/oppgaveUtgaattByEksternId/$jsonFilename.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+            shouldThrowExactly<OppgaveUtgaattByEksternIdException> {
+                arbeidsgiverNotifikasjonKlient.oppgaveUtgaattByEksternId(
+                    merkelapp = "mock merkelapp",
+                    eksternId = "mock eksternId",
                     nyLenke = "mock nyLenke",
                 )
             }
         }
     }
 
-    @Test
-    fun `Forventer gyldig respons fra oppgaveUtgaattByEksternId`() {
-        val response = "responses/oppgaveUtgaattByEksternId/gyldig.json".readResource()
-        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+    context(ArbeidsgiverNotifikasjonKlient::hardDeleteSak.name) {
+        test("vellykket - hard delete sak") {
+            val response = "responses/hardDeleteSak/vellykket.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
-        assertDoesNotThrow {
-            runBlocking {
-                arbeidsgiverNotifikasjonKlient.oppgaveUtgaattByEksternId("Inntektsmelding sykepenger", "id")
+            shouldNotThrowAny {
+                arbeidsgiverNotifikasjonKlient.hardDeleteSak(
+                    id = "mock id",
+                )
+            }
+        }
+
+        test("sak finnes ikke - hard delete sak") {
+            val response = "responses/hardDeleteSak/sakFinnesIkke.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+            shouldThrowExactly<SakEllerOppgaveFinnesIkkeException> {
+                arbeidsgiverNotifikasjonKlient.hardDeleteSak(
+                    id = "mock id",
+                )
+            }
+        }
+
+        withData(
+            "ugyldigMerkelapp",
+            "ukjentProdusent",
+            "ukjentFeil",
+        ) { jsonFilename ->
+            val response = "responses/hardDeleteSak/$jsonFilename.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+            shouldThrowExactly<HardDeleteSakException> {
+                arbeidsgiverNotifikasjonKlient.hardDeleteSak(
+                    id = "mock id",
+                )
             }
         }
     }
 
-    @Test
-    fun `oppgaveUtgaattByEksternId - dersom sak ikke finnes så kastes egendefinert exception`() {
-        val response = "responses/oppgaveUtgaattByEksternId/finnesIkke.json".readResource()
+    test("tom response gir egen feil") {
+        val response = "responses/tomResponse.json".readResource()
         val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
-        assertThrows<SakEllerOppgaveFinnesIkkeException> {
-            runBlocking {
-                arbeidsgiverNotifikasjonKlient.oppgaveUtgaattByEksternId("Inntektsmelding sykepenger", "id")
-            }
+        shouldThrowExactly<TomResponseException> {
+            // Hvilken metode som kalles er irrelevant
+            arbeidsgiverNotifikasjonKlient.hardDeleteSak(
+                id = "mock id",
+            )
         }
     }
-
-    @Test
-    fun `UgyldigMerkelapp respons fra oppgaveUtgaattByEksternId`() {
-        val response = "responses/oppgaveUtgaattByEksternId/ugyldigMerkelapp.json".readResource()
-        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
-
-        assertFailsWith(
-            exceptionClass = OppgaveUtgaattByEksternIdException::class,
-            block = {
-                runBlocking {
-                    arbeidsgiverNotifikasjonKlient.oppgaveUtgaattByEksternId(
-                        merkelapp = "Refusjon",
-                        eksternId = "id",
-                    )
-                }
-            },
-        )
-    }
-
-    @Test
-    fun `Forventer gyldig respons fra hardDeleteSak`() {
-        val response = "responses/hardDeleteSak/gyldig.json".readResource()
-        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
-
-        assertDoesNotThrow {
-            runBlocking { arbeidsgiverNotifikasjonKlient.hardDeleteSak("id") }
-        }
-    }
-}
+})

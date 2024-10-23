@@ -1,0 +1,8 @@
+{
+  "data": {
+    "oppgaveUtgaattByEksternId": {
+      "__typename": "UkjentProdusent",
+      "feilmelding": "uffda"
+    }
+  }
+}

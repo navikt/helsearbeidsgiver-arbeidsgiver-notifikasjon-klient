@@ -1,0 +1,8 @@
+{
+  "data": {
+    "oppgaveUtfoertByEksternId_V2": {
+      "__typename": "DetteErEtUkjentResultat",
+      "feilmelding": "uffda"
+    }
+  }
+}

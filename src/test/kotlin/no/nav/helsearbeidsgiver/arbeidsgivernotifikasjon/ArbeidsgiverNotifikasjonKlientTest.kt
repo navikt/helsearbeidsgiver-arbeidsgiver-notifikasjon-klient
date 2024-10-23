@@ -35,40 +35,6 @@ class ArbeidsgiverNotifikasjonKlientTest {
     }
 
     @Test
-    fun `Forventer gyldig respons fra nyStatusSak`() {
-        val response = "responses/nyStatusSak/gyldig.json".readResource()
-        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
-
-        assertDoesNotThrow {
-            runBlocking {
-                arbeidsgiverNotifikasjonKlient.nyStatusSak(
-                    id = "id",
-                    status = SaksStatus.FERDIG,
-                    statusTekst = "Ny statustekst",
-                    nyLenkeTilSak = "https://test.no",
-                )
-            }
-        }
-    }
-
-    @Test
-    fun `nyStatusSak - dersom sak ikke finnes så kastes egendefinert exception`() {
-        val response = "responses/nyStatusSak/finnesIkke.json".readResource()
-        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
-
-        assertThrows<SakEllerOppgaveFinnesIkkeException> {
-            runBlocking {
-                arbeidsgiverNotifikasjonKlient.nyStatusSak(
-                    id = "mock id",
-                    status = SaksStatus.FERDIG,
-                    statusTekst = "mock statusTekst",
-                    nyLenkeTilSak = "mock nyLenke",
-                )
-            }
-        }
-    }
-
-    @Test
     fun `Forventer gyldig respons fra nyStatusSakByGrupperingsid`() {
         val response = "responses/nyStatusSakByGrupperingsid/gyldig.json".readResource()
         val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
@@ -154,34 +120,6 @@ class ArbeidsgiverNotifikasjonKlientTest {
     }
 
     @Test
-    fun `Forventer gyldig respons fra oppgaveUtfoert`() {
-        val response = "responses/oppgaveUtfoert/gyldig.json".readResource()
-        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
-
-        assertDoesNotThrow {
-            runBlocking {
-                arbeidsgiverNotifikasjonKlient.oppgaveUtfoert(
-                    id = "mock id",
-                )
-            }
-        }
-    }
-
-    @Test
-    fun `oppgaveUtfoert - dersom sak ikke finnes så kastes egendefinert exception`() {
-        val response = "responses/oppgaveUtfoert/finnesIkke.json".readResource()
-        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
-
-        assertThrows<SakEllerOppgaveFinnesIkkeException> {
-            runBlocking {
-                arbeidsgiverNotifikasjonKlient.oppgaveUtfoert(
-                    id = "mock id",
-                )
-            }
-        }
-    }
-
-    @Test
     fun `Forventer gyldig respons fra oppgaveUtfoertByEksternIdV2`() {
         val response = "responses/oppgaveUtfoertByEksternIdV2/gyldig.json".readResource()
         val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
@@ -209,60 +147,6 @@ class ArbeidsgiverNotifikasjonKlientTest {
                     merkelapp = "mock merkelapp",
                     nyLenke = "mock nyLenke",
                 )
-            }
-        }
-    }
-
-    @Test
-    fun `Forventer gyldig respons fra softDeleteSak`() {
-        val response = "responses/softDeleteSak/gyldig.json".readResource()
-        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
-
-        assertDoesNotThrow {
-            runBlocking { arbeidsgiverNotifikasjonKlient.softDeleteSak("id") }
-        }
-    }
-
-    @Test
-    fun `Forventer gyldig respons fra softDeleteSakByGrupperingsid`() {
-        val response = "responses/softDeleteSakByGrupperingsid/gyldig.json".readResource()
-        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
-
-        assertDoesNotThrow {
-            runBlocking { arbeidsgiverNotifikasjonKlient.softDeleteSakByGrupperingsid("id", "M") }
-        }
-    }
-
-    @Test
-    fun `Forventer gyldig respons fra hardDeleteSak`() {
-        val response = "responses/hardDeleteSak/gyldig.json".readResource()
-        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
-
-        assertDoesNotThrow {
-            runBlocking { arbeidsgiverNotifikasjonKlient.hardDeleteSak("id") }
-        }
-    }
-
-    @Test
-    fun `Forventer gyldig respons fra oppgaveUtgaatt)`() {
-        val response = "responses/oppgaveUtgaatt/gyldig.json".readResource()
-        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
-
-        assertDoesNotThrow {
-            runBlocking {
-                arbeidsgiverNotifikasjonKlient.oppgaveUtgaatt("mock id")
-            }
-        }
-    }
-
-    @Test
-    fun `oppgaveUtgaatt - dersom sak ikke finnes så kastes egendefinert exception`() {
-        val response = "responses/oppgaveUtgaatt/finnesIkke.json".readResource()
-        val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
-
-        assertThrows<SakEllerOppgaveFinnesIkkeException> {
-            runBlocking {
-                arbeidsgiverNotifikasjonKlient.oppgaveUtgaatt("mock id")
             }
         }
     }
@@ -310,11 +194,12 @@ class ArbeidsgiverNotifikasjonKlientTest {
     }
 
     @Test
-    fun `Forventer gyldig respons fra whoami`() {
-        val response = "responses/whoami/gyldig.json".readResource()
+    fun `Forventer gyldig respons fra hardDeleteSak`() {
+        val response = "responses/hardDeleteSak/gyldig.json".readResource()
         val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
-        val resultat = runBlocking { arbeidsgiverNotifikasjonKlient.whoami() }
-        val expected = "ut laborum aut laborum quas eos maxime"
-        assertEquals(expected, resultat)
+
+        assertDoesNotThrow {
+            runBlocking { arbeidsgiverNotifikasjonKlient.hardDeleteSak("id") }
+        }
     }
 }

@@ -14,6 +14,7 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.Oppgav
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OppgaveUtgaattByEksternId
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OpprettNyOppgave
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OpprettNySak
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.Whoami
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakVellykket
@@ -185,6 +186,17 @@ class ArbeidsgiverNotifikasjonKlient(
 
         loggInfo("Slettet (hard) sak med id '$id'.")
     }
+
+    // Brukes til debugging
+    suspend fun whoami(): String? =
+        Whoami()
+            .also { loggInfo("Henter 'whoami' info fra arbeidsgiver-notifikasjon-api.") }
+            .executeOrThrow(
+                toResult = { this },
+                toSuccess = { it },
+                onError = { _, _ -> throw RuntimeException("Feil ved henting av 'whoami'.") },
+            ).whoami
+            .also { loggInfo("Whoami: '$it'.") }
 
     private suspend fun <Data : Any, Result : Any, Success : Result> GraphQLClientRequest<Data>.execute(
         toResult: Data.() -> Result,

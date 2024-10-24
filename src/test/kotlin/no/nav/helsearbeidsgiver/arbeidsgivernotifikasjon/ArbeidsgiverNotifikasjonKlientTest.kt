@@ -127,6 +127,12 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
                     grupperingsid = "mock grupperingsid",
                     varslingTittel = "mock varslingTittel",
                     varslingInnhold = "mock varslingInnhold",
+                    paaminnelse =
+                        Paaminnelse(
+                            tittel = "mock tittel",
+                            innhold = "mock innhold",
+                            tidMellomOppgaveopprettelseOgPaaminnelse = "P10D",
+                        ),
                 )
 
             resultat shouldBe "752444"
@@ -155,6 +161,12 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
                     grupperingsid = "mock grupperingsid",
                     varslingTittel = "mock varslingTittel",
                     varslingInnhold = "mock varslingInnhold",
+                    paaminnelse =
+                        Paaminnelse(
+                            tittel = "mock tittel",
+                            innhold = "mock innhold",
+                            tidMellomOppgaveopprettelseOgPaaminnelse = "P10D",
+                        ),
                 )
             }
         }

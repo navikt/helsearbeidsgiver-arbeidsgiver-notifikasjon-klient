@@ -17,7 +17,6 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.Oppret
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.Whoami
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakVellykket
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.PaaminnelseInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutfoertbyeksternidv2.OppgaveUtfoertVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaattbyeksternid.OppgaveUtgaattVellykket
@@ -112,7 +111,7 @@ class ArbeidsgiverNotifikasjonKlient(
         grupperingsid: String?,
         varslingTittel: String,
         varslingInnhold: String,
-        paaminnelse: PaaminnelseInput?,
+        paaminnelse: Paaminnelse?,
     ): ID =
         OpprettNyOppgave(
             variables =
@@ -126,7 +125,7 @@ class ArbeidsgiverNotifikasjonKlient(
                     grupperingsid = grupperingsid,
                     varslingTittel = varslingTittel,
                     varslingInnhold = varslingInnhold,
-                    paaminnelseInput = paaminnelse,
+                    paaminnelseInput = paaminnelse?.toPaaminnelseInput(),
                 ),
         ).also { loggInfo("Forsøker å opprette ny oppgave.") }
             .execute(

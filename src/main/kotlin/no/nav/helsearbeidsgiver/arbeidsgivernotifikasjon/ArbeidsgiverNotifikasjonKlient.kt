@@ -111,6 +111,7 @@ class ArbeidsgiverNotifikasjonKlient(
         grupperingsid: String?,
         varslingTittel: String,
         varslingInnhold: String,
+        paaminnelse: Paaminnelse?,
     ): ID =
         OpprettNyOppgave(
             variables =
@@ -124,6 +125,7 @@ class ArbeidsgiverNotifikasjonKlient(
                     grupperingsid = grupperingsid,
                     varslingTittel = varslingTittel,
                     varslingInnhold = varslingInnhold,
+                    paaminnelseInput = paaminnelse?.tilPaaminnelseInput(),
                 ),
         ).also { loggInfo("Forsøker å opprette ny oppgave.") }
             .execute(

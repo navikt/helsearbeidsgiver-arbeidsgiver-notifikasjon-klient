@@ -7,7 +7,8 @@ mutation OpprettNyOppgave(
     $tidspunkt: ISO8601DateTime,
     $grupperingsid: String,
     $varslingTittel: String!,
-    $varslingInnhold: String!
+    $varslingInnhold: String!,
+    $paaminnelseInput: PaaminnelseInput
 ){
     nyOppgave(nyOppgave: {
         mottakere: [
@@ -43,7 +44,8 @@ mutation OpprettNyOppgave(
                     },
                 }
             }
-        ]
+        ],
+        paaminnelse: $paaminnelseInput
     }) {
         __typename
         ... on NyOppgaveVellykket {

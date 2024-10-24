@@ -125,7 +125,7 @@ class ArbeidsgiverNotifikasjonKlient(
                     grupperingsid = grupperingsid,
                     varslingTittel = varslingTittel,
                     varslingInnhold = varslingInnhold,
-                    paaminnelseInput = paaminnelse?.toPaaminnelseInput(),
+                    paaminnelseInput = paaminnelse?.tilPaaminnelseInput(),
                 ),
         ).also { loggInfo("Forsøker å opprette ny oppgave.") }
             .execute(

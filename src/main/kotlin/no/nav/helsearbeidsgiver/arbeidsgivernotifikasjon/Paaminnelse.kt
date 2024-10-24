@@ -17,7 +17,7 @@ data class Paaminnelse(
     val tidMellomOppgaveopprettelseOgPaaminnelse: ISO8601Duration,
 )
 
-fun Paaminnelse.toPaaminnelseInput(): PaaminnelseInput =
+fun Paaminnelse.tilPaaminnelseInput(): PaaminnelseInput =
     PaaminnelseInput(
         eksterneVarsler =
             listOf(

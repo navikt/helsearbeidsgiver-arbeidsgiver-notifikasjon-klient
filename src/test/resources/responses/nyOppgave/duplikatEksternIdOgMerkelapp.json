@@ -2,6 +2,7 @@
   "data": {
     "nyOppgave": {
       "__typename": "DuplikatEksternIdOgMerkelapp",
+      "idTilEksisterende": "5677",
       "feilmelding": "quasi qui similique delectus praesentium qui autem"
     }
   }

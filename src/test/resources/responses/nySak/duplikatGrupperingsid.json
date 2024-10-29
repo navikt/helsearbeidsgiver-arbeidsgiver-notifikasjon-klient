@@ -2,6 +2,7 @@
   "data": {
     "nySak": {
       "__typename": "DuplikatGrupperingsid",
+      "idTilEksisterende": "1221",
       "feilmelding": "uffda"
     }
   }

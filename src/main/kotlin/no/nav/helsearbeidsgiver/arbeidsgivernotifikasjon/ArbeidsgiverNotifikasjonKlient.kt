@@ -9,19 +9,19 @@ import io.ktor.client.request.bearerAuth
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HardDeleteSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ID
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ISO8601DateTime
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.NySak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.NyStatusSakByGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OppgaveUtfoertByEksternIdV2
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OppgaveUtgaattByEksternId
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OpprettNyOppgave
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OpprettNySak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.Whoami
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakVellykket
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.NySakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutfoertbyeksternidv2.OppgaveUtfoertVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaattbyeksternid.OppgaveUtgaattVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.NyOppgaveVellykket
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnysak.NySakVellykket
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.net.URI
@@ -43,32 +43,34 @@ class ArbeidsgiverNotifikasjonKlient(
 
     suspend fun opprettNySak(
         virksomhetsnummer: String,
-        merkelapp: String,
         grupperingsid: String,
+        merkelapp: String,
         lenke: String,
         tittel: String,
         statusTekst: String?,
+        tilleggsinfo: String? = null,
         initiellStatus: SaksStatus,
-        harddeleteOm: Duration,
+        hardDeleteOm: Duration,
     ): ID =
-        OpprettNySak(
+        NySak(
             variables =
-                OpprettNySak.Variables(
+                NySak.Variables(
                     grupperingsid = grupperingsid,
                     merkelapp = merkelapp,
                     virksomhetsnummer = virksomhetsnummer,
                     tittel = tittel,
+                    tilleggsinformasjon = tilleggsinfo,
                     lenke = lenke,
                     initiellStatus = initiellStatus,
-                    statusTekst = statusTekst,
+                    overstyrStatustekstMed = statusTekst,
                     // https://en.wikipedia.org/wiki/ISO_8601#Durations
-                    harddeleteOm = "P${harddeleteOm.inWholeDays}D",
+                    hardDeleteOm = "P${hardDeleteOm.inWholeDays}D",
                 ),
         ).also { loggInfo("Forsøker å opprette ny sak.") }
             .execute(
-                toResult = OpprettNySak.Result::nySak,
+                toResult = NySak.Result::nySak,
                 toSuccess = { it as? NySakVellykket },
-                onError = { res, err -> Feil.opprettNySak(grupperingsid, res, err) },
+                onError = { res, err -> Feil.nySak(grupperingsid, res, err) },
             ).id
             .also { loggInfo("Opprettet ny sak med id '$it'.") }
 
@@ -102,13 +104,13 @@ class ArbeidsgiverNotifikasjonKlient(
     }
 
     suspend fun opprettNyOppgave(
+        virksomhetsnummer: String,
         eksternId: String,
+        grupperingsid: String?,
+        merkelapp: String,
         lenke: String,
         tekst: String,
-        virksomhetsnummer: String,
-        merkelapp: String,
         tidspunkt: ISO8601DateTime?,
-        grupperingsid: String?,
         varslingTittel: String,
         varslingInnhold: String,
         paaminnelse: Paaminnelse?,

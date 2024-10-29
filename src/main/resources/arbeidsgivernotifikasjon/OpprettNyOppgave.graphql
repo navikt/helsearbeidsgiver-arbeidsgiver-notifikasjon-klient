@@ -59,6 +59,7 @@ mutation OpprettNyOppgave(
         }
         ... on DuplikatEksternIdOgMerkelapp {
             feilmelding
+            idTilEksisterende
         }
         ... on UkjentProdusent {
             feilmelding

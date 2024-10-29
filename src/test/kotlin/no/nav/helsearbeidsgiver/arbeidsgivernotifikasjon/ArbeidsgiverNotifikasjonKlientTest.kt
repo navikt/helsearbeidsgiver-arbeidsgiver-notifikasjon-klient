@@ -12,45 +12,69 @@ import kotlin.time.Duration.Companion.days
 class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
     context(ArbeidsgiverNotifikasjonKlient::opprettNySak.name) {
         test("vellykket - ny sak") {
-            val response = "responses/opprettNySak/vellykket.json".readResource()
+            val response = "responses/nySak/vellykket.json".readResource()
             val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
             val resultat =
                 arbeidsgiverNotifikasjonKlient.opprettNySak(
                     virksomhetsnummer = "mock virksomhetsnummer",
-                    merkelapp = "mock merkelapp",
                     grupperingsid = "mock grupperingsid",
+                    merkelapp = "mock merkelapp",
                     lenke = "mock lenke",
                     tittel = "mock tittel",
                     statusTekst = "mock statusTekst",
+                    tilleggsinfo = "mock tilleggsinfo",
                     initiellStatus = SaksStatus.UNDER_BEHANDLING,
-                    harddeleteOm = 10.days,
+                    hardDeleteOm = 10.days,
                 )
 
             resultat shouldBe "269752"
         }
 
+        test("sak finnes fra før - ny sak") {
+            val response = "responses/nySak/duplikatGrupperingsid.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+            val error =
+                shouldThrowExactly<SakEllerOppgaveDuplikatException> {
+                    arbeidsgiverNotifikasjonKlient.opprettNySak(
+                        virksomhetsnummer = "mock virksomhetsnummer",
+                        grupperingsid = "mock grupperingsid",
+                        merkelapp = "mock merkelapp",
+                        lenke = "mock lenke",
+                        tittel = "mock tittel",
+                        statusTekst = "mock statusTekst",
+                        tilleggsinfo = "mock tilleggsinfo",
+                        initiellStatus = SaksStatus.UNDER_BEHANDLING,
+                        hardDeleteOm = 10.days,
+                    )
+                }
+
+            error.eksisterendeId shouldBe "1221"
+        }
+
         withData(
-            "duplikatGrupperingsid",
+            "duplikatGrupperingsidEtterDelete",
             "ugyldigMerkelapp",
             "ugyldigMottaker",
             "ukjentProdusent",
             "ukjentRolle",
             "ukjentFeil",
         ) { jsonFilename ->
-            val response = "responses/opprettNySak/$jsonFilename.json".readResource()
+            val response = "responses/nySak/$jsonFilename.json".readResource()
             val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
             shouldThrowExactly<OpprettNySakException> {
                 arbeidsgiverNotifikasjonKlient.opprettNySak(
                     virksomhetsnummer = "mock virksomhetsnummer",
-                    merkelapp = "mock merkelapp",
                     grupperingsid = "mock grupperingsid",
+                    merkelapp = "mock merkelapp",
                     lenke = "mock lenke",
                     tittel = "mock tittel",
                     statusTekst = "mock statusTekst",
+                    tilleggsinfo = "mock tilleggsinfo",
                     initiellStatus = SaksStatus.UNDER_BEHANDLING,
-                    harddeleteOm = 10.days,
+                    hardDeleteOm = 10.days,
                 )
             }
         }
@@ -118,13 +142,13 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
 
             val resultat =
                 arbeidsgiverNotifikasjonKlient.opprettNyOppgave(
+                    virksomhetsnummer = "mock virksomhetsnummer",
                     eksternId = "mock eksternId",
+                    grupperingsid = "mock grupperingsid",
+                    merkelapp = "mock merkelapp",
                     lenke = "mock lenke",
                     tekst = "mock tekst",
-                    virksomhetsnummer = "mock virksomhetsnummer",
-                    merkelapp = "mock merkelapp",
                     tidspunkt = "mock tidspunkt",
-                    grupperingsid = "mock grupperingsid",
                     varslingTittel = "mock varslingTittel",
                     varslingInnhold = "mock varslingInnhold",
                     paaminnelse =
@@ -138,8 +162,35 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
             resultat shouldBe "752444"
         }
 
+        test("notifikasjon finnes fra før - ny oppgave") {
+            val response = "responses/nyOppgave/duplikatEksternIdOgMerkelapp.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+            val error =
+                shouldThrowExactly<SakEllerOppgaveDuplikatException> {
+                    arbeidsgiverNotifikasjonKlient.opprettNyOppgave(
+                        virksomhetsnummer = "mock virksomhetsnummer",
+                        eksternId = "mock eksternId",
+                        grupperingsid = "mock grupperingsid",
+                        merkelapp = "mock merkelapp",
+                        lenke = "mock lenke",
+                        tekst = "mock tekst",
+                        tidspunkt = "mock tidspunkt",
+                        varslingTittel = "mock varslingTittel",
+                        varslingInnhold = "mock varslingInnhold",
+                        paaminnelse =
+                            Paaminnelse(
+                                tittel = "mock tittel",
+                                innhold = "mock innhold",
+                                tidMellomOppgaveopprettelseOgPaaminnelse = "P10D",
+                            ),
+                    )
+                }
+
+            error.eksisterendeId shouldBe "5677"
+        }
+
         withData(
-            "duplikatEksternIdOgMerkelapp",
             "ugyldigMerkelapp",
             "ugyldigMottaker",
             "ugyldigPaaminnelseTidspunkt",
@@ -152,13 +203,13 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
 
             shouldThrowExactly<OpprettNyOppgaveException> {
                 arbeidsgiverNotifikasjonKlient.opprettNyOppgave(
+                    virksomhetsnummer = "mock virksomhetsnummer",
                     eksternId = "mock eksternId",
+                    grupperingsid = "mock grupperingsid",
+                    merkelapp = "mock merkelapp",
                     lenke = "mock lenke",
                     tekst = "mock tekst",
-                    virksomhetsnummer = "mock virksomhetsnummer",
-                    merkelapp = "mock merkelapp",
                     tidspunkt = "mock tidspunkt",
-                    grupperingsid = "mock grupperingsid",
                     varslingTittel = "mock varslingTittel",
                     varslingInnhold = "mock varslingInnhold",
                     paaminnelse =

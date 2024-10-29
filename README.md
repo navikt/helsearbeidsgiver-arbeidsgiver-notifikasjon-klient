@@ -2,6 +2,8 @@
 
 Klient for å lage oppgaver, saker og notifikasjoner mot [arbeidsgiver-notifikasjon-api](https://navikt.github.io/arbeidsgiver-notifikasjon-produsent-api/).
 
+Oppdatert `schema.graphql` kan hentes [herfra](https://github.com/navikt/arbeidsgiver-notifikasjon-produsent-api/blob/main/app/src/main/resources/produsent.graphql).
+
 ### Klienten kan brukes slik
 
 ```kt

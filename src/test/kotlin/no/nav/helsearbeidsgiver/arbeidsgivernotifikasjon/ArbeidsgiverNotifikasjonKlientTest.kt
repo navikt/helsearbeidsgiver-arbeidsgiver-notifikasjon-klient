@@ -25,7 +25,7 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
                     statusTekst = "mock statusTekst",
                     tilleggsinfo = "mock tilleggsinfo",
                     initiellStatus = SaksStatus.UNDER_BEHANDLING,
-                    harddeleteOm = 10.days,
+                    hardDeleteOm = 10.days,
                 )
 
             resultat shouldBe "269752"
@@ -46,7 +46,7 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
                         statusTekst = "mock statusTekst",
                         tilleggsinfo = "mock tilleggsinfo",
                         initiellStatus = SaksStatus.UNDER_BEHANDLING,
-                        harddeleteOm = 10.days,
+                        hardDeleteOm = 10.days,
                     )
                 }
 
@@ -74,7 +74,7 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
                     statusTekst = "mock statusTekst",
                     tilleggsinfo = "mock tilleggsinfo",
                     initiellStatus = SaksStatus.UNDER_BEHANDLING,
-                    harddeleteOm = 10.days,
+                    hardDeleteOm = 10.days,
                 )
             }
         }

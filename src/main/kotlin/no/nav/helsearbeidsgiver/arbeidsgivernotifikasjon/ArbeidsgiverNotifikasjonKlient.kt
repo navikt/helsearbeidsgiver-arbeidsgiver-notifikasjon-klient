@@ -50,7 +50,7 @@ class ArbeidsgiverNotifikasjonKlient(
         statusTekst: String?,
         tilleggsinfo: String? = null,
         initiellStatus: SaksStatus,
-        harddeleteOm: Duration,
+        hardDeleteOm: Duration,
     ): ID =
         NySak(
             variables =
@@ -64,7 +64,7 @@ class ArbeidsgiverNotifikasjonKlient(
                     initiellStatus = initiellStatus,
                     overstyrStatustekstMed = statusTekst,
                     // https://en.wikipedia.org/wiki/ISO_8601#Durations
-                    hardDeleteOm = "P${harddeleteOm.inWholeDays}D",
+                    hardDeleteOm = "P${hardDeleteOm.inWholeDays}D",
                 ),
         ).also { loggInfo("Forsøker å opprette ny sak.") }
             .execute(

@@ -1,0 +1,57 @@
+mutation nySak(
+    $grupperingsid: String!,
+    $merkelapp: String!,
+    $virksomhetsnummer: String!,
+    $tittel: String!,
+    $tilleggsinformasjon: String,
+    $lenke: String,
+    $initiellStatus: SaksStatus!,
+    $overstyrStatustekstMed: String,
+    $hardDeleteOm: ISO8601Duration
+) {
+    nySak(
+        grupperingsid: $grupperingsid,
+        merkelapp: $merkelapp,
+        virksomhetsnummer: $virksomhetsnummer,
+        mottakere: [
+            {
+                altinn: {
+                    serviceCode: "4936"
+                    serviceEdition: "1"
+                }
+            }
+        ],
+        tittel: $tittel,
+        tilleggsinformasjon: $tilleggsinformasjon,
+        lenke: $lenke,
+        initiellStatus: $initiellStatus,
+        overstyrStatustekstMed: $overstyrStatustekstMed,
+        hardDelete: {
+            om: $hardDeleteOm
+        }
+    ) {
+        __typename
+        ... on NySakVellykket {
+            id
+        }
+        ... on UgyldigMerkelapp {
+            feilmelding
+        }
+        ... on UgyldigMottaker {
+            feilmelding
+        }
+        ... on DuplikatGrupperingsid {
+            feilmelding
+            idTilEksisterende
+        }
+        ... on DuplikatGrupperingsidEtterDelete {
+            feilmelding
+        }
+        ... on UkjentProdusent {
+            feilmelding
+        }
+        ... on UkjentRolle {
+            feilmelding
+        }
+    }
+}

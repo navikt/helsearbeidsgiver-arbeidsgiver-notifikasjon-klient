@@ -5,6 +5,10 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.DefaultHardDeleteSakResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakVellykket
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.DefaultNySakResultatImplementation
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.DuplikatGrupperingsidEtterDelete
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.NySakResultat
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.NySakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.DefaultNyStatusSakResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakVellykket
@@ -17,14 +21,16 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgav
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.DefaultNyOppgaveResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.NyOppgaveResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.NyOppgaveVellykket
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnysak.DefaultNySakResultatImplementation
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnysak.NySakResultat
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnysak.NySakVellykket
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.SakFinnesIkke as SakFinnesIkkeHardDeleteSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.UgyldigMerkelapp as UgyldigMerkelappHardDeleteSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.UkjentProdusent as UkjentProdusentHardDeleteSak
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.DuplikatGrupperingsid as DuplikatGrupperingsidNySak
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.UgyldigMerkelapp as UgyldigMerkelappNySak
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.UgyldigMottaker as UgyldigMottakerNySak
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.UkjentProdusent as UkjentProdusentNySak
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.UkjentRolle as UkjentRolleNySak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.Konflikt as KonfliktNyStatusSakByGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.SakFinnesIkke as SakFinnesIkkeNyStatusSakByGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.UgyldigMerkelapp as UgyldigMerkelappNyStatusSakByGrupperingsid
@@ -42,24 +48,21 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppret
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.UgyldigPaaminnelseTidspunkt as UgyldigPaaminnelseTidspunktNyOppgave
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.UkjentProdusent as UkjentProdusentNyOppgave
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.UkjentRolle as UkjentRolleNyOppgave
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnysak.DuplikatGrupperingsid as DuplikatGrupperingsidNySak
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnysak.UgyldigMerkelapp as UgyldigMerkelappNySak
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnysak.UgyldigMottaker as UgyldigMottakerNySak
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnysak.UkjentProdusent as UkjentProdusentNySak
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnysak.UkjentRolle as UkjentRolleNySak
 
 internal object Feil {
     private val logger = ArbeidsgiverNotifikasjonKlient::class.logger()
     private val sikkerLogger = sikkerLogger()
 
-    fun opprettNySak(
+    fun nySak(
         grupperingsid: String,
         resultat: NySakResultat,
         feil: List<GraphQLClientError>,
     ): Nothing {
         val feilmelding =
             when (resultat) {
-                is DuplikatGrupperingsidNySak -> resultat.feilmelding
+                is DuplikatGrupperingsidNySak ->
+                    throw SakEllerOppgaveDuplikatException(resultat.idTilEksisterende, resultat.feilmelding)
+                is DuplikatGrupperingsidEtterDelete -> resultat.feilmelding
                 is UgyldigMerkelappNySak -> resultat.feilmelding
                 is UgyldigMottakerNySak -> resultat.feilmelding
                 is UkjentProdusentNySak -> resultat.feilmelding
@@ -84,6 +87,7 @@ internal object Feil {
             when (resultat) {
                 is SakFinnesIkkeNyStatusSakByGrupperingsid ->
                     throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
+
                 is KonfliktNyStatusSakByGrupperingsid -> resultat.feilmelding
                 is UgyldigMerkelappNyStatusSakByGrupperingsid -> resultat.feilmelding
                 is UkjentProdusentNyStatusSakByGrupperingsid -> resultat.feilmelding
@@ -102,7 +106,8 @@ internal object Feil {
     ): Nothing {
         val feilmelding =
             when (resultat) {
-                is DuplikatEksternIdOgMerkelappNyOppgave -> resultat.feilmelding
+                is DuplikatEksternIdOgMerkelappNyOppgave ->
+                    throw SakEllerOppgaveDuplikatException(resultat.idTilEksisterende, resultat.feilmelding)
                 is UgyldigMerkelappNyOppgave -> resultat.feilmelding
                 is UgyldigMottakerNyOppgave -> resultat.feilmelding
                 is UgyldigPaaminnelseTidspunktNyOppgave -> resultat.feilmelding
@@ -168,6 +173,7 @@ internal object Feil {
             when (resultat) {
                 is SakFinnesIkkeHardDeleteSak ->
                     throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
+
                 is UgyldigMerkelappHardDeleteSak -> resultat.feilmelding
                 is UkjentProdusentHardDeleteSak -> resultat.feilmelding
                 is DefaultHardDeleteSakResultatImplementation,
@@ -189,6 +195,11 @@ internal object Feil {
         }
     }
 }
+
+class SakEllerOppgaveDuplikatException(
+    val eksisterendeId: String,
+    feilmelding: String,
+) : Exception("Sak/oppgave finnes fra før. Feilmelding: '$feilmelding'.")
 
 class SakEllerOppgaveFinnesIkkeException(
     feilmelding: String,

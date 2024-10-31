@@ -1,0 +1,8 @@
+{
+  "data": {
+    "oppgaveEndrePaaminnelseByEksternId": {
+      "__typename": "UgyldigPaaminnelseTidspunkt",
+      "feilmelding": "Det blåser nordavind fra alle kanter i dag, Solan."
+    }
+  }
+}

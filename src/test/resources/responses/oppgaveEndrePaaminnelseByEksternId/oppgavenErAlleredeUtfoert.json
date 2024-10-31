@@ -1,0 +1,8 @@
+{
+  "data": {
+    "oppgaveEndrePaaminnelseByEksternId": {
+      "__typename": "OppgavenErAlleredeUtfoert",
+      "feilmelding": "Du skal vel ha håndvrengte rosiner, du, Solan?"
+    }
+  }
+}

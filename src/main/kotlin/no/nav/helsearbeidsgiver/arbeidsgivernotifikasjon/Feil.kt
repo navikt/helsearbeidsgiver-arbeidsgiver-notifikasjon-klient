@@ -12,6 +12,7 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.DefaultNyStatusSakResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakVellykket
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveendrepaaminnelsebyeksternid.DefaultOppgaveEndrePaaminnelseResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutfoertbyeksternidv2.DefaultOppgaveUtfoertResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutfoertbyeksternidv2.OppgaveUtfoertResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutfoertbyeksternidv2.OppgaveUtfoertVellykket
@@ -23,6 +24,13 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppret
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.NyOppgaveVellykket
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveendrepaaminnelsebyeksternid.NotifikasjonFinnesIkke as NotifikasjonFinnesIkkeOppgaveEndrePaaminnelseByEksternId
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveendrepaaminnelsebyeksternid.OppgaveEndrePaaminnelseResultat as OppgaveEndrePaaminnelseResultatOppgaveEndrePaaminnelseByEksternId
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveendrepaaminnelsebyeksternid.OppgaveEndrePaaminnelseVellykket as OppgaveEndrePaaminnelseVellykketOppgaveEndrePaaminnelseByEksternId
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveendrepaaminnelsebyeksternid.OppgavenErAlleredeUtfoert as OppgavenErAlleredeUtfoertOppgaveEndrePaaminnelseByEksternId
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveendrepaaminnelsebyeksternid.UgyldigMerkelapp as UgyldigMerkelappOppgaveEndrePaaminnelseByEksternId
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveendrepaaminnelsebyeksternid.UgyldigPaaminnelseTidspunkt as UgyldigPaaminnelseTidspunktOppgaveEndrePaaminnelseByEksternId
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveendrepaaminnelsebyeksternid.UkjentProdusent as UkjentProdusentOppgaveEndrePaaminnelseByEksternId
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.SakFinnesIkke as SakFinnesIkkeHardDeleteSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.UgyldigMerkelapp as UgyldigMerkelappHardDeleteSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.UkjentProdusent as UkjentProdusentHardDeleteSak
@@ -185,6 +193,31 @@ internal object Feil {
         throw HardDeleteSakException(id, feilmelding)
     }
 
+    fun slettOppgavePaaminnelserByEksternId(
+        eksternId: String,
+        resultat: OppgaveEndrePaaminnelseResultatOppgaveEndrePaaminnelseByEksternId,
+        feil: List<GraphQLClientError>,
+    ): Nothing {
+        val feilmelding =
+            when (resultat) {
+                is NotifikasjonFinnesIkkeOppgaveEndrePaaminnelseByEksternId ->
+                    throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
+
+                is OppgavenErAlleredeUtfoertOppgaveEndrePaaminnelseByEksternId ->
+                    throw OppgaveUtfoertEndrePaaminnelseException(resultat.feilmelding)
+
+                is UgyldigMerkelappOppgaveEndrePaaminnelseByEksternId -> resultat.feilmelding
+                is UgyldigPaaminnelseTidspunktOppgaveEndrePaaminnelseByEksternId -> resultat.feilmelding
+                is UkjentProdusentOppgaveEndrePaaminnelseByEksternId -> resultat.feilmelding
+                is DefaultOppgaveEndrePaaminnelseResultatImplementation,
+                is OppgaveEndrePaaminnelseVellykketOppgaveEndrePaaminnelseByEksternId,
+                -> feilmeldingUkjent(feil)
+            }
+
+        loggFeilmelding(feilmelding)
+        throw OppgaveEndrePaaminnelseByEksternIdException(eksternId, feilmelding)
+    }
+
     private fun feilmeldingUkjent(feil: List<GraphQLClientError>): String =
         "Klarte ikke kalle arbeidsgiver-notifikasjon pga. ukjent feil: '$feil'"
 
@@ -204,6 +237,10 @@ class SakEllerOppgaveDuplikatException(
 class SakEllerOppgaveFinnesIkkeException(
     feilmelding: String,
 ) : Exception("Sak/oppgave finnes ikke. Trolig slettet pga. levetid. Feilmelding: '$feilmelding'.")
+
+class OppgaveUtfoertEndrePaaminnelseException(
+    feilmelding: String,
+) : Exception("Oppgaven er utført, som gjør at det ikke er mulig å endre påminnelsene. Feilmelding: '$feilmelding'.")
 
 class OpprettNySakException(
     grupperingsid: String,
@@ -249,3 +286,11 @@ class HardDeleteSakException(
 ) : Exception("Sletting (hard) av sak med id '$id' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
 
 class TomResponseException : Exception("Fikk tom response fra arbeidsgiver-notifikasjon.")
+
+class OppgaveEndrePaaminnelseByEksternIdException(
+    eksternId: String,
+    feilmelding: String,
+) : Exception(
+        "Oppdatering av påminnelser for oppgave med eksternId '$eksternId' " +
+            "mot arbeidsgiver-notifikasjon-api feilet: $feilmelding",
+    )

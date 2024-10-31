@@ -353,6 +353,61 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
         }
     }
 
+    context(ArbeidsgiverNotifikasjonKlient::slettOppgavePaaminnelserByEksternId.name) {
+        test("vellykket - slett oppgavepåminnelse") {
+            val response = "responses/oppgaveEndrePaaminnelseTidspunkt/vellykket.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+            shouldNotThrowAny {
+                arbeidsgiverNotifikasjonKlient.slettOppgavePaaminnelserByEksternId(
+                    merkelapp = "mock merkelapp",
+                    eksternId = "mock eksternId",
+                )
+            }
+        }
+
+        test("notifikasjon finnes ikke - slett oppgavepåminnelse") {
+            val response = "responses/oppgaveEndrePaaminnelseTidspunkt/notifikasjonFinnesIkke.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+            shouldThrowExactly<SakEllerOppgaveFinnesIkkeException> {
+                arbeidsgiverNotifikasjonKlient.slettOppgavePaaminnelserByEksternId(
+                    merkelapp = "mock merkelapp",
+                    eksternId = "mock eksternId",
+                )
+            }
+        }
+
+        test("oppgave utført - slett oppgavepåminnelse") {
+            val response = "responses/oppgaveEndrePaaminnelseTidspunkt/oppgavenErAlleredeUtfoert.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+            shouldThrowExactly<OppgaveUtfoertEndrePaaminnelseException> {
+                arbeidsgiverNotifikasjonKlient.slettOppgavePaaminnelserByEksternId(
+                    merkelapp = "mock merkelapp",
+                    eksternId = "mock eksternId",
+                )
+            }
+        }
+
+        withData(
+            "ugyldigPaaminnelseTidspunkt",
+            "ugyldigMerkelapp",
+            "ukjentProdusent",
+            "ukjentFeil",
+        ) { jsonFilename ->
+            val response = "responses/oppgaveEndrePaaminnelseTidspunkt/$jsonFilename.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+            shouldThrowExactly<OppgaveUtgaattByEksternIdException> {
+                arbeidsgiverNotifikasjonKlient.slettOppgavePaaminnelserByEksternId(
+                    merkelapp = "mock merkelapp",
+                    eksternId = "mock eksternId",
+                )
+            }
+        }
+    }
+
     test("tom response gir egen feil") {
         val response = "responses/tomResponse.json".readResource()
         val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)

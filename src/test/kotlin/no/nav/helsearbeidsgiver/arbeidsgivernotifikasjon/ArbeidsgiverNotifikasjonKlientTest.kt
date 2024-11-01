@@ -355,7 +355,7 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
 
     context(ArbeidsgiverNotifikasjonKlient::slettOppgavePaaminnelserByEksternId.name) {
         test("vellykket - slett oppgavepåminnelse") {
-            val response = "responses/oppgaveEndrePaaminnelseTidspunkt/vellykket.json".readResource()
+            val response = "responses/oppgaveEndrePaaminnelseByEksternId/vellykket.json".readResource()
             val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
             shouldNotThrowAny {
@@ -367,7 +367,7 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
         }
 
         test("notifikasjon finnes ikke - slett oppgavepåminnelse") {
-            val response = "responses/oppgaveEndrePaaminnelseTidspunkt/notifikasjonFinnesIkke.json".readResource()
+            val response = "responses/oppgaveEndrePaaminnelseByEksternId/notifikasjonFinnesIkke.json".readResource()
             val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
             shouldThrowExactly<SakEllerOppgaveFinnesIkkeException> {
@@ -379,7 +379,7 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
         }
 
         test("oppgave utført - slett oppgavepåminnelse") {
-            val response = "responses/oppgaveEndrePaaminnelseTidspunkt/oppgavenErAlleredeUtfoert.json".readResource()
+            val response = "responses/oppgaveEndrePaaminnelseByEksternId/oppgavenErAlleredeUtfoert.json".readResource()
             val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
             shouldThrowExactly<OppgaveUtfoertEndrePaaminnelseException> {
@@ -396,10 +396,10 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
             "ukjentProdusent",
             "ukjentFeil",
         ) { jsonFilename ->
-            val response = "responses/oppgaveEndrePaaminnelseTidspunkt/$jsonFilename.json".readResource()
+            val response = "responses/oppgaveEndrePaaminnelseByEksternId/$jsonFilename.json".readResource()
             val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
-            shouldThrowExactly<OppgaveUtgaattByEksternIdException> {
+            shouldThrowExactly<OppgaveEndrePaaminnelseByEksternIdException> {
                 arbeidsgiverNotifikasjonKlient.slettOppgavePaaminnelserByEksternId(
                     merkelapp = "mock merkelapp",
                     eksternId = "mock eksternId",

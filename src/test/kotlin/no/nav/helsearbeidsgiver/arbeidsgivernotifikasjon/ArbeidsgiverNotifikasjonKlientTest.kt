@@ -382,7 +382,7 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
             val response = "responses/oppgaveEndrePaaminnelseByEksternId/oppgavenErAlleredeUtfoert.json".readResource()
             val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
 
-            shouldThrowExactly<OppgaveUtfoertEndrePaaminnelseException> {
+            shouldThrowExactly<OppgaveAlleredeUtfoertException> {
                 arbeidsgiverNotifikasjonKlient.slettOppgavePaaminnelserByEksternId(
                     merkelapp = "mock merkelapp",
                     eksternId = "mock eksternId",

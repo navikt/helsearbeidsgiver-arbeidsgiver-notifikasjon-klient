@@ -204,7 +204,7 @@ internal object Feil {
                     throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
 
                 is OppgavenErAlleredeUtfoertOppgaveEndrePaaminnelseByEksternId ->
-                    throw OppgaveUtfoertEndrePaaminnelseException(resultat.feilmelding)
+                    throw OppgaveAlleredeUtfoertException(resultat.feilmelding)
 
                 is UgyldigMerkelappOppgaveEndrePaaminnelseByEksternId -> resultat.feilmelding
                 is UgyldigPaaminnelseTidspunktOppgaveEndrePaaminnelseByEksternId -> resultat.feilmelding
@@ -238,9 +238,11 @@ class SakEllerOppgaveFinnesIkkeException(
     feilmelding: String,
 ) : Exception("Sak/oppgave finnes ikke. Trolig slettet pga. levetid. Feilmelding: '$feilmelding'.")
 
-class OppgaveUtfoertEndrePaaminnelseException(
+class OppgaveAlleredeUtfoertException(
     feilmelding: String,
-) : Exception("Oppgaven er utført, som gjør at det ikke er mulig å endre påminnelsene. Feilmelding: '$feilmelding'.")
+) : Exception(
+        "Oppgaven er allerede utført, som gjør at det ikke er mulig å endre påminnelsene. Feilmelding: '$feilmelding'.",
+    )
 
 class OpprettNySakException(
     grupperingsid: String,

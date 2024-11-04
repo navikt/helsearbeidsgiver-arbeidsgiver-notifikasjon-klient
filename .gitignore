@@ -13,6 +13,7 @@
 *.iml
 *.ipr
 *.iws
+.java-version
 
 # Package Files #
 *.jar

@@ -684,7 +684,7 @@ type Mutation {
     nyOppgave(nyOppgave: NyOppgaveInput! @Validate): NyOppgaveResultat!
 
     """
-    Marker en oppgave (identifisert ved id) som utført.
+    Marker en oppgave (identifisert ved id) som utført. Dersom oppgaven har påminnelse, vil denne og eventuelle eksterne varsler på påminnelsen bli kansellert.
     """
     oppgaveUtfoert(
         """
@@ -714,7 +714,7 @@ type Mutation {
     ): OppgaveUtfoertResultat!
 
     """
-    Marker en oppgave (identifisert ved ekstern id) som utført.
+    Marker en oppgave (identifisert ved ekstern id) som utført. Dersom oppgaven har påminnelse, vil denne og eventuelle eksterne varsler på påminnelsen bli kansellert.
     """
     oppgaveUtfoertByEksternId(
         """
@@ -737,7 +737,7 @@ type Mutation {
     )
 
     """
-    Marker en oppgave (identifisert ved ekstern id) som utført.
+    Marker en oppgave (identifisert ved ekstern id) som utført. Dersom oppgaven har påminnelse, vil denne og eventuelle eksterne varsler på påminnelsen bli kansellert.
     """
     oppgaveUtfoertByEksternId_V2(
         """
@@ -772,7 +772,7 @@ type Mutation {
     ): OppgaveUtfoertResultat!
 
     """
-    Marker en oppgave (identifisert ved id) som utgått.
+    Marker en oppgave (identifisert ved id) som utgått. Dersom oppgaven har påminnelse, vil denne og eventuelle eksterne varsler på påminnelsen bli kansellert.
     """
     oppgaveUtgaatt(
         """
@@ -803,7 +803,7 @@ type Mutation {
 
 
     """
-    Marker en oppgave (identifisert ved ekstern id) som utgått.
+    Marker en oppgave (identifisert ved ekstern id) som utgått. Dersom oppgaven har påminnelse, vil denne og eventuelle eksterne varsler på påminnelsen bli kansellert.
     """
     oppgaveUtgaattByEksternId(
         """
@@ -900,6 +900,61 @@ type Mutation {
         """
         paaminnelse: PaaminnelseInput
     ): OppgaveUtsettFristResultat!
+
+    """
+    Endre påminnelsen for en oppgave.
+    Dersom oppgaven har en eksisterende påminnelse, vil denne bli overskrevet. Eksterne varsler blir også overskrevet
+    For fjerning av påminnelse, kan man send inn null
+    """
+    oppgaveEndrePaaminnelse(
+        """
+        ID-en som oppgaven har. Den du fikk da du opprettet oppgaven med `nyOppgave`.
+        """
+        id: ID!
+
+        """
+        Dersom dere angir idempotenceKey så vil konsekvente kall med samme idempotenceKey gi samme resultat.
+        Dette kan f.eks være nyttig hvis dere har retry mekanismer i deres system.
+        """
+        idempotencyKey: String
+
+        """
+        Her kan du spesifisere en påminnelse for oppgaven.
+        Dersom eksisterende påminnelse skal fjernes, spesifiser null
+        Brukeren vil bli gjort oppmerksom via bjellen og evt ekstern varsling dersom du oppgir det.
+        """
+        paaminnelse: PaaminnelseInput
+    ) : OppgaveEndrePaaminnelseResultat!
+
+    """
+    Endre påminnelsen for en oppgave (identifisert ved ekstern id)
+    Dersom oppgaven har en eksisterende påminnelse, vil denne bli overskrevet. Eksterne varsler blir også overskrevet
+    For fjerning av påminnelse, kan man send inn null
+    """
+    oppgaveEndrePaaminnelseByEksternId(
+        """
+        Merkelapp som oppgaven er registrert med.
+        """
+        merkelapp: String!,
+
+        """
+        ID-en som *dere ga oss* da dere opprettet oppgaven med `nyOppgave`.
+        """
+        eksternId: String!
+
+        """
+        Dersom dere angir idempotenceKey så vil konsekvente kall med samme idempotenceKey gi samme resultat.
+        Dette kan f.eks være nyttig hvis dere har retry mekanismer i deres system.
+        """
+        idempotencyKey: String
+
+        """
+        Her kan du spesifisere en påminnelse for oppgaven.
+        Dersom eksisterende påminnelse skal fjernes, spesifiser null
+        Brukeren vil bli gjort oppmerksom via bjellen og evt ekstern varsling dersom du oppgir det.
+        """
+        paaminnelse: PaaminnelseInput
+    ) : OppgaveEndrePaaminnelseResultat!
 
 
     """
@@ -1292,6 +1347,21 @@ type OppgaveUtsettFristVellykket {
     """
     id: ID!
 }
+
+type OppgaveEndrePaaminnelseVellykket {
+    """
+    ID-en til oppgaven du oppdaterte.
+    """
+    id: ID!
+}
+
+union OppgaveEndrePaaminnelseResultat =
+    | OppgaveEndrePaaminnelseVellykket
+    | UgyldigMerkelapp
+    | UgyldigPaaminnelseTidspunkt
+    | OppgavenErAlleredeUtfoert
+    | NotifikasjonFinnesIkke
+    | UkjentProdusent
 
 union OppdaterKalenderavtaleResultat =
     | OppdaterKalenderavtaleVellykket

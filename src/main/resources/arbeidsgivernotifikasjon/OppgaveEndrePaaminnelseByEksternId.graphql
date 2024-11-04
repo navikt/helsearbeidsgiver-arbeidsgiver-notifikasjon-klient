@@ -1,0 +1,33 @@
+mutation oppgaveEndrePaaminnelseByEksternId(
+    $merkelapp: String!,
+    $eksternId: String!,
+    $idempotencyKey: String,
+    $paaminnelse: PaaminnelseInput
+) {
+    oppgaveEndrePaaminnelseByEksternId(
+        merkelapp: $merkelapp,
+        eksternId: $eksternId,
+        idempotencyKey: $idempotencyKey,
+        paaminnelse: $paaminnelse
+    ) {
+        __typename
+        ... on OppgaveEndrePaaminnelseVellykket {
+            id
+        }
+        ... on UgyldigMerkelapp {
+            feilmelding
+        }
+        ... on UgyldigPaaminnelseTidspunkt {
+            feilmelding
+        }
+        ... on OppgavenErAlleredeUtfoert {
+            feilmelding
+        }
+        ... on NotifikasjonFinnesIkke {
+            feilmelding
+        }
+        ... on UkjentProdusent {
+            feilmelding
+        }
+    }
+}

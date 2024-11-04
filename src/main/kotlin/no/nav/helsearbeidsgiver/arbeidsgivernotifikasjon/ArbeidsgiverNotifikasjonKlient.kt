@@ -11,6 +11,7 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ID
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ISO8601DateTime
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.NySak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.NyStatusSakByGrupperingsid
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OppgaveEndrePaaminnelseByEksternId
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OppgaveUtfoertByEksternIdV2
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OppgaveUtgaattByEksternId
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OpprettNyOppgave
@@ -19,6 +20,7 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.NySakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakVellykket
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveendrepaaminnelsebyeksternid.OppgaveEndrePaaminnelseVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutfoertbyeksternidv2.OppgaveUtfoertVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaattbyeksternid.OppgaveUtgaattVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.NyOppgaveVellykket
@@ -190,6 +192,27 @@ class ArbeidsgiverNotifikasjonKlient(
         )
 
         loggInfo("Slettet (hard) sak med id '$id'.")
+    }
+
+    suspend fun slettOppgavePaaminnelserByEksternId(
+        merkelapp: String,
+        eksternId: String,
+    ) {
+        loggInfo("Forsøker å slette påminnelser for oppgave med eksternId '$eksternId'.")
+
+        OppgaveEndrePaaminnelseByEksternId(
+            variables =
+                OppgaveEndrePaaminnelseByEksternId.Variables(
+                    merkelapp = merkelapp,
+                    eksternId = eksternId,
+                ),
+        ).execute(
+            toResult = OppgaveEndrePaaminnelseByEksternId.Result::oppgaveEndrePaaminnelseByEksternId,
+            toSuccess = { it as? OppgaveEndrePaaminnelseVellykket },
+            onError = { res, err -> Feil.slettOppgavePaaminnelserByEksternId(eksternId, res, err) },
+        )
+
+        loggInfo("Slettet påminnelser for oppgave med eksternId '$eksternId'.")
     }
 
     // Brukes til debugging

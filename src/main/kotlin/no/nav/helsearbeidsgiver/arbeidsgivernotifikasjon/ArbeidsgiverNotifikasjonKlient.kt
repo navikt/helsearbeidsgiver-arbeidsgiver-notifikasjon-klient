@@ -18,7 +18,6 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.Oppret
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.Whoami
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakVellykket
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.PaaminnelseInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.NySakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveendrepaaminnelsebyeksternid.OppgaveEndrePaaminnelseVellykket
@@ -198,8 +197,8 @@ class ArbeidsgiverNotifikasjonKlient(
     suspend fun endreOppgavePaaminnelserByEksternId(
         merkelapp: String,
         eksternId: String,
+        paaminnelse: Paaminnelse?,
         idempotencyKey: String? = null,
-        paaminnelse: PaaminnelseInput?,
     ) {
         loggInfo("Forsøker å endre påminnelser for oppgave med eksternId '$eksternId'.")
 
@@ -209,7 +208,7 @@ class ArbeidsgiverNotifikasjonKlient(
                     merkelapp = merkelapp,
                     eksternId = eksternId,
                     idempotencyKey = idempotencyKey,
-                    paaminnelse = paaminnelse,
+                    paaminnelse = paaminnelse?.tilPaaminnelseInput(),
                 ),
         ).execute(
             toResult = OppgaveEndrePaaminnelseByEksternId.Result::oppgaveEndrePaaminnelseByEksternId,

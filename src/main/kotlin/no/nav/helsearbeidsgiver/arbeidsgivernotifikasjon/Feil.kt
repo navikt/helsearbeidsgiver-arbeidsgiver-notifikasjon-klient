@@ -193,7 +193,7 @@ internal object Feil {
         throw HardDeleteSakException(id, feilmelding)
     }
 
-    fun slettOppgavePaaminnelserByEksternId(
+    fun endreOppgavePaaminnelserByEksternId(
         eksternId: String,
         resultat: OppgaveEndrePaaminnelseResultatOppgaveEndrePaaminnelseByEksternId,
         feil: List<GraphQLClientError>,

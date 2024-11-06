@@ -422,7 +422,7 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
                             tittel = "mock tittel",
                             innhold = "mock innhold",
                             tidMellomOppgaveopprettelseOgPaaminnelse = "P28D",
-                        ).tilPaaminnelseInput(),
+                        ),
                 )
             }
         }
@@ -440,7 +440,7 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
                             tittel = "mock tittel",
                             innhold = "mock innhold",
                             tidMellomOppgaveopprettelseOgPaaminnelse = "P28D",
-                        ).tilPaaminnelseInput(),
+                        ),
                 )
             }
         }
@@ -458,7 +458,7 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
                             tittel = "mock tittel",
                             innhold = "mock innhold",
                             tidMellomOppgaveopprettelseOgPaaminnelse = "P28D",
-                        ).tilPaaminnelseInput(),
+                        ),
                 )
             }
         }
@@ -481,7 +481,7 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
                             tittel = "mock tittel",
                             innhold = "mock innhold",
                             tidMellomOppgaveopprettelseOgPaaminnelse = "P28D",
-                        ).tilPaaminnelseInput(),
+                        ),
                 )
             }
         }

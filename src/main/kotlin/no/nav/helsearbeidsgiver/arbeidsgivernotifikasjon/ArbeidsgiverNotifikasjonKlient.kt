@@ -18,6 +18,7 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.Oppret
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.Whoami
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakVellykket
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.PaaminnelseInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.NySakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveendrepaaminnelsebyeksternid.OppgaveEndrePaaminnelseVellykket
@@ -194,6 +195,31 @@ class ArbeidsgiverNotifikasjonKlient(
         loggInfo("Slettet (hard) sak med id '$id'.")
     }
 
+    suspend fun endreOppgavePaaminnelserByEksternId(
+        merkelapp: String,
+        eksternId: String,
+        idempotencyKey: String? = null,
+        paaminnelse: PaaminnelseInput?,
+    ) {
+        loggInfo("Forsøker å endre påminnelser for oppgave med eksternId '$eksternId'.")
+
+        OppgaveEndrePaaminnelseByEksternId(
+            variables =
+                OppgaveEndrePaaminnelseByEksternId.Variables(
+                    merkelapp = merkelapp,
+                    eksternId = eksternId,
+                    idempotencyKey = idempotencyKey,
+                    paaminnelse = paaminnelse,
+                ),
+        ).execute(
+            toResult = OppgaveEndrePaaminnelseByEksternId.Result::oppgaveEndrePaaminnelseByEksternId,
+            toSuccess = { it as? OppgaveEndrePaaminnelseVellykket },
+            onError = { res, err -> Feil.endreOppgavePaaminnelserByEksternId(eksternId, res, err) },
+        )
+
+        loggInfo("Endret påminnelser for oppgave med eksternId '$eksternId'.")
+    }
+
     suspend fun slettOppgavePaaminnelserByEksternId(
         merkelapp: String,
         eksternId: String,
@@ -209,7 +235,7 @@ class ArbeidsgiverNotifikasjonKlient(
         ).execute(
             toResult = OppgaveEndrePaaminnelseByEksternId.Result::oppgaveEndrePaaminnelseByEksternId,
             toSuccess = { it as? OppgaveEndrePaaminnelseVellykket },
-            onError = { res, err -> Feil.slettOppgavePaaminnelserByEksternId(eksternId, res, err) },
+            onError = { res, err -> Feil.endreOppgavePaaminnelserByEksternId(eksternId, res, err) },
         )
 
         loggInfo("Slettet påminnelser for oppgave med eksternId '$eksternId'.")

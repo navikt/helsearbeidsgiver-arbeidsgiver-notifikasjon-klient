@@ -40,7 +40,7 @@ mutation OpprettNyOppgave(
                     tittel: $varslingTittel,
                     innhold: $varslingInnhold,
                     sendetidspunkt: {
-                        sendevindu: LOEPENDE
+                        sendevindu: NKS_AAPNINGSTID
                     },
                 }
             }

@@ -31,7 +31,7 @@ fun Paaminnelse.tilPaaminnelseInput(): PaaminnelseInput =
                                 ),
                             tittel = tittel,
                             innhold = innhold,
-                            sendevindu = Sendevindu.LOEPENDE,
+                            sendevindu = Sendevindu.NKS_AAPNINGSTID,
                         ),
                 ),
             ),

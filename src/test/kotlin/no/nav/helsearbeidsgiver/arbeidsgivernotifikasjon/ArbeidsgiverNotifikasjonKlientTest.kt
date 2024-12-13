@@ -353,6 +353,20 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
         }
     }
 
+    context(ArbeidsgiverNotifikasjonKlient::softDeleteSakByGrupperingsid.name) {
+        test("vellykket - soft delete sak") {
+            val response = "responses/softDeleteSakByGrupperingsid/vellykket.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+            shouldNotThrowAny {
+                arbeidsgiverNotifikasjonKlient.softDeleteSakByGrupperingsid(
+                    grupperingsid = "mock id",
+                    merkelapp = "heia",
+                )
+            }
+        }
+    }
+
     context(ArbeidsgiverNotifikasjonKlient::slettOppgavePaaminnelserByEksternId.name) {
         test("vellykket - slett oppgavepåminnelse") {
             val response = "responses/oppgaveEndrePaaminnelseByEksternId/vellykket.json".readResource()

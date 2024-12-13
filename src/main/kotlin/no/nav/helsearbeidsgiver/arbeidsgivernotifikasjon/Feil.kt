@@ -22,6 +22,8 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgav
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.DefaultNyOppgaveResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.NyOppgaveResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.NyOppgaveVellykket
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.softdeletesakbygrupperingsid.DefaultSoftDeleteSakResultatImplementation
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.softdeletesakbygrupperingsid.SoftDeleteSakVellykket
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.SakFinnesIkke as SakFinnesIkkeHardDeleteSak
@@ -56,6 +58,10 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppret
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.UgyldigPaaminnelseTidspunkt as UgyldigPaaminnelseTidspunktNyOppgave
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.UkjentProdusent as UkjentProdusentNyOppgave
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.UkjentRolle as UkjentRolleNyOppgave
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.softdeletesakbygrupperingsid.SakFinnesIkke as SakFinnesIkkeSoftDeleteSakByGrupperingsid
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.softdeletesakbygrupperingsid.SoftDeleteSakResultat as SoftDeleteSakByGrupperingsidResultat
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.softdeletesakbygrupperingsid.UgyldigMerkelapp as UgyldigMerkelappSoftDeleteSakByGrupperingsid
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.softdeletesakbygrupperingsid.UkjentProdusent as UkjentProdusentSoftDeleteSakByGrupperingsid
 
 internal object Feil {
     private val logger = ArbeidsgiverNotifikasjonKlient::class.logger()
@@ -193,6 +199,24 @@ internal object Feil {
         throw HardDeleteSakException(id, feilmelding)
     }
 
+    fun softDeleteSakByGrupperingsid(
+        grupperingsid: String,
+        resultat: SoftDeleteSakByGrupperingsidResultat,
+        feil: List<GraphQLClientError>,
+    ): Nothing {
+        val feilmelding =
+            when (resultat) {
+                is SakFinnesIkkeSoftDeleteSakByGrupperingsid -> resultat.feilmelding
+                is UgyldigMerkelappSoftDeleteSakByGrupperingsid -> resultat.feilmelding
+                is UkjentProdusentSoftDeleteSakByGrupperingsid -> resultat.feilmelding
+                is DefaultSoftDeleteSakResultatImplementation,
+                is SoftDeleteSakVellykket,
+                -> feilmeldingUkjent(feil)
+            }
+        loggFeilmelding(feilmelding)
+        throw SoftDeleteSakByGrupperingsidException(grupperingsid, feilmelding)
+    }
+
     fun endreOppgavePaaminnelserByEksternId(
         eksternId: String,
         resultat: OppgaveEndrePaaminnelseResultatOppgaveEndrePaaminnelseByEksternId,
@@ -280,6 +304,13 @@ class OppgaveUtgaattByEksternIdException(
 ) : Exception(
         "Oppdatering av oppgave med eksternId '$eksternId' til " +
             "utgått mot arbeidsgiver-notifikasjon-api feilet: $feilmelding",
+    )
+
+class SoftDeleteSakByGrupperingsidException(
+    grupperingsid: String,
+    feilmelding: String?,
+) : Exception(
+        "Sletting (soft) av sak med grupperingsid '$grupperingsid' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding",
     )
 
 class HardDeleteSakException(

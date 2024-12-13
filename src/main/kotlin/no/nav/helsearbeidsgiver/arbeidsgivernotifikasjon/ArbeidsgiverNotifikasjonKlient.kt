@@ -15,6 +15,7 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.Oppgav
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OppgaveUtfoertByEksternIdV2
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OppgaveUtgaattByEksternId
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OpprettNyOppgave
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.SoftDeleteSakByGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.Whoami
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakVellykket
@@ -28,6 +29,7 @@ import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.net.URI
 import kotlin.time.Duration
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.softdeletesakbygrupperingsid.SoftDeleteSakVellykket as SoftDeleteSakByGrupperingsidVellykket
 
 class ArbeidsgiverNotifikasjonKlient(
     url: String,
@@ -178,6 +180,27 @@ class ArbeidsgiverNotifikasjonKlient(
         )
 
         loggInfo("Oppgave med eksternId '$eksternId' satt til utgått.")
+    }
+
+    suspend fun softDeleteSakByGrupperingsid(
+        grupperingsid: String,
+        merkelapp: String,
+    ) {
+        loggInfo("Forsøker å slette sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
+
+        SoftDeleteSakByGrupperingsid(
+            variables =
+                SoftDeleteSakByGrupperingsid.Variables(
+                    grupperingsid = grupperingsid,
+                    merkelapp = merkelapp,
+                ),
+        ).execute(
+            toResult = SoftDeleteSakByGrupperingsid.Result::softDeleteSakByGrupperingsid,
+            toSuccess = { it as? SoftDeleteSakByGrupperingsidVellykket },
+            onError = { res, err -> Feil.softDeleteSakByGrupperingsid(grupperingsid, res, err) },
+        )
+
+        loggInfo("Slettet sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
     }
 
     suspend fun hardDeleteSak(id: String) {

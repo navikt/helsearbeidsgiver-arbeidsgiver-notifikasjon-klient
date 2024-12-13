@@ -365,6 +365,32 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
                 )
             }
         }
+        test("sak finnes ikke - soft delete sak") {
+            val response = "responses/softDeleteSakByGrupperingsid/sakFinnesIkke.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+            shouldThrowExactly<SakEllerOppgaveFinnesIkkeException> {
+                arbeidsgiverNotifikasjonKlient.softDeleteSakByGrupperingsid(
+                    grupperingsid = "mock id",
+                    merkelapp = "heia",
+                )
+            }
+        }
+
+        withData(
+            "ugyldigMerkelapp",
+            "ukjentProdusent",
+        ) { jsonFilename ->
+            val response = "responses/softDeleteSakByGrupperingsid/$jsonFilename.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+            shouldThrowExactly<SoftDeleteSakByGrupperingsidException> {
+                arbeidsgiverNotifikasjonKlient.softDeleteSakByGrupperingsid(
+                    grupperingsid = "mock id",
+                    merkelapp = "heia",
+                )
+            }
+        }
     }
 
     context(ArbeidsgiverNotifikasjonKlient::slettOppgavePaaminnelserByEksternId.name) {

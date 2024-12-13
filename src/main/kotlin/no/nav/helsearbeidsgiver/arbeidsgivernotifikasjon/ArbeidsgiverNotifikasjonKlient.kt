@@ -186,7 +186,7 @@ class ArbeidsgiverNotifikasjonKlient(
         grupperingsid: String,
         merkelapp: String,
     ) {
-        loggInfo("Forsøker å slette sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
+        loggInfo("Forsøker å slette (soft) sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
 
         SoftDeleteSakByGrupperingsid(
             variables =
@@ -200,7 +200,7 @@ class ArbeidsgiverNotifikasjonKlient(
             onError = { res, err -> Feil.softDeleteSakByGrupperingsid(grupperingsid, res, err) },
         )
 
-        loggInfo("Slettet sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
+        loggInfo("Slettet (soft) sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
     }
 
     suspend fun hardDeleteSak(id: String) {

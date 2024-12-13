@@ -1,0 +1,8 @@
+{
+  "data": {
+    "softDeleteSakByGrupperingsid": {
+      "__typename": "UgyldigMerkelapp",
+      "feilmelding": "uffda"
+    }
+  }
+}

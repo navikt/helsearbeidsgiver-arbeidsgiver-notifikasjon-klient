@@ -206,7 +206,9 @@ internal object Feil {
     ): Nothing {
         val feilmelding =
             when (resultat) {
-                is SakFinnesIkkeSoftDeleteSakByGrupperingsid -> resultat.feilmelding
+                is SakFinnesIkkeSoftDeleteSakByGrupperingsid -> throw SakEllerOppgaveFinnesIkkeException(
+                    resultat.feilmelding,
+                )
                 is UgyldigMerkelappSoftDeleteSakByGrupperingsid -> resultat.feilmelding
                 is UkjentProdusentSoftDeleteSakByGrupperingsid -> resultat.feilmelding
                 is DefaultSoftDeleteSakResultatImplementation,
@@ -308,7 +310,7 @@ class OppgaveUtgaattByEksternIdException(
 
 class SoftDeleteSakByGrupperingsidException(
     grupperingsid: String,
-    feilmelding: String?,
+    feilmelding: String,
 ) : Exception(
         "Sletting (soft) av sak med grupperingsid '$grupperingsid' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding",
     )

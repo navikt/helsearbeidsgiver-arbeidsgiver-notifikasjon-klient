@@ -31,6 +31,26 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
             resultat shouldBe "269752"
         }
 
+        test("vellykket - ny sak uten lenke") {
+            val response = "responses/nySak/vellykket.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+            val resultat =
+                arbeidsgiverNotifikasjonKlient.opprettNySak(
+                    virksomhetsnummer = "mock virksomhetsnummer",
+                    grupperingsid = "mock grupperingsid",
+                    merkelapp = "mock merkelapp",
+                    lenke = null,
+                    tittel = "mock tittel",
+                    statusTekst = "mock statusTekst",
+                    tilleggsinfo = "mock tilleggsinfo",
+                    initiellStatus = SaksStatus.UNDER_BEHANDLING,
+                    hardDeleteOm = 10.days,
+                )
+
+            resultat shouldBe "269752"
+        }
+
         test("sak finnes fra før - ny sak") {
             val response = "responses/nySak/duplikatGrupperingsid.json".readResource()
             val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)

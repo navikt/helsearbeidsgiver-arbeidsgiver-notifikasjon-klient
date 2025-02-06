@@ -49,7 +49,7 @@ class ArbeidsgiverNotifikasjonKlient(
         virksomhetsnummer: String,
         grupperingsid: String,
         merkelapp: String,
-        lenke: String,
+        lenke: String?,
         tittel: String,
         statusTekst: String?,
         tilleggsinfo: String? = null,

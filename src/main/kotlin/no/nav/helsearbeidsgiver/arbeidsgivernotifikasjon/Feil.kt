@@ -2,6 +2,12 @@ package no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon
 
 import com.expediagroup.graphql.client.types.GraphQLClientError
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletenotifikasjonbyeksternid_v2.DefaultHardDeleteNotifikasjonResultatImplementation
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletenotifikasjonbyeksternid_v2.HardDeleteNotifikasjonResultat
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletenotifikasjonbyeksternid_v2.HardDeleteNotifikasjonVellykket
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletenotifikasjonbyeksternid_v2.NotifikasjonFinnesIkke
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletenotifikasjonbyeksternid_v2.UgyldigMerkelapp
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletenotifikasjonbyeksternid_v2.UkjentProdusent
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.DefaultHardDeleteSakResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakVellykket
@@ -217,6 +223,24 @@ internal object Feil {
             }
         loggFeilmelding(feilmelding)
         throw SoftDeleteSakByGrupperingsidException(grupperingsid, feilmelding)
+    }
+
+    fun hardDeleteSakByGrupperingsid(
+        eksternid: String,
+        resultat: HardDeleteNotifikasjonResultat,
+        feil: List<GraphQLClientError>,
+    ): Nothing {
+        val feilmelding =
+            when (resultat) {
+                is UgyldigMerkelapp -> resultat.feilmelding
+                is NotifikasjonFinnesIkke -> resultat.feilmelding
+                is UkjentProdusent -> resultat.feilmelding
+                is DefaultHardDeleteNotifikasjonResultatImplementation,
+                is HardDeleteNotifikasjonVellykket
+                -> feilmeldingUkjent(feil)
+            }
+        loggFeilmelding(feilmelding)
+        throw SoftDeleteSakByGrupperingsidException(eksternid, feilmelding)
     }
 
     fun endreOppgavePaaminnelserByEksternId(

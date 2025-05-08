@@ -29,6 +29,8 @@ import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.net.URI
 import kotlin.time.Duration
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HardDeleteNotifikasjonByEksternId_V2
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletenotifikasjonbyeksternid_v2.HardDeleteNotifikasjonVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.softdeletesakbygrupperingsid.SoftDeleteSakVellykket as SoftDeleteSakByGrupperingsidVellykket
 
 class ArbeidsgiverNotifikasjonKlient(
@@ -201,6 +203,27 @@ class ArbeidsgiverNotifikasjonKlient(
         )
 
         loggInfo("Slettet (soft) sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
+    }
+
+    suspend fun hardDeleteSakByEksternid(
+        eksternid: String,
+        merkelapp: String,
+    ) {
+        loggInfo("Forsøker å slette (hard) sak med eksternid '$eksternid' og merkelapp '$merkelapp'.")
+
+        HardDeleteNotifikasjonByEksternId_V2(
+            variables =
+                HardDeleteNotifikasjonByEksternId_V2.Variables(
+                    eksternId = eksternid,
+                    merkelapp = merkelapp,
+                ),
+        ).execute(
+            toResult = HardDeleteNotifikasjonByEksternId_V2.Result::hardDeleteNotifikasjonByEksternId_V2,
+            toSuccess = { it as? HardDeleteNotifikasjonVellykket },
+            onError = { res, err -> Feil.hardDeleteSakByGrupperingsid(eksternid, res, err) },
+        )
+
+        loggInfo("Slettet (soft) sak med grupperingsid '$eksternid' og merkelapp '$merkelapp'.")
     }
 
     suspend fun hardDeleteSak(id: String) {

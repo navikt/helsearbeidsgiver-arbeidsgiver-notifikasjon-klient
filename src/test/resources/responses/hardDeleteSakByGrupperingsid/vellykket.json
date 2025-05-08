@@ -1,0 +1,8 @@
+{
+  "data": {
+    "hardDeleteSakByGrupperingsid": {
+      "__typename": "HardDeleteSakVellykket",
+      "id": "1"
+    }
+  }
+}

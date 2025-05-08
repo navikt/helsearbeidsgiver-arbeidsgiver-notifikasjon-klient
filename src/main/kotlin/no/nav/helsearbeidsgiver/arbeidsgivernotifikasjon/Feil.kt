@@ -2,15 +2,12 @@ package no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon
 
 import com.expediagroup.graphql.client.types.GraphQLClientError
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletenotifikasjonbyeksternid_v2.DefaultHardDeleteNotifikasjonResultatImplementation
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletenotifikasjonbyeksternid_v2.HardDeleteNotifikasjonResultat
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletenotifikasjonbyeksternid_v2.HardDeleteNotifikasjonVellykket
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletenotifikasjonbyeksternid_v2.NotifikasjonFinnesIkke
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletenotifikasjonbyeksternid_v2.UgyldigMerkelapp
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletenotifikasjonbyeksternid_v2.UkjentProdusent
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.DefaultHardDeleteSakResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakVellykket
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.SakFinnesIkke
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.UgyldigMerkelapp
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.UkjentProdusent
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.DefaultNySakResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.DuplikatGrupperingsidEtterDelete
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.NySakResultat
@@ -35,6 +32,9 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.SakFinnesIkke as SakFinnesIkkeHardDeleteSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.UgyldigMerkelapp as UgyldigMerkelappHardDeleteSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.UkjentProdusent as UkjentProdusentHardDeleteSak
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.DefaultHardDeleteSakResultatImplementation as DefaultHardDeleteSakByGrupperingsidResultat
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.HardDeleteSakResultat as HardDeleteSakByGrupperingsidResultat
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.HardDeleteSakVellykket as HardDeleteSakByGrupperingsidVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.DuplikatGrupperingsid as DuplikatGrupperingsidNySak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.UgyldigMerkelapp as UgyldigMerkelappNySak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.UgyldigMottaker as UgyldigMottakerNySak
@@ -227,20 +227,20 @@ internal object Feil {
 
     fun hardDeleteSakByGrupperingsid(
         eksternid: String,
-        resultat: HardDeleteNotifikasjonResultat,
+        resultat: HardDeleteSakByGrupperingsidResultat,
         feil: List<GraphQLClientError>,
     ): Nothing {
         val feilmelding =
             when (resultat) {
+                is SakFinnesIkke -> throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
                 is UgyldigMerkelapp -> resultat.feilmelding
-                is NotifikasjonFinnesIkke -> resultat.feilmelding
                 is UkjentProdusent -> resultat.feilmelding
-                is DefaultHardDeleteNotifikasjonResultatImplementation,
-                is HardDeleteNotifikasjonVellykket
+                is DefaultHardDeleteSakByGrupperingsidResultat,
+                is HardDeleteSakByGrupperingsidVellykket,
                 -> feilmeldingUkjent(feil)
             }
         loggFeilmelding(feilmelding)
-        throw SoftDeleteSakByGrupperingsidException(eksternid, feilmelding)
+        throw HardDeleteSakByGrupperingsidException(eksternid, feilmelding)
     }
 
     fun endreOppgavePaaminnelserByEksternId(
@@ -337,6 +337,13 @@ class SoftDeleteSakByGrupperingsidException(
     feilmelding: String,
 ) : Exception(
         "Sletting (soft) av sak med grupperingsid '$grupperingsid' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding",
+    )
+
+class HardDeleteSakByGrupperingsidException(
+    grupperingsid: String,
+    feilmelding: String,
+) : Exception(
+        "Sletting (hard) av sak med grupperingsid '$grupperingsid' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding",
     )
 
 class HardDeleteSakException(

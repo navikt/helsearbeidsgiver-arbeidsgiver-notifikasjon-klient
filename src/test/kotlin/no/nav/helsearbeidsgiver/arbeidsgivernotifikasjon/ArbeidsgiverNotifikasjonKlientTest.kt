@@ -413,6 +413,46 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
         }
     }
 
+    context(ArbeidsgiverNotifikasjonKlient::hardDeleteSakByGrupperingsid.name) {
+        test("vellykket - hard delete sak med grupperingsid") {
+            val response = "responses/hardDeleteSakByGrupperingsid/vellykket.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+            shouldNotThrowAny {
+                arbeidsgiverNotifikasjonKlient.hardDeleteSakByGrupperingsid(
+                    grupperingsid = "mock id",
+                    merkelapp = "heia",
+                )
+            }
+        }
+        test("sak finnes ikke - hard delete sak med grupperingsid") {
+            val response = "responses/hardDeleteSakByGrupperingsid/sakFinnesIkke.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+            shouldThrowExactly<SakEllerOppgaveFinnesIkkeException> {
+                arbeidsgiverNotifikasjonKlient.hardDeleteSakByGrupperingsid(
+                    grupperingsid = "mock id",
+                    merkelapp = "heia",
+                )
+            }
+        }
+
+        withData(
+            "ugyldigMerkelapp",
+            "ukjentProdusent",
+        ) { jsonFilename ->
+            val response = "responses/hardDeleteSakByGrupperingsid/$jsonFilename.json".readResource()
+            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
+
+            shouldThrowExactly<HardDeleteSakByGrupperingsidException> {
+                arbeidsgiverNotifikasjonKlient.hardDeleteSakByGrupperingsid(
+                    grupperingsid = "mock id",
+                    merkelapp = "heia",
+                )
+            }
+        }
+    }
+
     context(ArbeidsgiverNotifikasjonKlient::slettOppgavePaaminnelserByEksternId.name) {
         test("vellykket - slett oppgavepåminnelse") {
             val response = "responses/oppgaveEndrePaaminnelseByEksternId/vellykket.json".readResource()

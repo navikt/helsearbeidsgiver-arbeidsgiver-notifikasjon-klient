@@ -7,6 +7,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache5.Apache5
 import io.ktor.client.request.bearerAuth
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HardDeleteSak
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HardDeleteSakByGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ID
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ISO8601DateTime
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.NySak
@@ -29,8 +30,7 @@ import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.net.URI
 import kotlin.time.Duration
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HardDeleteNotifikasjonByEksternId_V2
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletenotifikasjonbyeksternid_v2.HardDeleteNotifikasjonVellykket
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.HardDeleteSakVellykket as HardDeleteSakByGrupperingsidVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.softdeletesakbygrupperingsid.SoftDeleteSakVellykket as SoftDeleteSakByGrupperingsidVellykket
 
 class ArbeidsgiverNotifikasjonKlient(
@@ -205,25 +205,25 @@ class ArbeidsgiverNotifikasjonKlient(
         loggInfo("Slettet (soft) sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
     }
 
-    suspend fun hardDeleteSakByEksternid(
-        eksternid: String,
+    suspend fun hardDeleteSakByGrupperingsid(
+        grupperingsid: String,
         merkelapp: String,
     ) {
-        loggInfo("Forsøker å slette (hard) sak med eksternid '$eksternid' og merkelapp '$merkelapp'.")
+        loggInfo("Forsøker å slette (hard) sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
 
-        HardDeleteNotifikasjonByEksternId_V2(
+        HardDeleteSakByGrupperingsid(
             variables =
-                HardDeleteNotifikasjonByEksternId_V2.Variables(
-                    eksternId = eksternid,
+                HardDeleteSakByGrupperingsid.Variables(
+                    grupperingsid = grupperingsid,
                     merkelapp = merkelapp,
                 ),
         ).execute(
-            toResult = HardDeleteNotifikasjonByEksternId_V2.Result::hardDeleteNotifikasjonByEksternId_V2,
-            toSuccess = { it as? HardDeleteNotifikasjonVellykket },
-            onError = { res, err -> Feil.hardDeleteSakByGrupperingsid(eksternid, res, err) },
+            toResult = HardDeleteSakByGrupperingsid.Result::hardDeleteSakByGrupperingsid,
+            toSuccess = { it as? HardDeleteSakByGrupperingsidVellykket },
+            onError = { res, err -> Feil.hardDeleteSakByGrupperingsid(grupperingsid, res, err) },
         )
 
-        loggInfo("Slettet (soft) sak med grupperingsid '$eksternid' og merkelapp '$merkelapp'.")
+        loggInfo("Slettet (soft) sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
     }
 
     suspend fun hardDeleteSak(id: String) {

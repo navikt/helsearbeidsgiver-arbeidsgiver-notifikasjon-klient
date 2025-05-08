@@ -1,19 +1,19 @@
-mutation hardDeleteNotifikasjonByEksternId_V2(
+mutation hardDeleteSakByGrupperingsid(
   $merkelapp: String!,
-  $eksternId: String!
+  $grupperingsid: String!
 ) {
-  hardDeleteNotifikasjonByEksternId_V2(
+  hardDeleteSakByGrupperingsid(
     merkelapp: $merkelapp,
-    eksternId: $eksternId
+    grupperingsid: $grupperingsid
   ) {
     __typename
-    ... on HardDeleteNotifikasjonVellykket {
+    ... on HardDeleteSakVellykket {
       id
     }
     ... on UgyldigMerkelapp {
       feilmelding
     }
-    ... on NotifikasjonFinnesIkke {
+    ... on SakFinnesIkke {
       feilmelding
     }
     ... on UkjentProdusent {

@@ -5,9 +5,6 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.DefaultHardDeleteSakResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakVellykket
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.SakFinnesIkke as SakFinnesIkkeHardDeleteSakByGrupperingsId
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.UgyldigMerkelapp as UgyldigMerkelappHardDeleteSakByGrupperingsid
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.UkjentProdusent as UkjentProdusentHardDeleteSakByGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.DefaultNySakResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.DuplikatGrupperingsidEtterDelete
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.NySakResultat
@@ -35,6 +32,9 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hardde
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.DefaultHardDeleteSakResultatImplementation as DefaultHardDeleteSakByGrupperingsidResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.HardDeleteSakResultat as HardDeleteSakByGrupperingsidResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.HardDeleteSakVellykket as HardDeleteSakByGrupperingsidVellykket
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.SakFinnesIkke as SakFinnesIkkeHardDeleteSakByGrupperingsId
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.UgyldigMerkelapp as UgyldigMerkelappHardDeleteSakByGrupperingsid
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.UkjentProdusent as UkjentProdusentHardDeleteSakByGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.DuplikatGrupperingsid as DuplikatGrupperingsidNySak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.UgyldigMerkelapp as UgyldigMerkelappNySak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.UgyldigMottaker as UgyldigMottakerNySak
@@ -232,7 +232,9 @@ internal object Feil {
     ): Nothing {
         val feilmelding =
             when (resultat) {
-                is SakFinnesIkkeHardDeleteSakByGrupperingsId -> throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
+                is SakFinnesIkkeHardDeleteSakByGrupperingsId -> throw SakEllerOppgaveFinnesIkkeException(
+                    resultat.feilmelding,
+                )
                 is UgyldigMerkelappHardDeleteSakByGrupperingsid -> resultat.feilmelding
                 is UkjentProdusentHardDeleteSakByGrupperingsid -> resultat.feilmelding
                 is DefaultHardDeleteSakByGrupperingsidResultat,

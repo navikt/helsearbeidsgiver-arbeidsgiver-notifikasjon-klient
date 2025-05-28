@@ -5,9 +5,9 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.DefaultHardDeleteSakResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakVellykket
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.SakFinnesIkke
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.UgyldigMerkelapp
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.UkjentProdusent
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.SakFinnesIkke as SakFinnesIkkeHardDeleteSakByGrupperingsId
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.UgyldigMerkelapp as UgyldigMerkelappHardDeleteSakByGrupperingsid
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.UkjentProdusent as UkjentProdusentHardDeleteSakByGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.DefaultNySakResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.DuplikatGrupperingsidEtterDelete
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.NySakResultat
@@ -226,21 +226,21 @@ internal object Feil {
     }
 
     fun hardDeleteSakByGrupperingsid(
-        eksternid: String,
+        grupperingsid: String,
         resultat: HardDeleteSakByGrupperingsidResultat,
         feil: List<GraphQLClientError>,
     ): Nothing {
         val feilmelding =
             when (resultat) {
-                is SakFinnesIkke -> throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
-                is UgyldigMerkelapp -> resultat.feilmelding
-                is UkjentProdusent -> resultat.feilmelding
+                is SakFinnesIkkeHardDeleteSakByGrupperingsId -> throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
+                is UgyldigMerkelappHardDeleteSakByGrupperingsid -> resultat.feilmelding
+                is UkjentProdusentHardDeleteSakByGrupperingsid -> resultat.feilmelding
                 is DefaultHardDeleteSakByGrupperingsidResultat,
                 is HardDeleteSakByGrupperingsidVellykket,
                 -> feilmeldingUkjent(feil)
             }
         loggFeilmelding(feilmelding)
-        throw HardDeleteSakByGrupperingsidException(eksternid, feilmelding)
+        throw HardDeleteSakByGrupperingsidException(grupperingsid, feilmelding)
     }
 
     fun endreOppgavePaaminnelserByEksternId(

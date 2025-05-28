@@ -223,7 +223,7 @@ class ArbeidsgiverNotifikasjonKlient(
             onError = { res, err -> Feil.hardDeleteSakByGrupperingsid(grupperingsid, res, err) },
         )
 
-        loggInfo("Slettet (soft) sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
+        loggInfo("Slettet (hard) sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
     }
 
     suspend fun hardDeleteSak(id: String) {

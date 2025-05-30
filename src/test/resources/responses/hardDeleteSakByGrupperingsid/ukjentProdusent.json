@@ -1,0 +1,8 @@
+{
+  "data": {
+    "hardDeleteSakByGrupperingsid": {
+      "__typename": "UkjentProdusent",
+      "feilmelding": "uffda"
+    }
+  }
+}

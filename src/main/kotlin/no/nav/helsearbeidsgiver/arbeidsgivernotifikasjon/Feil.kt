@@ -29,6 +29,12 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.SakFinnesIkke as SakFinnesIkkeHardDeleteSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.UgyldigMerkelapp as UgyldigMerkelappHardDeleteSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.UkjentProdusent as UkjentProdusentHardDeleteSak
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.DefaultHardDeleteSakResultatImplementation as DefaultHardDeleteSakByGrupperingsidResultat
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.HardDeleteSakResultat as HardDeleteSakByGrupperingsidResultat
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.HardDeleteSakVellykket as HardDeleteSakByGrupperingsidVellykket
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.SakFinnesIkke as SakFinnesIkkeHardDeleteSakByGrupperingsId
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.UgyldigMerkelapp as UgyldigMerkelappHardDeleteSakByGrupperingsid
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.UkjentProdusent as UkjentProdusentHardDeleteSakByGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.DuplikatGrupperingsid as DuplikatGrupperingsidNySak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.UgyldigMerkelapp as UgyldigMerkelappNySak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.UgyldigMottaker as UgyldigMottakerNySak
@@ -219,6 +225,26 @@ internal object Feil {
         throw SoftDeleteSakByGrupperingsidException(grupperingsid, feilmelding)
     }
 
+    fun hardDeleteSakByGrupperingsid(
+        grupperingsid: String,
+        resultat: HardDeleteSakByGrupperingsidResultat,
+        feil: List<GraphQLClientError>,
+    ): Nothing {
+        val feilmelding =
+            when (resultat) {
+                is SakFinnesIkkeHardDeleteSakByGrupperingsId -> throw SakEllerOppgaveFinnesIkkeException(
+                    resultat.feilmelding,
+                )
+                is UgyldigMerkelappHardDeleteSakByGrupperingsid -> resultat.feilmelding
+                is UkjentProdusentHardDeleteSakByGrupperingsid -> resultat.feilmelding
+                is DefaultHardDeleteSakByGrupperingsidResultat,
+                is HardDeleteSakByGrupperingsidVellykket,
+                -> feilmeldingUkjent(feil)
+            }
+        loggFeilmelding(feilmelding)
+        throw HardDeleteSakByGrupperingsidException(grupperingsid, feilmelding)
+    }
+
     fun endreOppgavePaaminnelserByEksternId(
         eksternId: String,
         resultat: OppgaveEndrePaaminnelseResultatOppgaveEndrePaaminnelseByEksternId,
@@ -313,6 +339,13 @@ class SoftDeleteSakByGrupperingsidException(
     feilmelding: String,
 ) : Exception(
         "Sletting (soft) av sak med grupperingsid '$grupperingsid' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding",
+    )
+
+class HardDeleteSakByGrupperingsidException(
+    grupperingsid: String,
+    feilmelding: String,
+) : Exception(
+        "Sletting (hard) av sak med grupperingsid '$grupperingsid' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding",
     )
 
 class HardDeleteSakException(

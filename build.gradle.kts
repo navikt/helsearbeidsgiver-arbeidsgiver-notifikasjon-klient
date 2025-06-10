@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 group = "no.nav.helsearbeidsgiver"
-version = "3.5.0-SNAPSHOT"
+version = "3.5.0"
 
 plugins {
     kotlin("jvm")
@@ -41,6 +41,7 @@ graphql {
         endpoint = "https://notifikasjon-fake-produsent-api.ekstern.dev.nav.no"
         queryFiles = file("src/main/resources/arbeidsgivernotifikasjon").listFiles()?.toList().orEmpty()
         serializer = com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer.KOTLINX
+
     }
 }
 

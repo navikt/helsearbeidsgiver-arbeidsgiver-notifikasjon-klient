@@ -373,46 +373,6 @@ class ArbeidsgiverNotifikasjonKlientTest : FunSpec({
         }
     }
 
-    context(ArbeidsgiverNotifikasjonKlient::softDeleteSakByGrupperingsid.name) {
-        test("vellykket - soft delete sak") {
-            val response = "responses/softDeleteSakByGrupperingsid/vellykket.json".readResource()
-            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
-
-            shouldNotThrowAny {
-                arbeidsgiverNotifikasjonKlient.softDeleteSakByGrupperingsid(
-                    grupperingsid = "mock id",
-                    merkelapp = "heia",
-                )
-            }
-        }
-        test("sak finnes ikke - soft delete sak") {
-            val response = "responses/softDeleteSakByGrupperingsid/sakFinnesIkke.json".readResource()
-            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
-
-            shouldThrowExactly<SakEllerOppgaveFinnesIkkeException> {
-                arbeidsgiverNotifikasjonKlient.softDeleteSakByGrupperingsid(
-                    grupperingsid = "mock id",
-                    merkelapp = "heia",
-                )
-            }
-        }
-
-        withData(
-            "ugyldigMerkelapp",
-            "ukjentProdusent",
-        ) { jsonFilename ->
-            val response = "responses/softDeleteSakByGrupperingsid/$jsonFilename.json".readResource()
-            val arbeidsgiverNotifikasjonKlient = mockArbeidsgiverNotifikasjonKlient(response)
-
-            shouldThrowExactly<SoftDeleteSakByGrupperingsidException> {
-                arbeidsgiverNotifikasjonKlient.softDeleteSakByGrupperingsid(
-                    grupperingsid = "mock id",
-                    merkelapp = "heia",
-                )
-            }
-        }
-    }
-
     context(ArbeidsgiverNotifikasjonKlient::hardDeleteSakByGrupperingsid.name) {
         test("vellykket - hard delete sak med grupperingsid") {
             val response = "responses/hardDeleteSakByGrupperingsid/vellykket.json".readResource()

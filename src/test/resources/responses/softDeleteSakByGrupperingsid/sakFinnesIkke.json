@@ -1,8 +1,0 @@
-{
-  "data": {
-    "softDeleteSakByGrupperingsid": {
-      "__typename": "SakFinnesIkke",
-      "feilmelding": "uffda"
-    }
-  }
-}

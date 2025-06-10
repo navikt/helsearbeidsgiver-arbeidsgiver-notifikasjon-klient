@@ -41,7 +41,6 @@ graphql {
         endpoint = "https://notifikasjon-fake-produsent-api.ekstern.dev.nav.no"
         queryFiles = file("src/main/resources/arbeidsgivernotifikasjon").listFiles()?.toList().orEmpty()
         serializer = com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer.KOTLINX
-
     }
 }
 

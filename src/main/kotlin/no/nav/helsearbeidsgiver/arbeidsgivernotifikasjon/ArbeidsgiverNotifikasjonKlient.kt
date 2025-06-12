@@ -5,6 +5,8 @@ import com.expediagroup.graphql.client.types.GraphQLClientError
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache5.Apache5
+import io.ktor.client.plugins.HttpRequestRetry
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.bearerAuth
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HardDeleteSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HardDeleteSakByGrupperingsid
@@ -304,4 +306,21 @@ class ArbeidsgiverNotifikasjonKlient(
     }
 }
 
-internal fun createHttpClient(): HttpClient = HttpClient(Apache5)
+internal fun createHttpClient(): HttpClient =
+    HttpClient(Apache5) {
+        expectSuccess = true
+
+        install(HttpRequestRetry) {
+            retryOnException(
+                maxRetries = 5,
+                retryOnTimeout = true,
+            )
+            exponentialDelay()
+        }
+
+        install(HttpTimeout) {
+            connectTimeoutMillis = 500
+            requestTimeoutMillis = 500
+            socketTimeoutMillis = 500
+        }
+    }

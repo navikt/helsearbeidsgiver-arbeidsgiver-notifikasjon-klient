@@ -69,8 +69,7 @@ class ArbeidsgiverNotifikasjonKlient(
                     lenke = lenke,
                     initiellStatus = initiellStatus,
                     overstyrStatustekstMed = statusTekst,
-                    // https://en.wikipedia.org/wiki/ISO_8601#Durations
-                    hardDeleteOm = "P${hardDeleteOm.inWholeDays}D",
+                    hardDeleteOm = hardDeleteOm.tilDagerIso8601(),
                 ),
         ).also { loggInfo("Forsøker å opprette ny sak.") }
             .execute(
@@ -87,6 +86,7 @@ class ArbeidsgiverNotifikasjonKlient(
         statusTekst: String? = null,
         nyLenke: String? = null,
         tidspunkt: ISO8601DateTime? = null,
+        hardDeleteOm: Duration? = null,
     ) {
         loggInfo("Forsøker å sette ny status '$status' på sak med grupperingsid '$grupperingsid'.")
 
@@ -97,8 +97,9 @@ class ArbeidsgiverNotifikasjonKlient(
                     merkelapp = merkelapp,
                     nyStatus = status,
                     overstyrStatustekstMed = statusTekst,
-                    nyLenkeTilSak = nyLenke,
+                    nyLenke = nyLenke,
                     tidspunkt = tidspunkt,
+                    hardDeleteOm = hardDeleteOm?.tilDagerIso8601(),
                 ),
         ).execute(
             toResult = NyStatusSakByGrupperingsid.Result::nyStatusSakByGrupperingsid,
@@ -174,7 +175,12 @@ class ArbeidsgiverNotifikasjonKlient(
         loggInfo("Setter oppgave med eksternId '$eksternId' til utgått.")
 
         OppgaveUtgaattByEksternId(
-            variables = OppgaveUtgaattByEksternId.Variables(merkelapp = merkelapp, eksternId = eksternId, nyLenke = nyLenke),
+            variables =
+                OppgaveUtgaattByEksternId.Variables(
+                    merkelapp = merkelapp,
+                    eksternId = eksternId,
+                    nyLenke = nyLenke,
+                ),
         ).execute(
             toResult = OppgaveUtgaattByEksternId.Result::oppgaveUtgaattByEksternId,
             toSuccess = { it as? OppgaveUtgaattVellykket },
@@ -324,3 +330,6 @@ internal fun createHttpClient(): HttpClient =
             socketTimeoutMillis = 500
         }
     }
+
+/** [Les om ISO8601-durations](https://en.wikipedia.org/wiki/ISO_8601#Durations) */
+private fun Duration.tilDagerIso8601(): String = "P${inWholeDays}D"

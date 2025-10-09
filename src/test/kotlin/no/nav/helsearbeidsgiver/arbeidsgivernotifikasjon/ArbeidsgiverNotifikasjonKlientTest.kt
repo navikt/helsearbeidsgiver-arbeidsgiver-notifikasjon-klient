@@ -114,6 +114,7 @@ class ArbeidsgiverNotifikasjonKlientTest :
                         statusTekst = "mock statustekst",
                         nyLenke = "mock nyLenke",
                         tidspunkt = "mock tidspunkt",
+                        hardDeleteOm = 2.days,
                     )
                 }
             }
@@ -130,6 +131,7 @@ class ArbeidsgiverNotifikasjonKlientTest :
                         statusTekst = "mock statustekst",
                         nyLenke = "mock nyLenke",
                         tidspunkt = "mock tidspunkt",
+                        hardDeleteOm = 2.days,
                     )
                 }
             }
@@ -151,6 +153,7 @@ class ArbeidsgiverNotifikasjonKlientTest :
                         statusTekst = "mock statustekst",
                         nyLenke = "mock nyLenke",
                         tidspunkt = "mock tidspunkt",
+                        hardDeleteOm = 2.days,
                     )
                 }
             }

@@ -70,7 +70,7 @@ internal object Feil {
     fun nySak(
         grupperingsid: String,
         resultat: NySakResultat?,
-        feil: List<GraphQLClientError>,
+        feil: List<String>,
     ): Nothing {
         val feilmelding =
             when (resultat) {
@@ -96,7 +96,7 @@ internal object Feil {
         merkelapp: String,
         nyStatus: SaksStatus,
         resultat: NyStatusSakResultat?,
-        feil: List<GraphQLClientError>,
+        feil: List<String>,
     ): Nothing {
         val feilmelding =
             when (resultat) {
@@ -117,7 +117,7 @@ internal object Feil {
 
     fun nyOppgave(
         resultat: NyOppgaveResultat?,
-        feil: List<GraphQLClientError>,
+        feil: List<String>,
     ): Nothing {
         val feilmelding =
             when (resultat) {
@@ -142,7 +142,7 @@ internal object Feil {
         eksternId: String,
         merkelapp: String,
         resultat: OppgaveUtfoertResultat?,
-        feil: List<GraphQLClientError>,
+        feil: List<String>,
     ): Nothing {
         val feilmelding =
             when (resultat) {
@@ -163,7 +163,7 @@ internal object Feil {
     fun oppgaveUtgaattByEksternId(
         eksternId: String,
         resultat: OppgaveUtgaattResultat?,
-        feil: List<GraphQLClientError>,
+        feil: List<String>,
     ): Nothing {
         val feilmelding =
             when (resultat) {
@@ -185,7 +185,7 @@ internal object Feil {
     fun hardDeleteSak(
         id: String,
         resultat: HardDeleteSakResultat?,
-        feil: List<GraphQLClientError>,
+        feil: List<String>,
     ): Nothing {
         val feilmelding =
             when (resultat) {
@@ -206,7 +206,7 @@ internal object Feil {
     fun hardDeleteSakByGrupperingsid(
         grupperingsid: String,
         resultat: HardDeleteSakByGrupperingsidResultat?,
-        feil: List<GraphQLClientError>,
+        feil: List<String>,
     ): Nothing {
         val feilmelding =
             when (resultat) {
@@ -226,7 +226,7 @@ internal object Feil {
     fun endreOppgavePaaminnelserByEksternId(
         eksternId: String,
         resultat: OppgaveEndrePaaminnelseResultatOppgaveEndrePaaminnelseByEksternId?,
-        feil: List<GraphQLClientError>,
+        feil: List<String>,
     ): Nothing {
         val feilmelding =
             when (resultat) {
@@ -247,7 +247,7 @@ internal object Feil {
         throw OppgaveEndrePaaminnelseByEksternIdException(eksternId, feilmelding)
     }
 
-    private fun feilmeldingUkjent(feil: List<GraphQLClientError>): String =
+    private fun feilmeldingUkjent(feil: List<String>): String =
         "Klarte ikke kalle arbeidsgiver-notifikasjon-api pga. ukjent feil: '$feil'"
 
     private fun loggFeilmelding(feilmelding: String) {

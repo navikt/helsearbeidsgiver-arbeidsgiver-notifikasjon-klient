@@ -3,11 +3,14 @@ package no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 import com.expediagroup.graphql.client.types.GraphQLClientError
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import com.expediagroup.graphql.client.types.GraphQLClientSourceLocation
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache5.Apache5
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.bearerAuth
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HardDeleteSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HardDeleteSakByGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ID
@@ -27,6 +30,7 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgav
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutfoertbyeksternidv2.OppgaveUtfoertVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveutgaattbyeksternid.OppgaveUtgaattVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.opprettnyoppgave.NyOppgaveVellykket
+import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.net.URI
@@ -285,7 +289,7 @@ class ArbeidsgiverNotifikasjonKlient(
     private suspend fun <Data : Any, Result : Any, Success : Result> GraphQLClientRequest<Data>.execute(
         toResult: (Data) -> Result,
         toSuccess: (Result) -> Success?,
-        onError: (Result?, List<GraphQLClientError>) -> Nothing,
+        onError: (Result?, List<String>) -> Nothing,
     ): Success {
         val response =
             graphQLClient.execute(this) {
@@ -293,7 +297,7 @@ class ArbeidsgiverNotifikasjonKlient(
             }
 
         val result = response.data?.let { toResult(it) }
-        val errors = response.errors.orEmpty()
+        val errors = response.errors?.mapToString().orEmpty()
 
         val success = result?.runCatching { toSuccess(this) }?.getOrNull()
         if (success != null && errors.isNotEmpty()) {
@@ -333,3 +337,29 @@ internal fun createHttpClient(): HttpClient =
 
 /** [Les om ISO8601-durations](https://en.wikipedia.org/wiki/ISO_8601#Durations) */
 private fun Duration.tilDagerIso8601(): String = "P${inWholeDays}D"
+
+private fun List<GraphQLClientError>.mapToString(): List<String> =
+    map { error ->
+        mapOf(
+            error::message.name to error.message,
+            error::locations.name to
+                error.locations
+                    ?.map {
+                        mapOf(
+                            it::line.name to it.line.toString(),
+                            it::column.name to it.column.toString(),
+                        ).toJsonStr()
+                    }.orEmpty()
+                    .toString(),
+            error::path.name to error.path.toString(),
+            error::extensions.name to error.extensions.toString(),
+        ).toJsonStr()
+    }
+
+private fun Map<String, String>.toJsonStr(): String =
+    toJson(
+        MapSerializer(
+            String.serializer(),
+            String.serializer(),
+        ),
+    ).toString()

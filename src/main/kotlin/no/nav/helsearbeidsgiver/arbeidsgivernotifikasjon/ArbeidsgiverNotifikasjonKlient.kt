@@ -276,34 +276,34 @@ class ArbeidsgiverNotifikasjonKlient(
         Whoami()
             .also { loggInfo("Henter 'whoami' info fra arbeidsgiver-notifikasjon-api.") }
             .execute(
-                toResult = { this },
+                toResult = { it },
                 toSuccess = { it },
                 onError = { _, _ -> throw RuntimeException("Feil ved henting av 'whoami'.") },
             ).whoami
             .also { loggInfo("Whoami: '$it'.") }
 
     private suspend fun <Data : Any, Result : Any, Success : Result> GraphQLClientRequest<Data>.execute(
-        toResult: Data.() -> Result,
+        toResult: (Data) -> Result,
         toSuccess: (Result) -> Success?,
-        onError: (Result, List<GraphQLClientError>) -> Nothing,
+        onError: (Result?, List<GraphQLClientError>) -> Nothing,
     ): Success {
         val response =
             graphQLClient.execute(this) {
                 bearerAuth(getAccessToken())
             }
 
-        val data = response.data
-        if (data == null) {
-            val error = TomResponseException()
-            logger.error(error.message)
-            sikkerLogger.error(error.message)
-            throw error
+        val result = response.data?.let { toResult(it) }
+        val errors = response.errors.orEmpty()
+
+        val success = result?.runCatching { toSuccess(this) }?.getOrNull()
+        if (success != null && errors.isNotEmpty()) {
+            "Fikk respons fra arbeidsgiver-notifikasjon-api med både resultat og feil. Logger feil og fortsetter.".let {
+                logger.error(it)
+                sikkerLogger.error("$it\nFeil: $errors")
+            }
         }
 
-        val result = data.toResult()
-
-        return runCatching { toSuccess(result) }.getOrNull()
-            ?: onError(result, response.errors.orEmpty())
+        return success ?: onError(result, errors)
     }
 
     private fun loggInfo(melding: String) {

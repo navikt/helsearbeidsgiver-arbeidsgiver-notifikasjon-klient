@@ -69,7 +69,7 @@ internal object Feil {
 
     fun nySak(
         grupperingsid: String,
-        resultat: NySakResultat,
+        resultat: NySakResultat?,
         feil: List<GraphQLClientError>,
     ): Nothing {
         val feilmelding =
@@ -81,6 +81,7 @@ internal object Feil {
                 is UgyldigMottakerNySak -> resultat.feilmelding
                 is UkjentProdusentNySak -> resultat.feilmelding
                 is UkjentRolleNySak -> resultat.feilmelding
+                null,
                 is DefaultNySakResultatImplementation,
                 is NySakVellykket,
                 -> feilmeldingUkjent(feil)
@@ -94,17 +95,17 @@ internal object Feil {
         grupperingsid: String,
         merkelapp: String,
         nyStatus: SaksStatus,
-        resultat: NyStatusSakResultat,
+        resultat: NyStatusSakResultat?,
         feil: List<GraphQLClientError>,
     ): Nothing {
         val feilmelding =
             when (resultat) {
                 is SakFinnesIkkeNyStatusSakByGrupperingsid ->
                     throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
-
                 is KonfliktNyStatusSakByGrupperingsid -> resultat.feilmelding
                 is UgyldigMerkelappNyStatusSakByGrupperingsid -> resultat.feilmelding
                 is UkjentProdusentNyStatusSakByGrupperingsid -> resultat.feilmelding
+                null,
                 is DefaultNyStatusSakResultatImplementation,
                 is NyStatusSakVellykket,
                 -> feilmeldingUkjent(feil)
@@ -115,7 +116,7 @@ internal object Feil {
     }
 
     fun nyOppgave(
-        resultat: NyOppgaveResultat,
+        resultat: NyOppgaveResultat?,
         feil: List<GraphQLClientError>,
     ): Nothing {
         val feilmelding =
@@ -127,6 +128,7 @@ internal object Feil {
                 is UgyldigPaaminnelseTidspunktNyOppgave -> resultat.feilmelding
                 is UkjentProdusentNyOppgave -> resultat.feilmelding
                 is UkjentRolleNyOppgave -> resultat.feilmelding
+                null,
                 is DefaultNyOppgaveResultatImplementation,
                 is NyOppgaveVellykket,
                 -> feilmeldingUkjent(feil)
@@ -139,7 +141,7 @@ internal object Feil {
     fun oppgaveUtfoertByEksternIdV2(
         eksternId: String,
         merkelapp: String,
-        resultat: OppgaveUtfoertResultat,
+        resultat: OppgaveUtfoertResultat?,
         feil: List<GraphQLClientError>,
     ): Nothing {
         val feilmelding =
@@ -148,6 +150,7 @@ internal object Feil {
                     throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
                 is UgyldigMerkelappOppgaveUtfoertByEksternIdV2 -> resultat.feilmelding
                 is UkjentProdusentOppgaveUtfoertByEksternIdV2 -> resultat.feilmelding
+                null,
                 is DefaultOppgaveUtfoertResultatImplementation,
                 is OppgaveUtfoertVellykket,
                 -> feilmeldingUkjent(feil)
@@ -159,7 +162,7 @@ internal object Feil {
 
     fun oppgaveUtgaattByEksternId(
         eksternId: String,
-        resultat: OppgaveUtgaattResultat,
+        resultat: OppgaveUtgaattResultat?,
         feil: List<GraphQLClientError>,
     ): Nothing {
         val feilmelding =
@@ -169,6 +172,7 @@ internal object Feil {
                 is OppgavenErAlleredeUtfoertOppgaveUtgaattByEksternId -> resultat.feilmelding
                 is UgyldigMerkelappOppgaveUtgaattByEksternId -> resultat.feilmelding
                 is UkjentProdusentOppgaveUtgaattByEksternId -> resultat.feilmelding
+                null,
                 is DefaultOppgaveUtgaattResultatImplementation,
                 is OppgaveUtgaattVellykket,
                 -> feilmeldingUkjent(feil)
@@ -180,16 +184,16 @@ internal object Feil {
 
     fun hardDeleteSak(
         id: String,
-        resultat: HardDeleteSakResultat,
+        resultat: HardDeleteSakResultat?,
         feil: List<GraphQLClientError>,
     ): Nothing {
         val feilmelding =
             when (resultat) {
                 is SakFinnesIkkeHardDeleteSak ->
                     throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
-
                 is UgyldigMerkelappHardDeleteSak -> resultat.feilmelding
                 is UkjentProdusentHardDeleteSak -> resultat.feilmelding
+                null,
                 is DefaultHardDeleteSakResultatImplementation,
                 is HardDeleteSakVellykket,
                 -> feilmeldingUkjent(feil)
@@ -201,16 +205,16 @@ internal object Feil {
 
     fun hardDeleteSakByGrupperingsid(
         grupperingsid: String,
-        resultat: HardDeleteSakByGrupperingsidResultat,
+        resultat: HardDeleteSakByGrupperingsidResultat?,
         feil: List<GraphQLClientError>,
     ): Nothing {
         val feilmelding =
             when (resultat) {
-                is SakFinnesIkkeHardDeleteSakByGrupperingsId -> throw SakEllerOppgaveFinnesIkkeException(
-                    resultat.feilmelding,
-                )
+                is SakFinnesIkkeHardDeleteSakByGrupperingsId ->
+                    throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
                 is UgyldigMerkelappHardDeleteSakByGrupperingsid -> resultat.feilmelding
                 is UkjentProdusentHardDeleteSakByGrupperingsid -> resultat.feilmelding
+                null,
                 is DefaultHardDeleteSakByGrupperingsidResultat,
                 is HardDeleteSakByGrupperingsidVellykket,
                 -> feilmeldingUkjent(feil)
@@ -221,20 +225,19 @@ internal object Feil {
 
     fun endreOppgavePaaminnelserByEksternId(
         eksternId: String,
-        resultat: OppgaveEndrePaaminnelseResultatOppgaveEndrePaaminnelseByEksternId,
+        resultat: OppgaveEndrePaaminnelseResultatOppgaveEndrePaaminnelseByEksternId?,
         feil: List<GraphQLClientError>,
     ): Nothing {
         val feilmelding =
             when (resultat) {
                 is NotifikasjonFinnesIkkeOppgaveEndrePaaminnelseByEksternId ->
                     throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
-
                 is OppgavenErAlleredeUtfoertOppgaveEndrePaaminnelseByEksternId ->
                     throw OppgaveAlleredeUtfoertException(resultat.feilmelding)
-
                 is UgyldigMerkelappOppgaveEndrePaaminnelseByEksternId -> resultat.feilmelding
                 is UgyldigPaaminnelseTidspunktOppgaveEndrePaaminnelseByEksternId -> resultat.feilmelding
                 is UkjentProdusentOppgaveEndrePaaminnelseByEksternId -> resultat.feilmelding
+                null,
                 is DefaultOppgaveEndrePaaminnelseResultatImplementation,
                 is OppgaveEndrePaaminnelseVellykketOppgaveEndrePaaminnelseByEksternId,
                 -> feilmeldingUkjent(feil)
@@ -245,7 +248,7 @@ internal object Feil {
     }
 
     private fun feilmeldingUkjent(feil: List<GraphQLClientError>): String =
-        "Klarte ikke kalle arbeidsgiver-notifikasjon pga. ukjent feil: '$feil'"
+        "Klarte ikke kalle arbeidsgiver-notifikasjon-api pga. ukjent feil: '$feil'"
 
     private fun loggFeilmelding(feilmelding: String) {
         "Feilmelding: $feilmelding".also {
@@ -319,8 +322,6 @@ class HardDeleteSakException(
     id: String,
     feilmelding: String,
 ) : Exception("Sletting (hard) av sak med id '$id' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
-
-class TomResponseException : Exception("Fikk tom response fra arbeidsgiver-notifikasjon.")
 
 class OppgaveEndrePaaminnelseByEksternIdException(
     eksternId: String,

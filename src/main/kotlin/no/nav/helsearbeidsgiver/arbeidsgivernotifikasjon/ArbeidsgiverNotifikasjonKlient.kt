@@ -3,14 +3,14 @@ package no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 import com.expediagroup.graphql.client.types.GraphQLClientError
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
-import com.expediagroup.graphql.client.types.GraphQLClientSourceLocation
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache5.Apache5
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.bearerAuth
-import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HardDeleteSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HardDeleteSakByGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ID
@@ -33,6 +33,7 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppret
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.pipe.orDefault
 import java.net.URI
 import kotlin.time.Duration
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.HardDeleteSakVellykket as HardDeleteSakByGrupperingsidVellykket
@@ -289,7 +290,7 @@ class ArbeidsgiverNotifikasjonKlient(
     private suspend fun <Data : Any, Result : Any, Success : Result> GraphQLClientRequest<Data>.execute(
         toResult: (Data) -> Result,
         toSuccess: (Result) -> Success?,
-        onError: (Result?, List<String>) -> Nothing,
+        onError: (Result?, String?) -> Nothing,
     ): Success {
         val response =
             graphQLClient.execute(this) {
@@ -297,10 +298,10 @@ class ArbeidsgiverNotifikasjonKlient(
             }
 
         val result = response.data?.let { toResult(it) }
-        val errors = response.errors?.mapToString().orEmpty()
+        val errors = response.errors?.ifEmpty { null }?.toJsonStr()
 
         val success = result?.runCatching { toSuccess(this) }?.getOrNull()
-        if (success != null && errors.isNotEmpty()) {
+        if (success != null && errors != null) {
             "Fikk respons fra arbeidsgiver-notifikasjon-api med både resultat og feil. Logger feil og fortsetter.".let {
                 logger.error(it)
                 sikkerLogger.error("$it\nFeil: $errors")
@@ -338,28 +339,44 @@ internal fun createHttpClient(): HttpClient =
 /** [Les om ISO8601-durations](https://en.wikipedia.org/wiki/ISO_8601#Durations) */
 private fun Duration.tilDagerIso8601(): String = "P${inWholeDays}D"
 
-private fun List<GraphQLClientError>.mapToString(): List<String> =
-    map { error ->
+private fun List<GraphQLClientError>.toJsonStr(): String =
+    map {
         mapOf(
-            error::message.name to error.message,
-            error::locations.name to
-                error.locations
-                    ?.map {
-                        mapOf(
-                            it::line.name to it.line.toString(),
-                            it::column.name to it.column.toString(),
-                        ).toJsonStr()
-                    }.orEmpty()
-                    .toString(),
-            error::path.name to error.path.toString(),
-            error::extensions.name to error.extensions.toString(),
-        ).toJsonStr()
-    }
+            it.messageJson(),
+            it.locationsJson(),
+            it.pathJson(),
+            it.extensionsJson(),
+        ).toJson()
+    }.toJson(JsonElement.serializer())
+        .toString()
 
-private fun Map<String, String>.toJsonStr(): String =
-    toJson(
-        MapSerializer(
-            String.serializer(),
-            String.serializer(),
-        ),
-    ).toString()
+private fun GraphQLClientError.messageJson(): Pair<String, JsonElement> = ::message.name to message.toJson()
+
+private fun GraphQLClientError.locationsJson(): Pair<String, JsonElement> =
+    ::locations.name to
+        locations
+            ?.map {
+                mapOf(
+                    it::line.name to it.line.toJson(Int.serializer()),
+                    it::column.name to it.column.toJson(Int.serializer()),
+                ).toJson()
+            }?.toJson(JsonElement.serializer())
+            .orDefault(JsonNull)
+
+private fun GraphQLClientError.pathJson(): Pair<String, JsonElement> =
+    ::path.name to
+        path
+            ?.map { it.toString() }
+            ?.toJson(String.serializer())
+            .orDefault(JsonNull)
+
+private fun GraphQLClientError.extensionsJson(): Pair<String, JsonElement> =
+    ::extensions.name to
+        extensions
+            ?.mapValues {
+                it.value
+                    ?.toString()
+                    ?.toJson()
+                    .orDefault(JsonNull)
+            }?.toJson()
+            .orDefault(JsonNull)

@@ -5,7 +5,7 @@ mutation NyStatusSakByGrupperingsid(
     $overstyrStatustekstMed: String
     $nyLenke: String
     $tidspunkt: ISO8601DateTime
-    $hardDeleteOm: ISO8601Duration
+    $hardDeleteOppdatering: HardDeleteUpdateInput
 ) {
     nyStatusSakByGrupperingsid(
         grupperingsid: $grupperingsid
@@ -14,12 +14,7 @@ mutation NyStatusSakByGrupperingsid(
         overstyrStatustekstMed: $overstyrStatustekstMed
         nyLenkeTilSak: $nyLenke
         tidspunkt: $tidspunkt
-        hardDelete: {
-            nyTid: {
-                om: $hardDeleteOm
-            },
-            strategi: OVERSKRIV
-        }
+        hardDelete: $hardDeleteOppdatering
     ) {
         __typename
         ... on NyStatusSakVellykket {

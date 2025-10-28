@@ -22,8 +22,11 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.Oppgav
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OppgaveUtgaattByEksternId
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OpprettNyOppgave
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.Whoami
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.NyTidStrategi
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakVellykket
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.FutureTemporalInput
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.HardDeleteUpdateInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.NySakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveendrepaaminnelsebyeksternid.OppgaveEndrePaaminnelseVellykket
@@ -104,7 +107,16 @@ class ArbeidsgiverNotifikasjonKlient(
                     overstyrStatustekstMed = statusTekst,
                     nyLenke = nyLenke,
                     tidspunkt = tidspunkt,
-                    hardDeleteOm = hardDeleteOm?.tilDagerIso8601(),
+                    hardDeleteOppdatering =
+                        hardDeleteOm?.let {
+                            HardDeleteUpdateInput(
+                                nyTid =
+                                    FutureTemporalInput(
+                                        om = it.tilDagerIso8601(),
+                                    ),
+                                strategi = NyTidStrategi.OVERSKRIV,
+                            )
+                        },
                 ),
         ).execute(
             toResult = NyStatusSakByGrupperingsid.Result::nyStatusSakByGrupperingsid,

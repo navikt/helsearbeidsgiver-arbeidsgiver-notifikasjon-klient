@@ -7,7 +7,7 @@ mutation nySak(
     $lenke: String,
     $initiellStatus: SaksStatus!,
     $overstyrStatustekstMed: String,
-    $hardDeleteOm: ISO8601Duration
+    $hardDeleteOm: ISO8601Duration!
 ) {
     nySak(
         grupperingsid: $grupperingsid,

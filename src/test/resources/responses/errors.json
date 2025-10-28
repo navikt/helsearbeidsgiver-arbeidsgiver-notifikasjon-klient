@@ -1,0 +1,9 @@
+{
+  "errors": [
+    {
+      "message": "Den første vaffelen ble fullstendig elendig",
+      "locations": [{ "line": 13, "column": 37 }],
+      "path": ["vaffel", "jern", 1, "strukturell", "integritet" ]
+    }
+  ]
+}

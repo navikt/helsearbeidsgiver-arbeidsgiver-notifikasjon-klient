@@ -342,9 +342,9 @@ internal fun createHttpClient(): HttpClient =
         }
 
         install(HttpTimeout) {
-            connectTimeoutMillis = 500
-            requestTimeoutMillis = 500
-            socketTimeoutMillis = 500
+            connectTimeoutMillis = 10_000
+            requestTimeoutMillis = 10_000
+            socketTimeoutMillis = 10_000
         }
     }
 

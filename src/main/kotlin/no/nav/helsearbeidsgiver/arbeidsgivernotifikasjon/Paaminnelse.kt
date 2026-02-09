@@ -2,16 +2,14 @@ package no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon
 
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ISO8601Duration
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.Sendevindu
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.AltinntjenesteMottakerInput
-import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.PaaminnelseEksterntVarselAltinntjenesteInput
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.AltinnRessursMottakerInput
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.PaaminnelseEksterntVarselAltinnressursInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.PaaminnelseEksterntVarselInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.PaaminnelseInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.PaaminnelseTidspunktInput
 
-const val ALTINN_MOTTAKER_SERVICE_CODE = "4936"
-const val ALTINN_MOTTAKER_SERVICE_EDITION = "1"
-
 data class Paaminnelse(
+    val ressursId: Altinn3Ressurs,
     val tittel: String,
     val innhold: String,
     val tidMellomOppgaveopprettelseOgPaaminnelse: ISO8601Duration,
@@ -22,15 +20,15 @@ fun Paaminnelse.tilPaaminnelseInput(): PaaminnelseInput =
         eksterneVarsler =
             listOf(
                 PaaminnelseEksterntVarselInput(
-                    altinntjeneste =
-                        PaaminnelseEksterntVarselAltinntjenesteInput(
+                    altinnressurs =
+                        PaaminnelseEksterntVarselAltinnressursInput(
                             mottaker =
-                                AltinntjenesteMottakerInput(
-                                    serviceCode = ALTINN_MOTTAKER_SERVICE_CODE,
-                                    serviceEdition = ALTINN_MOTTAKER_SERVICE_EDITION,
+                                AltinnRessursMottakerInput(
+                                    ressursId = ressursId.value,
                                 ),
-                            tittel = tittel,
-                            innhold = innhold,
+                            epostTittel = tittel,
+                            epostHtmlBody = innhold,
+                            smsTekst = innhold,
                             sendevindu = Sendevindu.NKS_AAPNINGSTID,
                         ),
                 ),

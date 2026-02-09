@@ -504,6 +504,7 @@ private object Mock {
             virksomhetsnummer = "mock virksomhetsnummer",
             grupperingsid = "mock grupperingsid",
             merkelapp = "mock merkelapp",
+            ressursId = Altinn3Ressurs.INNTEKTSMELDING,
             lenke = if (medLenke) "mock lenke" else null,
             tittel = "mock tittel",
             statusTekst = "mock statusTekst",
@@ -533,10 +534,12 @@ private object Mock {
             lenke = "mock lenke",
             tekst = "mock tekst",
             tidspunkt = "mock tidspunkt",
+            ressursId = Altinn3Ressurs.INNTEKTSMELDING,
             varslingTittel = "mock varslingTittel",
             varslingInnhold = "mock varslingInnhold",
             paaminnelse =
                 Paaminnelse(
+                    ressursId = Altinn3Ressurs.INNTEKTSMELDING,
                     tittel = "mock tittel",
                     innhold = "mock innhold",
                     tidMellomOppgaveopprettelseOgPaaminnelse = "P10D",
@@ -585,6 +588,7 @@ private object Mock {
             eksternId = "mock eksternId",
             paaminnelse =
                 Paaminnelse(
+                    ressursId = Altinn3Ressurs.INNTEKTSMELDING,
                     tittel = "mock tittel",
                     innhold = "mock innhold",
                     tidMellomOppgaveopprettelseOgPaaminnelse = "P28D",

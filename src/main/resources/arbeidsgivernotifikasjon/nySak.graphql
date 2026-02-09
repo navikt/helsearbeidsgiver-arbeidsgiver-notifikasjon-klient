@@ -2,6 +2,7 @@ mutation nySak(
     $grupperingsid: String!,
     $merkelapp: String!,
     $virksomhetsnummer: String!,
+    $ressursId: String!,
     $tittel: String!,
     $tilleggsinformasjon: String,
     $lenke: String,
@@ -15,9 +16,8 @@ mutation nySak(
         virksomhetsnummer: $virksomhetsnummer,
         mottakere: [
             {
-                altinn: {
-                    serviceCode: "4936"
-                    serviceEdition: "1"
+                altinnRessurs: {
+                    ressursId: $ressursId
                 }
             }
         ],

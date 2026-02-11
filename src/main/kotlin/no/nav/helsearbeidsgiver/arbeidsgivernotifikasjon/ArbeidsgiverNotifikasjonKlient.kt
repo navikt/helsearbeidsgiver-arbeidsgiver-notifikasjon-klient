@@ -52,8 +52,8 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hardde
 
 class ArbeidsgiverNotifikasjonKlient(
     url: String,
-    private val getAccessToken: () -> String,
     private val mottaker: AltinnMottaker,
+    private val getAccessToken: () -> String,
 ) {
     private val logger = logger()
     private val sikkerLogger = sikkerLogger()

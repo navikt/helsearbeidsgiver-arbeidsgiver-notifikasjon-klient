@@ -25,6 +25,6 @@ fun mockArbeidsgiverNotifikasjonKlient(
 
     return mockStatic(::createHttpClient) {
         every { createHttpClient() } returns HttpClient(mockEngine)
-        ArbeidsgiverNotifikasjonKlient("https://url", { "fake token" }, mottaker)
+        ArbeidsgiverNotifikasjonKlient("https://url", mottaker, { "fake token" })
     }
 }

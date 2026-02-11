@@ -24,9 +24,18 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.Oppret
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.Whoami
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.NyTidStrategi
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.Sendevindu
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakVellykket
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.AltinnMottakerInput
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.AltinnRessursMottakerInput
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.AltinntjenesteMottakerInput
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.EksterntVarselAltinnressursInput
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.EksterntVarselAltinntjenesteInput
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.EksterntVarselInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.FutureTemporalInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.HardDeleteUpdateInput
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.MottakerInput
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.SendetidspunktInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.NySakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveendrepaaminnelsebyeksternid.OppgaveEndrePaaminnelseVellykket
@@ -44,6 +53,7 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hardde
 class ArbeidsgiverNotifikasjonKlient(
     url: String,
     private val getAccessToken: () -> String,
+    private val mottaker: AltinnMottaker,
 ) {
     private val logger = logger()
     private val sikkerLogger = sikkerLogger()
@@ -55,11 +65,65 @@ class ArbeidsgiverNotifikasjonKlient(
             serializer = serializerWithFallback,
         )
 
+    private fun toMottakerInput(): MottakerInput =
+        when (mottaker) {
+            is AltinnMottaker.Altinn2 ->
+                MottakerInput(
+                    altinn =
+                        AltinnMottakerInput(
+                            serviceCode = mottaker.serviceCode,
+                            serviceEdition = mottaker.serviceEdition,
+                        ),
+                )
+            is AltinnMottaker.Altinn3 ->
+                MottakerInput(
+                    altinnRessurs =
+                        AltinnRessursMottakerInput(
+                            ressursId = mottaker.ressurs.value,
+                        ),
+                )
+        }
+
+    private fun toEksterntVarselInput(
+        epostTittel: String,
+        epostHtmlBody: String,
+        smsTekst: String,
+    ): EksterntVarselInput =
+        when (mottaker) {
+            is AltinnMottaker.Altinn2 ->
+                EksterntVarselInput(
+                    altinntjeneste =
+                        EksterntVarselAltinntjenesteInput(
+                            mottaker =
+                                AltinntjenesteMottakerInput(
+                                    serviceCode = mottaker.serviceCode,
+                                    serviceEdition = mottaker.serviceEdition,
+                                ),
+                            tittel = epostTittel,
+                            innhold = epostHtmlBody,
+                            sendetidspunkt = SendetidspunktInput(sendevindu = Sendevindu.NKS_AAPNINGSTID),
+                        ),
+                )
+            is AltinnMottaker.Altinn3 ->
+                EksterntVarselInput(
+                    altinnressurs =
+                        EksterntVarselAltinnressursInput(
+                            mottaker =
+                                AltinnRessursMottakerInput(
+                                    ressursId = mottaker.ressurs.value,
+                                ),
+                            epostTittel = epostTittel,
+                            epostHtmlBody = epostHtmlBody,
+                            smsTekst = smsTekst,
+                            sendetidspunkt = SendetidspunktInput(sendevindu = Sendevindu.NKS_AAPNINGSTID),
+                        ),
+                )
+        }
+
     suspend fun opprettNySak(
         virksomhetsnummer: String,
         grupperingsid: String,
         merkelapp: String,
-        ressursId: Altinn3Ressurs,
         lenke: String?,
         tittel: String,
         statusTekst: String?,
@@ -73,7 +137,7 @@ class ArbeidsgiverNotifikasjonKlient(
                     grupperingsid = grupperingsid,
                     merkelapp = merkelapp,
                     virksomhetsnummer = virksomhetsnummer,
-                    ressursId = ressursId.value,
+                    mottaker = toMottakerInput(),
                     tittel = tittel,
                     tilleggsinformasjon = tilleggsinfo,
                     lenke = lenke,
@@ -137,7 +201,6 @@ class ArbeidsgiverNotifikasjonKlient(
         lenke: String,
         tekst: String,
         tidspunkt: ISO8601DateTime?,
-        ressursId: Altinn3Ressurs,
         varslingTittel: String,
         varslingInnhold: String,
         paaminnelse: Paaminnelse?,
@@ -152,10 +215,16 @@ class ArbeidsgiverNotifikasjonKlient(
                     merkelapp = merkelapp,
                     tidspunkt = tidspunkt,
                     grupperingsid = grupperingsid,
-                    ressursId = ressursId.value,
-                    varslingTittel = varslingTittel,
-                    varslingInnhold = varslingInnhold,
-                    paaminnelseInput = paaminnelse?.tilPaaminnelseInput(),
+                    mottaker = toMottakerInput(),
+                    eksterneVarsler =
+                        listOf(
+                            toEksterntVarselInput(
+                                epostTittel = varslingTittel,
+                                epostHtmlBody = varslingInnhold,
+                                smsTekst = varslingInnhold,
+                            ),
+                        ),
+                    paaminnelseInput = paaminnelse?.tilPaaminnelseInput(mottaker),
                 ),
         ).also { loggInfo("Forsøker å opprette ny oppgave.") }
             .execute(
@@ -260,7 +329,7 @@ class ArbeidsgiverNotifikasjonKlient(
                     merkelapp = merkelapp,
                     eksternId = eksternId,
                     idempotencyKey = idempotencyKey,
-                    paaminnelse = paaminnelse?.tilPaaminnelseInput(),
+                    paaminnelse = paaminnelse?.tilPaaminnelseInput(mottaker),
                 ),
         ).execute(
             toResult = OppgaveEndrePaaminnelseByEksternId.Result::oppgaveEndrePaaminnelseByEksternId,

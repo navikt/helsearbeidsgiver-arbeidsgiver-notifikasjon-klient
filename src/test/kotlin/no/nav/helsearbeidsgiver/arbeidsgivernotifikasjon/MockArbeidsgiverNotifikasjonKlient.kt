@@ -10,7 +10,10 @@ import io.ktor.http.headersOf
 import io.mockk.every
 import no.nav.helsearbeidsgiver.utils.test.mock.mockStatic
 
-fun mockArbeidsgiverNotifikasjonKlient(content: String): ArbeidsgiverNotifikasjonKlient {
+fun mockArbeidsgiverNotifikasjonKlient(
+    content: String,
+    mottaker: AltinnMottaker = AltinnMottaker.Altinn3(Altinn3Ressurs.INNTEKTSMELDING),
+): ArbeidsgiverNotifikasjonKlient {
     val mockEngine =
         MockEngine {
             respond(
@@ -22,6 +25,6 @@ fun mockArbeidsgiverNotifikasjonKlient(content: String): ArbeidsgiverNotifikasjo
 
     return mockStatic(::createHttpClient) {
         every { createHttpClient() } returns HttpClient(mockEngine)
-        ArbeidsgiverNotifikasjonKlient("https://url") { "fake token" }
+        ArbeidsgiverNotifikasjonKlient("https://url", { "fake token" }, mottaker)
     }
 }

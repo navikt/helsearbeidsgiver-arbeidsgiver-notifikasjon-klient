@@ -3,7 +3,7 @@ package no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon
 /**
  * Representerer altinn mottakere.
  */
-sealed interface AltinnMottaker {
+sealed class AltinnMottaker {
     /**
      * Altinn 2 service code (deprecated, vil forsvinne innen juni 2026)
      */
@@ -11,12 +11,12 @@ sealed interface AltinnMottaker {
     data class Altinn2(
         val serviceCode: String,
         val serviceEdition: String,
-    ) : AltinnMottaker
+    ) : AltinnMottaker()
 
     /**
      * Altinn 3 ressurs
      */
     data class Altinn3(
         val ressurs: Altinn3Ressurs,
-    ) : AltinnMottaker
+    ) : AltinnMottaker()
 }

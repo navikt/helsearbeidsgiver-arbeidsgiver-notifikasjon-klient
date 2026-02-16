@@ -32,7 +32,7 @@ internal fun Paaminnelse.tilPaaminnelseInput(mottaker: AltinnMottaker): Paaminne
                                     epostTittel = tittel,
                                     epostHtmlBody = innhold,
                                     smsTekst = innhold,
-                                    sendevindu = Sendevindu.NKS_AAPNINGSTID,
+                                    sendevindu = Sendevindu.LOEPENDE,
                                 )
                             is AltinnMottaker.Altinn2 -> null
                         },
@@ -47,7 +47,7 @@ internal fun Paaminnelse.tilPaaminnelseInput(mottaker: AltinnMottaker): Paaminne
                                         ),
                                     tittel = tittel,
                                     innhold = innhold,
-                                    sendevindu = Sendevindu.NKS_AAPNINGSTID,
+                                    sendevindu = Sendevindu.LOEPENDE,
                                 )
                             is AltinnMottaker.Altinn3 -> null
                         },

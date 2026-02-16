@@ -101,7 +101,7 @@ class ArbeidsgiverNotifikasjonKlient(
                                 ),
                             tittel = epostTittel,
                             innhold = epostHtmlBody,
-                            sendetidspunkt = SendetidspunktInput(sendevindu = Sendevindu.NKS_AAPNINGSTID),
+                            sendetidspunkt = SendetidspunktInput(sendevindu = Sendevindu.LOEPENDE),
                         ),
                 )
             is AltinnMottaker.Altinn3 ->
@@ -115,7 +115,7 @@ class ArbeidsgiverNotifikasjonKlient(
                             epostTittel = epostTittel,
                             epostHtmlBody = epostHtmlBody,
                             smsTekst = smsTekst,
-                            sendetidspunkt = SendetidspunktInput(sendevindu = Sendevindu.NKS_AAPNINGSTID),
+                            sendetidspunkt = SendetidspunktInput(sendevindu = Sendevindu.LOEPENDE),
                         ),
                 )
         }

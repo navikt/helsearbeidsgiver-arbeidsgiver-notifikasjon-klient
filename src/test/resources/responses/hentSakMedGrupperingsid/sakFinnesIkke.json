@@ -1,0 +1,8 @@
+{
+  "data": {
+    "hentSakMedGrupperingsid": {
+      "__typename": "SakFinnesIkke",
+      "feilmelding": "Sak med grupperingsid 'grp-999' finnes ikke"
+    }
+  }
+}

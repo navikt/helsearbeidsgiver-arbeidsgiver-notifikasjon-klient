@@ -1,0 +1,8 @@
+{
+  "data": {
+    "hentSakMedGrupperingsid": {
+      "__typename": "UgyldigMerkelapp",
+      "feilmelding": "Ugyldig merkelapp"
+    }
+  }
+}

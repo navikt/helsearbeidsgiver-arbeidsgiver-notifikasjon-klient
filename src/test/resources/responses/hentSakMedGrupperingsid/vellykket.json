@@ -1,0 +1,18 @@
+{
+  "data": {
+    "hentSakMedGrupperingsid": {
+      "__typename": "HentetSak",
+      "sak": {
+        "id": "456789",
+        "grupperingsid": "grp-test-001",
+        "virksomhetsnummer": "987654321",
+        "tittel": "Test sak tittel",
+        "lenke": "https://example.com/sak/456789",
+        "nesteSteg": "Neste steg beskrivelse",
+        "tilleggsinformasjon": "Tilleggsinformasjon her",
+        "merkelapp": "test-merkelapp",
+        "sisteStatus": "UNDER_BEHANDLING"
+      }
+    }
+  }
+}

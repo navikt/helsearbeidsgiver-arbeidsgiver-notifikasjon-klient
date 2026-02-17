@@ -18,36 +18,6 @@ query hentNotifikasjon($id: ID!) {
                         lenke
                     }
                 }
-                ... on Beskjed {
-                    metadata {
-                        id
-                        eksternId
-                        opprettetTidspunkt
-                        grupperingsid
-                    }
-                    beskjed {
-                        merkelapp
-                        tekst
-                        lenke
-                    }
-                }
-                ... on Kalenderavtale {
-                    metadata {
-                        id
-                        eksternId
-                        opprettetTidspunkt
-                        grupperingsid
-                    }
-                    kalenderavtale {
-                        merkelapp
-                        tekst
-                        lenke
-                        startTidspunkt
-                        sluttTidspunkt
-                        digitalt
-                        tilstand
-                    }
-                }
             }
         }
         ... on NotifikasjonFinnesIkke {

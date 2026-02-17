@@ -17,6 +17,12 @@ kotlin {
     }
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+    withSourcesJar()
+}
+
 tasks {
     test {
         useJUnitPlatform()
@@ -29,9 +35,6 @@ tasks {
     }
 }
 
-java {
-    withSourcesJar()
-}
 
 graphql {
     client {

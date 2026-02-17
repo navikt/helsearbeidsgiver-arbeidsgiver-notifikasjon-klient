@@ -54,6 +54,7 @@ class ArbeidsgiverNotifikasjonKlient(
     url: String,
     val mottaker: AltinnMottaker,
     private val getAccessToken: () -> String,
+    val sendevindu: Sendevindu,
 ) {
     private val logger = logger()
     private val sikkerLogger = sikkerLogger()
@@ -101,7 +102,7 @@ class ArbeidsgiverNotifikasjonKlient(
                                 ),
                             tittel = epostTittel,
                             innhold = epostHtmlBody,
-                            sendetidspunkt = SendetidspunktInput(sendevindu = Sendevindu.LOEPENDE),
+                            sendetidspunkt = SendetidspunktInput(sendevindu = sendevindu),
                         ),
                 )
             is AltinnMottaker.Altinn3 ->
@@ -115,7 +116,7 @@ class ArbeidsgiverNotifikasjonKlient(
                             epostTittel = epostTittel,
                             epostHtmlBody = epostHtmlBody,
                             smsTekst = smsTekst,
-                            sendetidspunkt = SendetidspunktInput(sendevindu = Sendevindu.LOEPENDE),
+                            sendetidspunkt = SendetidspunktInput(sendevindu = sendevindu),
                         ),
                 )
         }
@@ -224,7 +225,7 @@ class ArbeidsgiverNotifikasjonKlient(
                                 smsTekst = varslingInnhold,
                             ),
                         ),
-                    paaminnelseInput = paaminnelse?.tilPaaminnelseInput(mottaker),
+                    paaminnelseInput = paaminnelse?.tilPaaminnelseInput(mottaker, sendevindu),
                 ),
         ).also { loggInfo("Forsøker å opprette ny oppgave.") }
             .execute(
@@ -329,7 +330,7 @@ class ArbeidsgiverNotifikasjonKlient(
                     merkelapp = merkelapp,
                     eksternId = eksternId,
                     idempotencyKey = idempotencyKey,
-                    paaminnelse = paaminnelse?.tilPaaminnelseInput(mottaker),
+                    paaminnelse = paaminnelse?.tilPaaminnelseInput(mottaker, sendevindu),
                 ),
         ).execute(
             toResult = OppgaveEndrePaaminnelseByEksternId.Result::oppgaveEndrePaaminnelseByEksternId,

@@ -16,7 +16,10 @@ data class Paaminnelse(
     val tidMellomOppgaveopprettelseOgPaaminnelse: ISO8601Duration,
 )
 
-internal fun Paaminnelse.tilPaaminnelseInput(mottaker: AltinnMottaker): PaaminnelseInput =
+internal fun Paaminnelse.tilPaaminnelseInput(
+    mottaker: AltinnMottaker,
+    sendevindu: Sendevindu,
+): PaaminnelseInput =
     PaaminnelseInput(
         eksterneVarsler =
             listOf(
@@ -32,7 +35,7 @@ internal fun Paaminnelse.tilPaaminnelseInput(mottaker: AltinnMottaker): Paaminne
                                     epostTittel = tittel,
                                     epostHtmlBody = innhold,
                                     smsTekst = innhold,
-                                    sendevindu = Sendevindu.LOEPENDE,
+                                    sendevindu = sendevindu,
                                 )
                             is AltinnMottaker.Altinn2 -> null
                         },
@@ -47,7 +50,7 @@ internal fun Paaminnelse.tilPaaminnelseInput(mottaker: AltinnMottaker): Paaminne
                                         ),
                                     tittel = tittel,
                                     innhold = innhold,
-                                    sendevindu = Sendevindu.LOEPENDE,
+                                    sendevindu = sendevindu,
                                 )
                             is AltinnMottaker.Altinn3 -> null
                         },

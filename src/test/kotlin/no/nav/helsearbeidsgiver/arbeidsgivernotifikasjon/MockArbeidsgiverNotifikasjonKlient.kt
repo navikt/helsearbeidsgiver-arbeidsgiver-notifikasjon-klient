@@ -8,6 +8,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.mockk.every
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.Sendevindu
 import no.nav.helsearbeidsgiver.utils.test.mock.mockStatic
 
 fun mockArbeidsgiverNotifikasjonKlient(
@@ -25,6 +26,6 @@ fun mockArbeidsgiverNotifikasjonKlient(
 
     return mockStatic(::createHttpClient) {
         every { createHttpClient() } returns HttpClient(mockEngine)
-        ArbeidsgiverNotifikasjonKlient("https://url", mottaker, { "fake token" })
+        ArbeidsgiverNotifikasjonKlient("https://url", mottaker, { "fake token" }, Sendevindu.NKS_AAPNINGSTID)
     }
 }

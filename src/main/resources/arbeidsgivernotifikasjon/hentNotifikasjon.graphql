@@ -1,0 +1,63 @@
+query hentNotifikasjon($id: ID!) {
+    hentNotifikasjon(id: $id) {
+        __typename
+        ... on HentetNotifikasjon {
+            notifikasjon {
+                __typename
+                ... on Oppgave {
+                    metadata {
+                        id
+                        eksternId
+                        opprettetTidspunkt
+                        grupperingsid
+                    }
+                    oppgave {
+                        tilstand
+                        merkelapp
+                        tekst
+                        lenke
+                    }
+                }
+                ... on Beskjed {
+                    metadata {
+                        id
+                        eksternId
+                        opprettetTidspunkt
+                        grupperingsid
+                    }
+                    beskjed {
+                        merkelapp
+                        tekst
+                        lenke
+                    }
+                }
+                ... on Kalenderavtale {
+                    metadata {
+                        id
+                        eksternId
+                        opprettetTidspunkt
+                        grupperingsid
+                    }
+                    kalenderavtale {
+                        merkelapp
+                        tekst
+                        lenke
+                        startTidspunkt
+                        sluttTidspunkt
+                        digitalt
+                        tilstand
+                    }
+                }
+            }
+        }
+        ... on NotifikasjonFinnesIkke {
+            feilmelding
+        }
+        ... on UgyldigMerkelapp {
+            feilmelding
+        }
+        ... on UkjentProdusent {
+            feilmelding
+        }
+    }
+}

@@ -1,10 +1,15 @@
 package no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon
 
-import com.expediagroup.graphql.client.types.GraphQLClientError
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.DefaultHardDeleteSakResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakVellykket
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentnotifikasjon.DefaultHentNotifikasjonResultatImplementation
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentnotifikasjon.HentNotifikasjonResultat
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentnotifikasjon.HentetNotifikasjon
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentsakmedgrupperingsid.DefaultHentSakResultatImplementation
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentsakmedgrupperingsid.HentSakResultat
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentsakmedgrupperingsid.HentetSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.DefaultNySakResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.DuplikatGrupperingsidEtterDelete
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.NySakResultat
@@ -33,6 +38,12 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hardde
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.SakFinnesIkke as SakFinnesIkkeHardDeleteSakByGrupperingsId
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.UgyldigMerkelapp as UgyldigMerkelappHardDeleteSakByGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesakbygrupperingsid.UkjentProdusent as UkjentProdusentHardDeleteSakByGrupperingsid
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentnotifikasjon.NotifikasjonFinnesIkke as NotifikasjonFinnesIkkeHentNotifikasjon
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentnotifikasjon.UgyldigMerkelapp as UgyldigMerkelappHentNotifikasjon
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentnotifikasjon.UkjentProdusent as UkjentProdusentHentNotifikasjon
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentsakmedgrupperingsid.SakFinnesIkke as SakFinnesIkkeHentSakMedGrupperingsid
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentsakmedgrupperingsid.UgyldigMerkelapp as UgyldigMerkelappHentSakMedGrupperingsid
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentsakmedgrupperingsid.UkjentProdusent as UkjentProdusentHentSakMedGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.DuplikatGrupperingsid as DuplikatGrupperingsidNySak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.UgyldigMerkelapp as UgyldigMerkelappNySak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.UgyldigMottaker as UgyldigMottakerNySak
@@ -247,6 +258,49 @@ internal object Feil {
         throw OppgaveEndrePaaminnelseByEksternIdException(eksternId, feilmelding)
     }
 
+    fun hentNotifikasjon(
+        id: String,
+        resultat: HentNotifikasjonResultat?,
+        feil: String?,
+    ): Nothing {
+        val feilmelding =
+            when (resultat) {
+                is NotifikasjonFinnesIkkeHentNotifikasjon ->
+                    throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
+                is UgyldigMerkelappHentNotifikasjon -> resultat.feilmelding
+                is UkjentProdusentHentNotifikasjon -> resultat.feilmelding
+                null,
+                is DefaultHentNotifikasjonResultatImplementation,
+                is HentetNotifikasjon,
+                -> feilmeldingUkjent(feil)
+            }
+
+        loggFeilmelding(feilmelding)
+        throw HentNotifikasjonException(id, feilmelding)
+    }
+
+    fun hentSakMedGrupperingsid(
+        grupperingsid: String,
+        merkelapp: String,
+        resultat: HentSakResultat?,
+        feil: String?,
+    ): Nothing {
+        val feilmelding =
+            when (resultat) {
+                is SakFinnesIkkeHentSakMedGrupperingsid ->
+                    throw SakEllerOppgaveFinnesIkkeException(resultat.feilmelding)
+                is UgyldigMerkelappHentSakMedGrupperingsid -> resultat.feilmelding
+                is UkjentProdusentHentSakMedGrupperingsid -> resultat.feilmelding
+                null,
+                is DefaultHentSakResultatImplementation,
+                is HentetSak,
+                -> feilmeldingUkjent(feil)
+            }
+
+        loggFeilmelding(feilmelding)
+        throw HentSakMedGrupperingsidException(grupperingsid, merkelapp, feilmelding)
+    }
+
     private fun feilmeldingUkjent(feil: String?): String =
         "Klarte ikke kalle arbeidsgiver-notifikasjon-api pga. ukjent feil: '$feil'"
 
@@ -328,5 +382,19 @@ class OppgaveEndrePaaminnelseByEksternIdException(
     feilmelding: String,
 ) : Exception(
         "Oppdatering av påminnelser for oppgave med eksternId '$eksternId' " +
+            "mot arbeidsgiver-notifikasjon-api feilet: $feilmelding",
+    )
+
+class HentNotifikasjonException(
+    id: String,
+    feilmelding: String,
+) : Exception("Henting av notifikasjon med id '$id' mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
+
+class HentSakMedGrupperingsidException(
+    grupperingsid: String,
+    merkelapp: String,
+    feilmelding: String,
+) : Exception(
+        "Henting av sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp' " +
             "mot arbeidsgiver-notifikasjon-api feilet: $feilmelding",
     )

@@ -13,6 +13,8 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HardDeleteSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HardDeleteSakByGrupperingsid
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HentNotifikasjon
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HentSakMedGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ID
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ISO8601DateTime
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.NySak
@@ -25,6 +27,9 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.Whoami
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.NyTidStrategi
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakVellykket
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentnotifikasjon.HentetNotifikasjon
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentsakmedgrupperingsid.HentetSak
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentsakmedgrupperingsid.Sak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.FutureTemporalInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.HardDeleteUpdateInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.NySakVellykket
@@ -286,6 +291,42 @@ class ArbeidsgiverNotifikasjonKlient(
         )
 
         loggInfo("Slettet påminnelser for oppgave med eksternId '$eksternId'.")
+    }
+
+    suspend fun hentNotifikasjon(id: String): HentetNotifikasjon {
+        loggInfo("Forsøker å hente notifikasjon med id '$id'.")
+
+        return HentNotifikasjon(
+            variables = HentNotifikasjon.Variables(id = id),
+        ).execute(
+            toResult = HentNotifikasjon.Result::hentNotifikasjon,
+            toSuccess = { it as? HentetNotifikasjon },
+            onError = { res, err -> Feil.hentNotifikasjon(id, res, err) },
+        ).also {
+            loggInfo("Hentet notifikasjon med id '$id'.")
+        }
+    }
+
+    suspend fun hentSakMedGrupperingsid(
+        grupperingsid: String,
+        merkelapp: String,
+    ): Sak {
+        loggInfo("Forsøker å hente sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
+
+        return HentSakMedGrupperingsid(
+            variables =
+                HentSakMedGrupperingsid.Variables(
+                    grupperingsid = grupperingsid,
+                    merkelapp = merkelapp,
+                ),
+        ).execute(
+            toResult = HentSakMedGrupperingsid.Result::hentSakMedGrupperingsid,
+            toSuccess = { it as? HentetSak },
+            onError = { res, err -> Feil.hentSakMedGrupperingsid(grupperingsid, merkelapp, res, err) },
+        ).sak
+            .also {
+                loggInfo("Hentet sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
+            }
     }
 
     // Brukes til debugging

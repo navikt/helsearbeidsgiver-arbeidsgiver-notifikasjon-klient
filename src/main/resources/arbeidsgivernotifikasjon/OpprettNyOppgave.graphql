@@ -6,19 +6,12 @@ mutation OpprettNyOppgave(
     $merkelapp: String!,
     $tidspunkt: ISO8601DateTime,
     $grupperingsid: String,
-    $varslingTittel: String!,
-    $varslingInnhold: String!,
+    $mottaker: MottakerInput!,
+    $eksterneVarsler: [EksterntVarselInput!]!,
     $paaminnelseInput: PaaminnelseInput
 ){
     nyOppgave(nyOppgave: {
-        mottakere: [
-            {
-                altinn: {
-                    serviceCode: "4936"
-                    serviceEdition: "1"
-                }
-            }
-        ],
+        mottakere: [$mottaker],
         notifikasjon: {
             lenke: $lenke,
             tekst: $tekst,
@@ -30,21 +23,7 @@ mutation OpprettNyOppgave(
             opprettetTidspunkt: $tidspunkt,
             grupperingsid: $grupperingsid,
         },
-        eksterneVarsler: [
-            {
-                altinntjeneste: {
-                    mottaker: {
-                        serviceCode: "4936"
-                        serviceEdition: "1"
-                    },
-                    tittel: $varslingTittel,
-                    innhold: $varslingInnhold,
-                    sendetidspunkt: {
-                        sendevindu: NKS_AAPNINGSTID
-                    },
-                }
-            }
-        ],
+        eksterneVarsler: $eksterneVarsler,
         paaminnelse: $paaminnelseInput
     }) {
         __typename

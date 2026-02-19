@@ -2,14 +2,13 @@ package no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon
 
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ISO8601Duration
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.Sendevindu
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.AltinnRessursMottakerInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.AltinntjenesteMottakerInput
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.PaaminnelseEksterntVarselAltinnressursInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.PaaminnelseEksterntVarselAltinntjenesteInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.PaaminnelseEksterntVarselInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.PaaminnelseInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.PaaminnelseTidspunktInput
-
-const val ALTINN_MOTTAKER_SERVICE_CODE = "4936"
-const val ALTINN_MOTTAKER_SERVICE_EDITION = "1"
 
 data class Paaminnelse(
     val tittel: String,
@@ -17,22 +16,44 @@ data class Paaminnelse(
     val tidMellomOppgaveopprettelseOgPaaminnelse: ISO8601Duration,
 )
 
-fun Paaminnelse.tilPaaminnelseInput(): PaaminnelseInput =
+internal fun Paaminnelse.tilPaaminnelseInput(
+    mottaker: AltinnMottaker,
+    sendevindu: Sendevindu,
+): PaaminnelseInput =
     PaaminnelseInput(
         eksterneVarsler =
             listOf(
                 PaaminnelseEksterntVarselInput(
+                    altinnressurs =
+                        when (mottaker) {
+                            is AltinnMottaker.Altinn3 ->
+                                PaaminnelseEksterntVarselAltinnressursInput(
+                                    mottaker =
+                                        AltinnRessursMottakerInput(
+                                            ressursId = mottaker.ressurs.value,
+                                        ),
+                                    epostTittel = tittel,
+                                    epostHtmlBody = innhold,
+                                    smsTekst = innhold,
+                                    sendevindu = sendevindu,
+                                )
+                            is AltinnMottaker.Altinn2 -> null
+                        },
                     altinntjeneste =
-                        PaaminnelseEksterntVarselAltinntjenesteInput(
-                            mottaker =
-                                AltinntjenesteMottakerInput(
-                                    serviceCode = ALTINN_MOTTAKER_SERVICE_CODE,
-                                    serviceEdition = ALTINN_MOTTAKER_SERVICE_EDITION,
-                                ),
-                            tittel = tittel,
-                            innhold = innhold,
-                            sendevindu = Sendevindu.NKS_AAPNINGSTID,
-                        ),
+                        when (mottaker) {
+                            is AltinnMottaker.Altinn2 ->
+                                PaaminnelseEksterntVarselAltinntjenesteInput(
+                                    mottaker =
+                                        AltinntjenesteMottakerInput(
+                                            serviceCode = mottaker.serviceCode,
+                                            serviceEdition = mottaker.serviceEdition,
+                                        ),
+                                    tittel = tittel,
+                                    innhold = innhold,
+                                    sendevindu = sendevindu,
+                                )
+                            is AltinnMottaker.Altinn3 -> null
+                        },
                 ),
             ),
         tidspunkt = PaaminnelseTidspunktInput(etterOpprettelse = tidMellomOppgaveopprettelseOgPaaminnelse),

@@ -35,7 +35,6 @@ tasks {
     }
 }
 
-
 graphql {
     client {
         packageName = "no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated"

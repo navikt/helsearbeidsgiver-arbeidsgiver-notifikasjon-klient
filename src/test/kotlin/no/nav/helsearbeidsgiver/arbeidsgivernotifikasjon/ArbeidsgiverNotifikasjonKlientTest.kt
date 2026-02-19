@@ -595,6 +595,57 @@ class ArbeidsgiverNotifikasjonKlientTest :
                 }
             }
         }
+
+        context(ArbeidsgiverNotifikasjonKlient::mineNotifikasjoner.name) {
+            test("vellykket - mine notifikasjoner") {
+                val response = "responses/mineNotifikasjoner/vellykket.json".readResource()
+
+                val resultat = Mock.mineNotifikasjoner(response)
+
+                resultat.edges.size shouldBe 2
+                resultat.pageInfo.hasNextPage shouldBe false
+                resultat.pageInfo.endCursor shouldBe "cursor-2"
+            }
+
+            test("vellykket - tom liste") {
+                val response = "responses/mineNotifikasjoner/tomListe.json".readResource()
+
+                val resultat = Mock.mineNotifikasjoner(response)
+
+                resultat.edges.size shouldBe 0
+                resultat.pageInfo.hasNextPage shouldBe false
+            }
+
+            withData(
+                "ugyldigMerkelapp",
+                "ukjentProdusent",
+            ) { jsonFilename ->
+                val response = "responses/mineNotifikasjoner/$jsonFilename.json".readResource()
+
+                shouldThrowExactly<MineNotifikasjonerException> {
+                    Mock.mineNotifikasjoner(response)
+                }
+            }
+
+            test("både resultat og feilmeldinger i samme respons - mine notifikasjoner") {
+                val response =
+                    "responses/mineNotifikasjoner/vellykket.json"
+                        .readResource()
+                        .mergeWithErrorsResponse()
+
+                shouldNotThrowAny {
+                    Mock.mineNotifikasjoner(response)
+                }
+            }
+
+            test("feilmeldinger i respons - mine notifikasjoner") {
+                val response = "responses/errors.json".readResource()
+
+                shouldThrowExactly<MineNotifikasjonerException> {
+                    Mock.mineNotifikasjoner(response)
+                }
+            }
+        }
     })
 
 private object Mock {
@@ -693,6 +744,12 @@ private object Mock {
                 ),
         )
     }
+
+    suspend fun mineNotifikasjoner(response: String) =
+        mockArbeidsgiverNotifikasjonKlient(response).mineNotifikasjoner(
+            first = 10,
+            merkelapp = "mock merkelapp",
+        )
 
     suspend fun hentNotifikasjon(response: String) =
         mockArbeidsgiverNotifikasjonKlient(response).hentNotifikasjon(

@@ -1,0 +1,49 @@
+{
+  "data": {
+    "mineNotifikasjoner": {
+      "__typename": "NotifikasjonConnection",
+      "edges": [
+        {
+          "node": {
+            "__typename": "Oppgave",
+            "metadata": {
+              "id": "oppgave-1",
+              "eksternId": "ext-oppgave-1",
+              "opprettetTidspunkt": "2024-01-15T10:30:00Z",
+              "grupperingsid": "grp-001"
+            },
+            "oppgave": {
+              "tilstand": "NY",
+              "merkelapp": "test-merkelapp",
+              "tekst": "Dette er en testoppgave",
+              "lenke": "https://example.com/oppgave/1"
+            }
+          },
+          "cursor": "cursor-1"
+        },
+        {
+          "node": {
+            "__typename": "Oppgave",
+            "metadata": {
+              "id": "oppgave-2",
+              "eksternId": "ext-oppgave-2",
+              "opprettetTidspunkt": "2024-01-16T11:00:00Z",
+              "grupperingsid": "grp-002"
+            },
+            "oppgave": {
+              "tilstand": "UTFOERT",
+              "merkelapp": "test-merkelapp",
+              "tekst": "Dette er en annen oppgave",
+              "lenke": "https://example.com/oppgave/2"
+            }
+          },
+          "cursor": "cursor-2"
+        }
+      ],
+      "pageInfo": {
+        "hasNextPage": false,
+        "endCursor": "cursor-2"
+      }
+    }
+  }
+}

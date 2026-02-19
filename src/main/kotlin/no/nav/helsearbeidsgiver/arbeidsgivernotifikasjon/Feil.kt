@@ -10,6 +10,9 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentno
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentsakmedgrupperingsid.DefaultHentSakResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentsakmedgrupperingsid.HentSakResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentsakmedgrupperingsid.HentetSak
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.minenotifikasjoner.DefaultMineNotifikasjonerResultatImplementation
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.minenotifikasjoner.MineNotifikasjonerResultat
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.minenotifikasjoner.NotifikasjonConnection
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.DefaultNySakResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.DuplikatGrupperingsidEtterDelete
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.NySakResultat
@@ -44,6 +47,8 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentno
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentsakmedgrupperingsid.SakFinnesIkke as SakFinnesIkkeHentSakMedGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentsakmedgrupperingsid.UgyldigMerkelapp as UgyldigMerkelappHentSakMedGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentsakmedgrupperingsid.UkjentProdusent as UkjentProdusentHentSakMedGrupperingsid
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.minenotifikasjoner.UgyldigMerkelapp as UgyldigMerkelappMineNotifikasjoner
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.minenotifikasjoner.UkjentProdusent as UkjentProdusentMineNotifikasjoner
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.DuplikatGrupperingsid as DuplikatGrupperingsidNySak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.UgyldigMerkelapp as UgyldigMerkelappNySak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.UgyldigMottaker as UgyldigMottakerNySak
@@ -258,6 +263,24 @@ internal object Feil {
         throw OppgaveEndrePaaminnelseByEksternIdException(eksternId, feilmelding)
     }
 
+    fun mineNotifikasjoner(
+        resultat: MineNotifikasjonerResultat?,
+        feil: String?,
+    ): Nothing {
+        val feilmelding =
+            when (resultat) {
+                is UgyldigMerkelappMineNotifikasjoner -> resultat.feilmelding
+                is UkjentProdusentMineNotifikasjoner -> resultat.feilmelding
+                null,
+                is DefaultMineNotifikasjonerResultatImplementation,
+                is NotifikasjonConnection,
+                -> feilmeldingUkjent(feil)
+            }
+
+        loggFeilmelding(feilmelding)
+        throw MineNotifikasjonerException(feilmelding)
+    }
+
     fun hentNotifikasjon(
         id: String,
         resultat: HentNotifikasjonResultat?,
@@ -384,6 +407,10 @@ class OppgaveEndrePaaminnelseByEksternIdException(
         "Oppdatering av påminnelser for oppgave med eksternId '$eksternId' " +
             "mot arbeidsgiver-notifikasjon-api feilet: $feilmelding",
     )
+
+class MineNotifikasjonerException(
+    feilmelding: String,
+) : Exception("Henting av mine notifikasjoner mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
 
 class HentNotifikasjonException(
     id: String,

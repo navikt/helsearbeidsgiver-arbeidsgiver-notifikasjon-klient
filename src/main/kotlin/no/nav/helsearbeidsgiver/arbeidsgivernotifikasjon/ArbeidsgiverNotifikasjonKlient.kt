@@ -17,6 +17,7 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HentNo
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HentSakMedGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ID
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ISO8601DateTime
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.MineNotifikasjoner
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.NySak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.NyStatusSakByGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OppgaveEndrePaaminnelseByEksternId
@@ -32,6 +33,7 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentsa
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentsakmedgrupperingsid.Sak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.FutureTemporalInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.HardDeleteUpdateInput
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.minenotifikasjoner.NotifikasjonConnection
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.NySakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveendrepaaminnelsebyeksternid.OppgaveEndrePaaminnelseVellykket
@@ -291,6 +293,33 @@ class ArbeidsgiverNotifikasjonKlient(
         )
 
         loggInfo("Slettet påminnelser for oppgave med eksternId '$eksternId'.")
+    }
+
+    suspend fun mineNotifikasjoner(
+        first: Int? = null,
+        after: String? = null,
+        merkelapp: String? = null,
+        merkelapper: List<String>? = null,
+        grupperingsid: String? = null,
+    ): NotifikasjonConnection {
+        loggInfo("Forsøker å hente mine notifikasjoner.")
+
+        return MineNotifikasjoner(
+            variables =
+                MineNotifikasjoner.Variables(
+                    first = first,
+                    after = after,
+                    merkelapp = merkelapp,
+                    merkelapper = merkelapper,
+                    grupperingsid = grupperingsid,
+                ),
+        ).execute(
+            toResult = MineNotifikasjoner.Result::mineNotifikasjoner,
+            toSuccess = { it as? NotifikasjonConnection },
+            onError = { res, err -> Feil.mineNotifikasjoner(res, err) },
+        ).also {
+            loggInfo("Hentet ${it.edges.size} notifikasjoner.")
+        }
     }
 
     suspend fun hentNotifikasjon(id: String): HentetNotifikasjon {

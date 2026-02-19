@@ -1,0 +1,79 @@
+query mineNotifikasjoner(
+    $first: Int,
+    $after: String,
+    $merkelapp: String,
+    $merkelapper: [String!],
+    $grupperingsid: String
+) {
+    mineNotifikasjoner(
+        first: $first,
+        after: $after,
+        merkelapp: $merkelapp,
+        merkelapper: $merkelapper,
+        grupperingsid: $grupperingsid
+    ) {
+        __typename
+        ... on NotifikasjonConnection {
+            edges {
+                node {
+                    __typename
+                    ... on Oppgave {
+                        metadata {
+                            id
+                            eksternId
+                            opprettetTidspunkt
+                            grupperingsid
+                        }
+                        oppgave {
+                            tilstand
+                            merkelapp
+                            tekst
+                            lenke
+                        }
+                    }
+                    ... on Beskjed {
+                        metadata {
+                            id
+                            eksternId
+                            opprettetTidspunkt
+                            grupperingsid
+                        }
+                        beskjed {
+                            merkelapp
+                            tekst
+                            lenke
+                        }
+                    }
+                    ... on Kalenderavtale {
+                        metadata {
+                            id
+                            eksternId
+                            opprettetTidspunkt
+                            grupperingsid
+                        }
+                        kalenderavtale {
+                            merkelapp
+                            tekst
+                            lenke
+                            startTidspunkt
+                            sluttTidspunkt
+                            digitalt
+                            tilstand
+                        }
+                    }
+                }
+                cursor
+            }
+            pageInfo {
+                hasNextPage
+                endCursor
+            }
+        }
+        ... on UgyldigMerkelapp {
+            feilmelding
+        }
+        ... on UkjentProdusent {
+            feilmelding
+        }
+    }
+}

@@ -1,0 +1,12 @@
+{
+  "data": {
+    "mineNotifikasjoner": {
+      "__typename": "NotifikasjonConnection",
+      "edges": [],
+      "pageInfo": {
+        "hasNextPage": false,
+        "endCursor": ""
+      }
+    }
+  }
+}

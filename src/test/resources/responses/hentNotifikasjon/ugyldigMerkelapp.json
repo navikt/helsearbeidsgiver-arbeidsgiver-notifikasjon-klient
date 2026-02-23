@@ -1,0 +1,8 @@
+{
+  "data": {
+    "hentNotifikasjon": {
+      "__typename": "UgyldigMerkelapp",
+      "feilmelding": "Ugyldig merkelapp"
+    }
+  }
+}

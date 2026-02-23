@@ -5,6 +5,7 @@ import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import kotlinx.serialization.json.JsonObject
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ID
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
@@ -493,6 +494,158 @@ class ArbeidsgiverNotifikasjonKlientTest :
                 }
             }
         }
+
+        context(ArbeidsgiverNotifikasjonKlient::hentNotifikasjon.name) {
+            test("vellykket - hent notifikasjon (oppgave)") {
+                val response = "responses/hentNotifikasjon/vellykket-oppgave.json".readResource()
+
+                shouldNotThrowAny {
+                    val resultat = Mock.hentNotifikasjon(response)
+                    resultat.notifikasjon shouldNotBe null
+                }
+            }
+
+            test("notifikasjon finnes ikke - hent notifikasjon") {
+                val response = "responses/hentNotifikasjon/notifikasjonFinnesIkke.json".readResource()
+
+                shouldThrowExactly<SakEllerOppgaveFinnesIkkeException> {
+                    Mock.hentNotifikasjon(response)
+                }
+            }
+
+            withData(
+                "ugyldigMerkelapp",
+                "ukjentProdusent",
+            ) { jsonFilename ->
+                val response = "responses/hentNotifikasjon/$jsonFilename.json".readResource()
+
+                shouldThrowExactly<HentNotifikasjonException> {
+                    Mock.hentNotifikasjon(response)
+                }
+            }
+
+            test("både resultat og feilmeldinger i samme respons - hent notifikasjon") {
+                val response =
+                    "responses/hentNotifikasjon/vellykket-oppgave.json"
+                        .readResource()
+                        .mergeWithErrorsResponse()
+
+                shouldNotThrowAny {
+                    Mock.hentNotifikasjon(response)
+                }
+            }
+
+            test("feilmeldinger i respons - hent notifikasjon") {
+                val response = "responses/errors.json".readResource()
+
+                shouldThrowExactly<HentNotifikasjonException> {
+                    Mock.hentNotifikasjon(response)
+                }
+            }
+        }
+
+        context(ArbeidsgiverNotifikasjonKlient::hentSakMedGrupperingsid.name) {
+            test("vellykket - hent sak med grupperingsid") {
+                val response = "responses/hentSakMedGrupperingsid/vellykket.json".readResource()
+
+                val resultat = Mock.hentSakMedGrupperingsid(response)
+
+                resultat.id shouldBe "456789"
+                resultat.grupperingsid shouldBe "grp-test-001"
+                resultat.virksomhetsnummer shouldBe "987654321"
+                resultat.tittel shouldBe "Test sak tittel"
+                resultat.merkelapp shouldBe "test-merkelapp"
+            }
+
+            test("sak finnes ikke - hent sak med grupperingsid") {
+                val response = "responses/hentSakMedGrupperingsid/sakFinnesIkke.json".readResource()
+
+                shouldThrowExactly<SakEllerOppgaveFinnesIkkeException> {
+                    Mock.hentSakMedGrupperingsid(response)
+                }
+            }
+
+            withData(
+                "ugyldigMerkelapp",
+                "ukjentProdusent",
+            ) { jsonFilename ->
+                val response = "responses/hentSakMedGrupperingsid/$jsonFilename.json".readResource()
+
+                shouldThrowExactly<HentSakMedGrupperingsidException> {
+                    Mock.hentSakMedGrupperingsid(response)
+                }
+            }
+
+            test("både resultat og feilmeldinger i samme respons - hent sak med grupperingsid") {
+                val response =
+                    "responses/hentSakMedGrupperingsid/vellykket.json"
+                        .readResource()
+                        .mergeWithErrorsResponse()
+
+                shouldNotThrowAny {
+                    Mock.hentSakMedGrupperingsid(response)
+                }
+            }
+
+            test("feilmeldinger i respons - hent sak med grupperingsid") {
+                val response = "responses/errors.json".readResource()
+
+                shouldThrowExactly<HentSakMedGrupperingsidException> {
+                    Mock.hentSakMedGrupperingsid(response)
+                }
+            }
+        }
+
+        context(ArbeidsgiverNotifikasjonKlient::mineNotifikasjoner.name) {
+            test("vellykket - mine notifikasjoner") {
+                val response = "responses/mineNotifikasjoner/vellykket.json".readResource()
+
+                val resultat = Mock.mineNotifikasjoner(response)
+
+                resultat.edges.size shouldBe 2
+                resultat.pageInfo.hasNextPage shouldBe false
+                resultat.pageInfo.endCursor shouldBe "cursor-2"
+            }
+
+            test("vellykket - tom liste") {
+                val response = "responses/mineNotifikasjoner/tomListe.json".readResource()
+
+                val resultat = Mock.mineNotifikasjoner(response)
+
+                resultat.edges.size shouldBe 0
+                resultat.pageInfo.hasNextPage shouldBe false
+            }
+
+            withData(
+                "ugyldigMerkelapp",
+                "ukjentProdusent",
+            ) { jsonFilename ->
+                val response = "responses/mineNotifikasjoner/$jsonFilename.json".readResource()
+
+                shouldThrowExactly<MineNotifikasjonerException> {
+                    Mock.mineNotifikasjoner(response)
+                }
+            }
+
+            test("både resultat og feilmeldinger i samme respons - mine notifikasjoner") {
+                val response =
+                    "responses/mineNotifikasjoner/vellykket.json"
+                        .readResource()
+                        .mergeWithErrorsResponse()
+
+                shouldNotThrowAny {
+                    Mock.mineNotifikasjoner(response)
+                }
+            }
+
+            test("feilmeldinger i respons - mine notifikasjoner") {
+                val response = "responses/errors.json".readResource()
+
+                shouldThrowExactly<MineNotifikasjonerException> {
+                    Mock.mineNotifikasjoner(response)
+                }
+            }
+        }
     })
 
 private object Mock {
@@ -591,6 +744,23 @@ private object Mock {
                 ),
         )
     }
+
+    suspend fun mineNotifikasjoner(response: String) =
+        mockArbeidsgiverNotifikasjonKlient(response).mineNotifikasjoner(
+            first = 10,
+            merkelapp = "mock merkelapp",
+        )
+
+    suspend fun hentNotifikasjon(response: String) =
+        mockArbeidsgiverNotifikasjonKlient(response).hentNotifikasjon(
+            id = "mock id",
+        )
+
+    suspend fun hentSakMedGrupperingsid(response: String) =
+        mockArbeidsgiverNotifikasjonKlient(response).hentSakMedGrupperingsid(
+            grupperingsid = "mock grupperingsid",
+            merkelapp = "mock merkelapp",
+        )
 }
 
 private fun String.mergeWithErrorsResponse(): String {

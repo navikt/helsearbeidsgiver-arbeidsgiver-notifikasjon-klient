@@ -1,0 +1,33 @@
+query hentNotifikasjon($id: ID!) {
+    hentNotifikasjon(id: $id) {
+        __typename
+        ... on HentetNotifikasjon {
+            notifikasjon {
+                __typename
+                ... on Oppgave {
+                    metadata {
+                        id
+                        eksternId
+                        opprettetTidspunkt
+                        grupperingsid
+                    }
+                    oppgave {
+                        tilstand
+                        merkelapp
+                        tekst
+                        lenke
+                    }
+                }
+            }
+        }
+        ... on NotifikasjonFinnesIkke {
+            feilmelding
+        }
+        ... on UgyldigMerkelapp {
+            feilmelding
+        }
+        ... on UkjentProdusent {
+            feilmelding
+        }
+    }
+}

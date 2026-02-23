@@ -1,0 +1,8 @@
+{
+  "data": {
+    "hentSakMedGrupperingsid": {
+      "__typename": "UkjentProdusent",
+      "feilmelding": "Ukjent produsent"
+    }
+  }
+}

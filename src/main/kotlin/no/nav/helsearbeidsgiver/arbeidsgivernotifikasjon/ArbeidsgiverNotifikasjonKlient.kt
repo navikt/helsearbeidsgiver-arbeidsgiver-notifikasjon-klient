@@ -13,8 +13,11 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HardDeleteSak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HardDeleteSakByGrupperingsid
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HentNotifikasjon
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HentSakMedGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ID
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ISO8601DateTime
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.MineNotifikasjoner
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.NySak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.NyStatusSakByGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OppgaveEndrePaaminnelseByEksternId
@@ -26,6 +29,9 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.Sendevindu
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakVellykket
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentnotifikasjon.HentetNotifikasjon
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentsakmedgrupperingsid.HentetSak
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentsakmedgrupperingsid.Sak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.AltinnMottakerInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.AltinnRessursMottakerInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.AltinntjenesteMottakerInput
@@ -36,6 +42,7 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.HardDeleteUpdateInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.MottakerInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.SendetidspunktInput
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.minenotifikasjoner.NotifikasjonConnection
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.NySakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveendrepaaminnelsebyeksternid.OppgaveEndrePaaminnelseVellykket
@@ -360,6 +367,69 @@ class ArbeidsgiverNotifikasjonKlient(
         )
 
         loggInfo("Slettet påminnelser for oppgave med eksternId '$eksternId'.")
+    }
+
+    suspend fun mineNotifikasjoner(
+        first: Int? = null,
+        after: String? = null,
+        merkelapp: String? = null,
+        merkelapper: List<String>? = null,
+        grupperingsid: String? = null,
+    ): NotifikasjonConnection {
+        loggInfo("Forsøker å hente mine notifikasjoner.")
+
+        return MineNotifikasjoner(
+            variables =
+                MineNotifikasjoner.Variables(
+                    first = first,
+                    after = after,
+                    merkelapp = merkelapp,
+                    merkelapper = merkelapper,
+                    grupperingsid = grupperingsid,
+                ),
+        ).execute(
+            toResult = MineNotifikasjoner.Result::mineNotifikasjoner,
+            toSuccess = { it as? NotifikasjonConnection },
+            onError = { res, err -> Feil.mineNotifikasjoner(res, err) },
+        ).also {
+            loggInfo("Hentet ${it.edges.size} notifikasjoner.")
+        }
+    }
+
+    suspend fun hentNotifikasjon(id: String): HentetNotifikasjon {
+        loggInfo("Forsøker å hente notifikasjon med id '$id'.")
+
+        return HentNotifikasjon(
+            variables = HentNotifikasjon.Variables(id = id),
+        ).execute(
+            toResult = HentNotifikasjon.Result::hentNotifikasjon,
+            toSuccess = { it as? HentetNotifikasjon },
+            onError = { res, err -> Feil.hentNotifikasjon(id, res, err) },
+        ).also {
+            loggInfo("Hentet notifikasjon med id '$id'.")
+        }
+    }
+
+    suspend fun hentSakMedGrupperingsid(
+        grupperingsid: String,
+        merkelapp: String,
+    ): Sak {
+        loggInfo("Forsøker å hente sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
+
+        return HentSakMedGrupperingsid(
+            variables =
+                HentSakMedGrupperingsid.Variables(
+                    grupperingsid = grupperingsid,
+                    merkelapp = merkelapp,
+                ),
+        ).execute(
+            toResult = HentSakMedGrupperingsid.Result::hentSakMedGrupperingsid,
+            toSuccess = { it as? HentetSak },
+            onError = { res, err -> Feil.hentSakMedGrupperingsid(grupperingsid, merkelapp, res, err) },
+        ).sak
+            .also {
+                loggInfo("Hentet sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
+            }
     }
 
     // Brukes til debugging

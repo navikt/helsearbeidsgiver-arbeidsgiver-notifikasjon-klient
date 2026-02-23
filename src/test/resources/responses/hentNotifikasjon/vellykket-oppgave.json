@@ -1,0 +1,22 @@
+{
+  "data": {
+    "hentNotifikasjon": {
+      "__typename": "HentetNotifikasjon",
+      "notifikasjon": {
+        "__typename": "Oppgave",
+        "metadata": {
+          "id": "123456",
+          "eksternId": "ext-123",
+          "opprettetTidspunkt": "2024-01-15T10:30:00Z",
+          "grupperingsid": "grp-001"
+        },
+        "oppgave": {
+          "tilstand": "NY",
+          "merkelapp": "test-merkelapp",
+          "tekst": "Dette er en testoppgave",
+          "lenke": "https://example.com/oppgave/123"
+        }
+      }
+    }
+  }
+}

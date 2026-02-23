@@ -17,6 +17,12 @@ kotlin {
     }
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+    withSourcesJar()
+}
+
 tasks {
     test {
         useJUnitPlatform()
@@ -27,10 +33,6 @@ tasks {
     withType<FormatTask> {
         exclude("no/nav/helsearbeidsgiver/arbeidsgivernotifkasjon/graphql/generated/**/*.kt")
     }
-}
-
-java {
-    withSourcesJar()
 }
 
 graphql {

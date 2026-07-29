@@ -15,7 +15,7 @@ data class Paaminnelse(
 )
 
 internal fun Paaminnelse.tilPaaminnelseInput(
-    mottaker: AltinnMottaker,
+    altinn3Ressurs: Altinn3Ressurs,
     sendevindu: Sendevindu,
 ): PaaminnelseInput =
     PaaminnelseInput(
@@ -23,19 +23,16 @@ internal fun Paaminnelse.tilPaaminnelseInput(
             listOf(
                 PaaminnelseEksterntVarselInput(
                     altinnressurs =
-                        when (mottaker) {
-                            is AltinnMottaker.Altinn3 ->
-                                PaaminnelseEksterntVarselAltinnressursInput(
-                                    mottaker =
-                                        AltinnRessursMottakerInput(
-                                            ressursId = mottaker.ressurs.value,
-                                        ),
-                                    epostTittel = tittel,
-                                    epostHtmlBody = innhold,
-                                    smsTekst = innhold,
-                                    sendevindu = sendevindu,
-                                )
-                        },
+                        PaaminnelseEksterntVarselAltinnressursInput(
+                            mottaker =
+                                AltinnRessursMottakerInput(
+                                    ressursId = altinn3Ressurs.value,
+                                ),
+                            epostTittel = tittel,
+                            epostHtmlBody = innhold,
+                            smsTekst = innhold,
+                            sendevindu = sendevindu,
+                        ),
                 ),
             ),
         tidspunkt = PaaminnelseTidspunktInput(etterOpprettelse = tidMellomOppgaveopprettelseOgPaaminnelse),

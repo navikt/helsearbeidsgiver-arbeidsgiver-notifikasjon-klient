@@ -13,7 +13,7 @@ import no.nav.helsearbeidsgiver.utils.test.mock.mockStatic
 
 fun mockArbeidsgiverNotifikasjonKlient(
     content: String,
-    mottaker: AltinnMottaker = AltinnMottaker.Altinn3(Altinn3Ressurs.INNTEKTSMELDING),
+    altinn3Ressurs: Altinn3Ressurs = Altinn3Ressurs.INNTEKTSMELDING,
 ): ArbeidsgiverNotifikasjonKlient {
     val mockEngine =
         MockEngine {
@@ -26,6 +26,6 @@ fun mockArbeidsgiverNotifikasjonKlient(
 
     return mockStatic(::createHttpClient) {
         every { createHttpClient() } returns HttpClient(mockEngine)
-        ArbeidsgiverNotifikasjonKlient("https://url", mottaker, { "fake token" }, Sendevindu.NKS_AAPNINGSTID)
+        ArbeidsgiverNotifikasjonKlient("https://url", altinn3Ressurs, { "fake token" }, Sendevindu.NKS_AAPNINGSTID)
     }
 }

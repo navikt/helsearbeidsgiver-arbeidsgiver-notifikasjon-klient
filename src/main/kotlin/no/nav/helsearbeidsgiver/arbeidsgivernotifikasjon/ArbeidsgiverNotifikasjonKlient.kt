@@ -56,7 +56,7 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hardde
 
 class ArbeidsgiverNotifikasjonKlient(
     url: String,
-    val mottaker: AltinnMottaker,
+    val altinn3Ressurs: Altinn3Ressurs,
     private val getAccessToken: () -> String,
     val sendevindu: Sendevindu,
 ) {
@@ -71,37 +71,31 @@ class ArbeidsgiverNotifikasjonKlient(
         )
 
     private fun toMottakerInput(): MottakerInput =
-        when (mottaker) {
-            is AltinnMottaker.Altinn3 ->
-                MottakerInput(
-                    altinnRessurs =
-                        AltinnRessursMottakerInput(
-                            ressursId = mottaker.ressurs.value,
-                        ),
-                )
-        }
+        MottakerInput(
+            altinnRessurs =
+                AltinnRessursMottakerInput(
+                    ressursId = altinn3Ressurs.value,
+                ),
+        )
 
     private fun toEksterntVarselInput(
         epostTittel: String,
         epostHtmlBody: String,
         smsTekst: String,
     ): EksterntVarselInput =
-        when (mottaker) {
-            is AltinnMottaker.Altinn3 ->
-                EksterntVarselInput(
-                    altinnressurs =
-                        EksterntVarselAltinnressursInput(
-                            mottaker =
-                                AltinnRessursMottakerInput(
-                                    ressursId = mottaker.ressurs.value,
-                                ),
-                            epostTittel = epostTittel,
-                            epostHtmlBody = epostHtmlBody,
-                            smsTekst = smsTekst,
-                            sendetidspunkt = SendetidspunktInput(sendevindu = sendevindu),
+        EksterntVarselInput(
+            altinnressurs =
+                EksterntVarselAltinnressursInput(
+                    mottaker =
+                        AltinnRessursMottakerInput(
+                            ressursId = altinn3Ressurs.value,
                         ),
-                )
-        }
+                    epostTittel = epostTittel,
+                    epostHtmlBody = epostHtmlBody,
+                    smsTekst = smsTekst,
+                    sendetidspunkt = SendetidspunktInput(sendevindu = sendevindu),
+                ),
+        )
 
     suspend fun opprettNySak(
         virksomhetsnummer: String,
@@ -207,7 +201,7 @@ class ArbeidsgiverNotifikasjonKlient(
                                 smsTekst = varslingInnhold,
                             ),
                         ),
-                    paaminnelseInput = paaminnelse?.tilPaaminnelseInput(mottaker, sendevindu),
+                    paaminnelseInput = paaminnelse?.tilPaaminnelseInput(altinn3Ressurs, sendevindu),
                 ),
         ).also { loggInfo("Forsøker å opprette ny oppgave.") }
             .execute(
@@ -312,7 +306,7 @@ class ArbeidsgiverNotifikasjonKlient(
                     merkelapp = merkelapp,
                     eksternId = eksternId,
                     idempotencyKey = idempotencyKey,
-                    paaminnelse = paaminnelse?.tilPaaminnelseInput(mottaker, sendevindu),
+                    paaminnelse = paaminnelse?.tilPaaminnelseInput(altinn3Ressurs, sendevindu),
                 ),
         ).execute(
             toResult = OppgaveEndrePaaminnelseByEksternId.Result::oppgaveEndrePaaminnelseByEksternId,

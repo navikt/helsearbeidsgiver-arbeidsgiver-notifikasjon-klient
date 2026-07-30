@@ -184,6 +184,60 @@ class ArbeidsgiverNotifikasjonKlientTest :
             }
         }
 
+        context(ArbeidsgiverNotifikasjonKlient::opprettNyBeskjed.name) {
+            test("vellykket - ny beskjed") {
+                val response = "responses/nyBeskjed/vellykket.json".readResource()
+
+                val resultat = Mock.opprettNyBeskjed(response)
+
+                resultat shouldBe "843211"
+            }
+
+            test("notifikasjon finnes fra før - ny beskjed") {
+                val response = "responses/nyBeskjed/duplikatEksternIdOgMerkelapp.json".readResource()
+
+                val error =
+                    shouldThrowExactly<SakEllerOppgaveDuplikatException> {
+                        Mock.opprettNyBeskjed(response)
+                    }
+
+                error.eksisterendeId shouldBe "6788"
+            }
+
+            withData(
+                "ugyldigMerkelapp",
+                "ugyldigMottaker",
+                "ukjentProdusent",
+                "ukjentRolle",
+                "ukjentFeil",
+            ) { jsonFilename ->
+                val response = "responses/nyBeskjed/$jsonFilename.json".readResource()
+
+                shouldThrowExactly<OpprettNyBeskjedException> {
+                    Mock.opprettNyBeskjed(response)
+                }
+            }
+
+            test("både resultat og feilmeldinger i samme respons - ny beskjed") {
+                val response =
+                    "responses/nyBeskjed/vellykket.json"
+                        .readResource()
+                        .mergeWithErrorsResponse()
+
+                shouldNotThrowAny {
+                    Mock.opprettNyBeskjed(response)
+                }
+            }
+
+            test("feilmeldinger i respons - ny beskjed") {
+                val response = "responses/errors.json".readResource()
+
+                shouldThrowExactly<OpprettNyBeskjedException> {
+                    Mock.opprettNyBeskjed(response)
+                }
+            }
+        }
+
         context(ArbeidsgiverNotifikasjonKlient::oppgaveUtfoertByEksternIdV2.name) {
             test("vellykket - oppgave utfoert") {
                 val response = "responses/oppgaveUtfoertByEksternIdV2/vellykket.json".readResource()
@@ -694,6 +748,20 @@ private object Mock {
                     innhold = "mock innhold",
                     tidMellomOppgaveopprettelseOgPaaminnelse = "P10D",
                 ),
+        )
+
+    suspend fun opprettNyBeskjed(response: String): ID =
+        mockArbeidsgiverNotifikasjonKlient(response).opprettNyBeskjed(
+            virksomhetsnummer = "mock virksomhetsnummer",
+            eksternId = "mock eksternId",
+            grupperingsid = "mock grupperingsid",
+            merkelapp = "mock merkelapp",
+            lenke = "mock lenke",
+            tekst = "mock tekst",
+            tidspunkt = "mock tidspunkt",
+            varslingTittel = "mock varslingTittel",
+            varslingInnhold = "mock varslingInnhold",
+            hardDeleteOm = 2.days,
         )
 
     suspend fun oppgaveUtfoertByEksternIdV2(response: String) {

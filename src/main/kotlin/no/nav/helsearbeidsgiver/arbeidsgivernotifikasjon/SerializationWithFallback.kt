@@ -5,6 +5,8 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.DefaultHardDeleteSakResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.harddeletesak.HardDeleteSakResultat
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nybeskjed.DefaultNyBeskjedResultatImplementation
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nybeskjed.NyBeskjedResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.DefaultNySakResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.NySakResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.DefaultNyStatusSakResultatImplementation
@@ -32,6 +34,9 @@ internal val serializerWithFallback =
                 }
                 polymorphic(NyOppgaveResultat::class) {
                     defaultDeserializer { DefaultNyOppgaveResultatImplementation.serializer() }
+                }
+                polymorphic(NyBeskjedResultat::class) {
+                    defaultDeserializer { DefaultNyBeskjedResultatImplementation.serializer() }
                 }
                 polymorphic(OppgaveUtfoertResultat::class) {
                     defaultDeserializer { DefaultOppgaveUtfoertResultatImplementation.serializer() }

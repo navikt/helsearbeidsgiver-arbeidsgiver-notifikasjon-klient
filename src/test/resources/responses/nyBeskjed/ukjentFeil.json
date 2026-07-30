@@ -1,0 +1,8 @@
+{
+  "data": {
+    "nyBeskjed": {
+      "__typename": "DetteErEtUkjentResultat",
+      "feilmelding": "uffda"
+    }
+  }
+}

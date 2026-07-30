@@ -18,6 +18,7 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HentSa
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ID
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ISO8601DateTime
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.MineNotifikasjoner
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.NyBeskjed
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.NySak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.NyStatusSakByGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OppgaveEndrePaaminnelseByEksternId
@@ -40,6 +41,7 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.MottakerInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.SendetidspunktInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.minenotifikasjoner.NotifikasjonConnection
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nybeskjed.NyBeskjedVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.NySakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveendrepaaminnelsebyeksternid.OppgaveEndrePaaminnelseVellykket
@@ -210,6 +212,47 @@ class ArbeidsgiverNotifikasjonKlient(
                 onError = Feil::nyOppgave,
             ).id
             .also { loggInfo("Opprettet ny oppgave med id: '$it'.") }
+
+    suspend fun opprettNyBeskjed(
+        virksomhetsnummer: String,
+        eksternId: String,
+        grupperingsid: String?,
+        merkelapp: String,
+        lenke: String,
+        tekst: String,
+        tidspunkt: ISO8601DateTime?,
+        varslingTittel: String,
+        varslingInnhold: String,
+        hardDeleteOm: Duration?,
+    ): ID =
+        NyBeskjed(
+            variables =
+                NyBeskjed.Variables(
+                    eksternId = eksternId,
+                    lenke = lenke,
+                    tekst = tekst,
+                    virksomhetsnummer = virksomhetsnummer,
+                    merkelapp = merkelapp,
+                    tidspunkt = tidspunkt,
+                    grupperingsid = grupperingsid,
+                    mottaker = toMottakerInput(),
+                    eksterneVarsler =
+                        listOf(
+                            toEksterntVarselInput(
+                                epostTittel = varslingTittel,
+                                epostHtmlBody = varslingInnhold,
+                                smsTekst = varslingInnhold,
+                            ),
+                        ),
+                    hardDeleteOm = hardDeleteOm?.tilDagerIso8601(),
+                ),
+        ).also { loggInfo("Forsøker å opprette ny beskjed.") }
+            .execute(
+                toResult = NyBeskjed.Result::nyBeskjed,
+                toSuccess = { it as? NyBeskjedVellykket },
+                onError = Feil::nyBeskjed,
+            ).id
+            .also { loggInfo("Opprettet ny beskjed med id: '$it'.") }
 
     suspend fun oppgaveUtfoertByEksternIdV2(
         eksternId: String,

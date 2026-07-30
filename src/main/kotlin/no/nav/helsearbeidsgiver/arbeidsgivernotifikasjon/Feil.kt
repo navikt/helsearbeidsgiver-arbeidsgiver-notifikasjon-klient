@@ -13,6 +13,9 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentsa
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.minenotifikasjoner.DefaultMineNotifikasjonerResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.minenotifikasjoner.MineNotifikasjonerResultat
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.minenotifikasjoner.NotifikasjonConnection
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nybeskjed.DefaultNyBeskjedResultatImplementation
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nybeskjed.NyBeskjedResultat
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nybeskjed.NyBeskjedVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.DefaultNySakResultatImplementation
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.DuplikatGrupperingsidEtterDelete
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.NySakResultat
@@ -49,6 +52,11 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentsa
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hentsakmedgrupperingsid.UkjentProdusent as UkjentProdusentHentSakMedGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.minenotifikasjoner.UgyldigMerkelapp as UgyldigMerkelappMineNotifikasjoner
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.minenotifikasjoner.UkjentProdusent as UkjentProdusentMineNotifikasjoner
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nybeskjed.DuplikatEksternIdOgMerkelapp as DuplikatEksternIdOgMerkelappNyBeskjed
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nybeskjed.UgyldigMerkelapp as UgyldigMerkelappNyBeskjed
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nybeskjed.UgyldigMottaker as UgyldigMottakerNyBeskjed
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nybeskjed.UkjentProdusent as UkjentProdusentNyBeskjed
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nybeskjed.UkjentRolle as UkjentRolleNyBeskjed
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.DuplikatGrupperingsid as DuplikatGrupperingsidNySak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.UgyldigMerkelapp as UgyldigMerkelappNySak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.UgyldigMottaker as UgyldigMottakerNySak
@@ -152,6 +160,28 @@ internal object Feil {
 
         loggFeilmelding(feilmelding)
         throw OpprettNyOppgaveException(feilmelding)
+    }
+
+    fun nyBeskjed(
+        resultat: NyBeskjedResultat?,
+        feil: String?,
+    ): Nothing {
+        val feilmelding =
+            when (resultat) {
+                is DuplikatEksternIdOgMerkelappNyBeskjed ->
+                    throw SakEllerOppgaveDuplikatException(resultat.idTilEksisterende, resultat.feilmelding)
+                is UgyldigMerkelappNyBeskjed -> resultat.feilmelding
+                is UgyldigMottakerNyBeskjed -> resultat.feilmelding
+                is UkjentProdusentNyBeskjed -> resultat.feilmelding
+                is UkjentRolleNyBeskjed -> resultat.feilmelding
+                null,
+                is DefaultNyBeskjedResultatImplementation,
+                is NyBeskjedVellykket,
+                -> feilmeldingUkjent(feil)
+            }
+
+        loggFeilmelding(feilmelding)
+        throw OpprettNyBeskjedException(feilmelding)
     }
 
     fun oppgaveUtfoertByEksternIdV2(
@@ -370,6 +400,10 @@ class NyStatusSakByGrupperingsidException(
 class OpprettNyOppgaveException(
     feilmelding: String?,
 ) : Exception("Opprettelse av ny oppgave mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
+
+class OpprettNyBeskjedException(
+    feilmelding: String?,
+) : Exception("Opprettelse av ny beskjed mot arbeidsgiver-notifikasjon-api feilet: $feilmelding")
 
 class OppgaveUtfoertByEksternIdV2Exception(
     eksternId: String,

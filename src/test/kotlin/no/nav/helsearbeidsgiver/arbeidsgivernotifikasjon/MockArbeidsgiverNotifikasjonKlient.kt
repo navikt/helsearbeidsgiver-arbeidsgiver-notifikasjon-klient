@@ -11,10 +11,7 @@ import io.mockk.every
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.Sendevindu
 import no.nav.helsearbeidsgiver.utils.test.mock.mockStatic
 
-fun mockArbeidsgiverNotifikasjonKlient(
-    content: String,
-    altinn3Ressurs: Altinn3Ressurs = Altinn3Ressurs.INNTEKTSMELDING,
-): ArbeidsgiverNotifikasjonKlient {
+fun mockArbeidsgiverNotifikasjonKlient(content: String): ArbeidsgiverNotifikasjonKlient {
     val mockEngine =
         MockEngine {
             respond(
@@ -26,6 +23,6 @@ fun mockArbeidsgiverNotifikasjonKlient(
 
     return mockStatic(::createHttpClient) {
         every { createHttpClient() } returns HttpClient(mockEngine)
-        ArbeidsgiverNotifikasjonKlient("https://url", altinn3Ressurs, { "fake token" }, Sendevindu.NKS_AAPNINGSTID)
+        ArbeidsgiverNotifikasjonKlient("https://url", { "fake token" }, Sendevindu.NKS_AAPNINGSTID)
     }
 }

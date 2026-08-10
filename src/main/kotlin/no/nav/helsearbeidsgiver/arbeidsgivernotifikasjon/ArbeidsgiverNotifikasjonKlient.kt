@@ -254,7 +254,7 @@ class ArbeidsgiverNotifikasjonKlient(
                 toSuccess = { it as? NyBeskjedVellykket },
                 onError = Feil::nyBeskjed,
             ).id
-            .also { loggInfo("Opprettet ny beskjed med id: '$it'.") }
+            .also { loggInfo("Opprettet ny beskjed med id: '$it'. og eksternId: '$eksternId'.") }
 
     suspend fun oppgaveUtfoertByEksternIdV2(
         eksternId: String,

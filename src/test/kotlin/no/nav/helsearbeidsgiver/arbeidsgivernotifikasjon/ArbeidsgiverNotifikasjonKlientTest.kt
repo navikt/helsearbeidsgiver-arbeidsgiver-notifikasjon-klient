@@ -184,6 +184,60 @@ class ArbeidsgiverNotifikasjonKlientTest :
             }
         }
 
+        context(ArbeidsgiverNotifikasjonKlient::opprettNyBeskjed.name) {
+            test("vellykket - ny beskjed") {
+                val response = "responses/nyBeskjed/vellykket.json".readResource()
+
+                val resultat = Mock.opprettNyBeskjed(response)
+
+                resultat shouldBe "843211"
+            }
+
+            test("notifikasjon finnes fra før - ny beskjed") {
+                val response = "responses/nyBeskjed/duplikatEksternIdOgMerkelapp.json".readResource()
+
+                val error =
+                    shouldThrowExactly<SakEllerOppgaveDuplikatException> {
+                        Mock.opprettNyBeskjed(response)
+                    }
+
+                error.eksisterendeId shouldBe "6788"
+            }
+
+            withData(
+                "ugyldigMerkelapp",
+                "ugyldigMottaker",
+                "ukjentProdusent",
+                "ukjentRolle",
+                "ukjentFeil",
+            ) { jsonFilename ->
+                val response = "responses/nyBeskjed/$jsonFilename.json".readResource()
+
+                shouldThrowExactly<OpprettNyBeskjedException> {
+                    Mock.opprettNyBeskjed(response)
+                }
+            }
+
+            test("både resultat og feilmeldinger i samme respons - ny beskjed") {
+                val response =
+                    "responses/nyBeskjed/vellykket.json"
+                        .readResource()
+                        .mergeWithErrorsResponse()
+
+                shouldNotThrowAny {
+                    Mock.opprettNyBeskjed(response)
+                }
+            }
+
+            test("feilmeldinger i respons - ny beskjed") {
+                val response = "responses/errors.json".readResource()
+
+                shouldThrowExactly<OpprettNyBeskjedException> {
+                    Mock.opprettNyBeskjed(response)
+                }
+            }
+        }
+
         context(ArbeidsgiverNotifikasjonKlient::oppgaveUtfoertByEksternIdV2.name) {
             test("vellykket - oppgave utfoert") {
                 val response = "responses/oppgaveUtfoertByEksternIdV2/vellykket.json".readResource()
@@ -656,7 +710,7 @@ private object Mock {
         mockArbeidsgiverNotifikasjonKlient(response).opprettNySak(
             virksomhetsnummer = "mock virksomhetsnummer",
             grupperingsid = "mock grupperingsid",
-            merkelapp = "mock merkelapp",
+            tjeneste = Tjeneste.INNTEKTSMELDING,
             lenke = if (medLenke) "mock lenke" else null,
             tittel = "mock tittel",
             statusTekst = "mock statusTekst",
@@ -668,7 +722,7 @@ private object Mock {
     suspend fun nyStatusSakByGrupperingsid(response: String) {
         mockArbeidsgiverNotifikasjonKlient(response).nyStatusSakByGrupperingsid(
             grupperingsid = "mock grupperingsid",
-            merkelapp = "mock merkelapp",
+            tjeneste = Tjeneste.INNTEKTSMELDING,
             status = SaksStatus.FERDIG,
             statusTekst = "mock statustekst",
             nyLenke = "mock nyLenke",
@@ -682,7 +736,7 @@ private object Mock {
             virksomhetsnummer = "mock virksomhetsnummer",
             eksternId = "mock eksternId",
             grupperingsid = "mock grupperingsid",
-            merkelapp = "mock merkelapp",
+            tjeneste = Tjeneste.INNTEKTSMELDING,
             lenke = "mock lenke",
             tekst = "mock tekst",
             tidspunkt = "mock tidspunkt",
@@ -696,17 +750,31 @@ private object Mock {
                 ),
         )
 
+    suspend fun opprettNyBeskjed(response: String): ID =
+        mockArbeidsgiverNotifikasjonKlient(response).opprettNyBeskjed(
+            virksomhetsnummer = "mock virksomhetsnummer",
+            eksternId = "mock eksternId",
+            grupperingsid = "mock grupperingsid",
+            tjeneste = Tjeneste.INNTEKTSMELDING,
+            lenke = "mock lenke",
+            tekst = "mock tekst",
+            tidspunkt = "mock tidspunkt",
+            varslingTittel = "mock varslingTittel",
+            varslingInnhold = "mock varslingInnhold",
+            hardDeleteOm = 2.days,
+        )
+
     suspend fun oppgaveUtfoertByEksternIdV2(response: String) {
         mockArbeidsgiverNotifikasjonKlient(response).oppgaveUtfoertByEksternIdV2(
             eksternId = "mock eksternId",
-            merkelapp = "mock merkelapp",
+            tjeneste = Tjeneste.INNTEKTSMELDING,
             nyLenke = "mock nyLenke",
         )
     }
 
     suspend fun oppgaveUtgaattByEksternId(response: String) {
         mockArbeidsgiverNotifikasjonKlient(response).oppgaveUtgaattByEksternId(
-            merkelapp = "mock merkelapp",
+            tjeneste = Tjeneste.INNTEKTSMELDING,
             eksternId = "mock eksternId",
             nyLenke = "mock nyLenke",
         )
@@ -721,20 +789,20 @@ private object Mock {
     suspend fun hardDeleteSakByGrupperingsid(response: String) {
         mockArbeidsgiverNotifikasjonKlient(response).hardDeleteSakByGrupperingsid(
             grupperingsid = "mock id",
-            merkelapp = "mock merkelapp",
+            tjeneste = Tjeneste.INNTEKTSMELDING,
         )
     }
 
     suspend fun slettOppgavePaaminnelserByEksternId(response: String) {
         mockArbeidsgiverNotifikasjonKlient(response).slettOppgavePaaminnelserByEksternId(
-            merkelapp = "mock merkelapp",
+            tjeneste = Tjeneste.INNTEKTSMELDING,
             eksternId = "mock eksternId",
         )
     }
 
     suspend fun endreOppgavePaaminnelserByEksternId(response: String) {
         mockArbeidsgiverNotifikasjonKlient(response).endreOppgavePaaminnelserByEksternId(
-            merkelapp = "mock merkelapp",
+            tjeneste = Tjeneste.INNTEKTSMELDING,
             eksternId = "mock eksternId",
             paaminnelse =
                 Paaminnelse(
@@ -748,7 +816,7 @@ private object Mock {
     suspend fun mineNotifikasjoner(response: String) =
         mockArbeidsgiverNotifikasjonKlient(response).mineNotifikasjoner(
             first = 10,
-            merkelapp = "mock merkelapp",
+            tjeneste = Tjeneste.INNTEKTSMELDING,
         )
 
     suspend fun hentNotifikasjon(response: String) =
@@ -759,7 +827,7 @@ private object Mock {
     suspend fun hentSakMedGrupperingsid(response: String) =
         mockArbeidsgiverNotifikasjonKlient(response).hentSakMedGrupperingsid(
             grupperingsid = "mock grupperingsid",
-            merkelapp = "mock merkelapp",
+            tjeneste = Tjeneste.INNTEKTSMELDING,
         )
 }
 

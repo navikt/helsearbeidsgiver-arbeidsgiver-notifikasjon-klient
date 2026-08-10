@@ -18,6 +18,7 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.HentSa
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ID
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.ISO8601DateTime
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.MineNotifikasjoner
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.NyBeskjed
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.NySak
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.NyStatusSakByGrupperingsid
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.OppgaveEndrePaaminnelseByEksternId
@@ -40,6 +41,7 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.MottakerInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.SendetidspunktInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.minenotifikasjoner.NotifikasjonConnection
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nybeskjed.NyBeskjedVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nysak.NySakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakVellykket
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.oppgaveendrepaaminnelsebyeksternid.OppgaveEndrePaaminnelseVellykket
@@ -56,7 +58,6 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.hardde
 
 class ArbeidsgiverNotifikasjonKlient(
     url: String,
-    val altinn3Ressurs: Altinn3Ressurs,
     private val getAccessToken: () -> String,
     val sendevindu: Sendevindu,
 ) {
@@ -70,15 +71,16 @@ class ArbeidsgiverNotifikasjonKlient(
             serializer = serializerWithFallback,
         )
 
-    private fun toMottakerInput(): MottakerInput =
+    private fun toMottakerInput(tjeneste: Tjeneste): MottakerInput =
         MottakerInput(
             altinnRessurs =
                 AltinnRessursMottakerInput(
-                    ressursId = altinn3Ressurs.value,
+                    ressursId = tjeneste.ressurs.value,
                 ),
         )
 
     private fun toEksterntVarselInput(
+        tjeneste: Tjeneste,
         epostTittel: String,
         epostHtmlBody: String,
         smsTekst: String,
@@ -88,7 +90,7 @@ class ArbeidsgiverNotifikasjonKlient(
                 EksterntVarselAltinnressursInput(
                     mottaker =
                         AltinnRessursMottakerInput(
-                            ressursId = altinn3Ressurs.value,
+                            ressursId = tjeneste.ressurs.value,
                         ),
                     epostTittel = epostTittel,
                     epostHtmlBody = epostHtmlBody,
@@ -100,7 +102,7 @@ class ArbeidsgiverNotifikasjonKlient(
     suspend fun opprettNySak(
         virksomhetsnummer: String,
         grupperingsid: String,
-        merkelapp: String,
+        tjeneste: Tjeneste,
         lenke: String?,
         tittel: String,
         statusTekst: String?,
@@ -112,9 +114,9 @@ class ArbeidsgiverNotifikasjonKlient(
             variables =
                 NySak.Variables(
                     grupperingsid = grupperingsid,
-                    merkelapp = merkelapp,
+                    merkelapp = tjeneste.merkelapp,
                     virksomhetsnummer = virksomhetsnummer,
-                    mottaker = toMottakerInput(),
+                    mottaker = toMottakerInput(tjeneste),
                     tittel = tittel,
                     tilleggsinformasjon = tilleggsinfo,
                     lenke = lenke,
@@ -132,7 +134,7 @@ class ArbeidsgiverNotifikasjonKlient(
 
     suspend fun nyStatusSakByGrupperingsid(
         grupperingsid: String,
-        merkelapp: String,
+        tjeneste: Tjeneste,
         status: SaksStatus,
         statusTekst: String? = null,
         nyLenke: String? = null,
@@ -145,7 +147,7 @@ class ArbeidsgiverNotifikasjonKlient(
             variables =
                 NyStatusSakByGrupperingsid.Variables(
                     grupperingsid = grupperingsid,
-                    merkelapp = merkelapp,
+                    merkelapp = tjeneste.merkelapp,
                     nyStatus = status,
                     overstyrStatustekstMed = statusTekst,
                     nyLenke = nyLenke,
@@ -164,7 +166,7 @@ class ArbeidsgiverNotifikasjonKlient(
         ).execute(
             toResult = NyStatusSakByGrupperingsid.Result::nyStatusSakByGrupperingsid,
             toSuccess = { it as? NyStatusSakVellykket },
-            onError = { res, err -> Feil.nyStatusSakByGrupperingsid(grupperingsid, merkelapp, status, res, err) },
+            onError = { res, err -> Feil.nyStatusSakByGrupperingsid(grupperingsid, tjeneste.merkelapp, status, res, err) },
         )
 
         loggInfo("Satt ny status '$status' på sak med grupperingsid '$grupperingsid'.")
@@ -174,7 +176,7 @@ class ArbeidsgiverNotifikasjonKlient(
         virksomhetsnummer: String,
         eksternId: String,
         grupperingsid: String?,
-        merkelapp: String,
+        tjeneste: Tjeneste,
         lenke: String,
         tekst: String,
         tidspunkt: ISO8601DateTime?,
@@ -189,19 +191,20 @@ class ArbeidsgiverNotifikasjonKlient(
                     lenke = lenke,
                     tekst = tekst,
                     virksomhetsnummer = virksomhetsnummer,
-                    merkelapp = merkelapp,
+                    merkelapp = tjeneste.merkelapp,
                     tidspunkt = tidspunkt,
                     grupperingsid = grupperingsid,
-                    mottaker = toMottakerInput(),
+                    mottaker = toMottakerInput(tjeneste),
                     eksterneVarsler =
                         listOf(
                             toEksterntVarselInput(
+                                tjeneste = tjeneste,
                                 epostTittel = varslingTittel,
                                 epostHtmlBody = varslingInnhold,
                                 smsTekst = varslingInnhold,
                             ),
                         ),
-                    paaminnelseInput = paaminnelse?.tilPaaminnelseInput(altinn3Ressurs, sendevindu),
+                    paaminnelseInput = paaminnelse?.tilPaaminnelseInput(tjeneste.ressurs, sendevindu),
                 ),
         ).also { loggInfo("Forsøker å opprette ny oppgave.") }
             .execute(
@@ -211,9 +214,51 @@ class ArbeidsgiverNotifikasjonKlient(
             ).id
             .also { loggInfo("Opprettet ny oppgave med id: '$it'.") }
 
+    suspend fun opprettNyBeskjed(
+        virksomhetsnummer: String,
+        eksternId: String,
+        grupperingsid: String?,
+        tjeneste: Tjeneste,
+        lenke: String,
+        tekst: String,
+        tidspunkt: ISO8601DateTime?,
+        varslingTittel: String,
+        varslingInnhold: String,
+        hardDeleteOm: Duration?,
+    ): ID =
+        NyBeskjed(
+            variables =
+                NyBeskjed.Variables(
+                    eksternId = eksternId,
+                    lenke = lenke,
+                    tekst = tekst,
+                    virksomhetsnummer = virksomhetsnummer,
+                    merkelapp = tjeneste.merkelapp,
+                    tidspunkt = tidspunkt,
+                    grupperingsid = grupperingsid,
+                    mottaker = toMottakerInput(tjeneste),
+                    eksterneVarsler =
+                        listOf(
+                            toEksterntVarselInput(
+                                tjeneste = tjeneste,
+                                epostTittel = varslingTittel,
+                                epostHtmlBody = varslingInnhold,
+                                smsTekst = varslingInnhold,
+                            ),
+                        ),
+                    hardDeleteOm = hardDeleteOm?.tilDagerIso8601(),
+                ),
+        ).also { loggInfo("Forsøker å opprette ny beskjed.") }
+            .execute(
+                toResult = NyBeskjed.Result::nyBeskjed,
+                toSuccess = { it as? NyBeskjedVellykket },
+                onError = Feil::nyBeskjed,
+            ).id
+            .also { loggInfo("Opprettet ny beskjed med id: '$it'. og eksternId: '$eksternId'.") }
+
     suspend fun oppgaveUtfoertByEksternIdV2(
         eksternId: String,
-        merkelapp: String,
+        tjeneste: Tjeneste,
         nyLenke: String? = null,
     ) {
         loggInfo("Forsøker å sette oppgave med ekstern ID '$eksternId' som utført.")
@@ -222,20 +267,20 @@ class ArbeidsgiverNotifikasjonKlient(
             variables =
                 OppgaveUtfoertByEksternIdV2.Variables(
                     eksternId = eksternId,
-                    merkelapp = merkelapp,
+                    merkelapp = tjeneste.merkelapp,
                     nyLenke = nyLenke,
                 ),
         ).execute(
             toResult = OppgaveUtfoertByEksternIdV2.Result::oppgaveUtfoertByEksternId_V2,
             toSuccess = { it as? OppgaveUtfoertVellykket },
-            onError = { res, err -> Feil.oppgaveUtfoertByEksternIdV2(eksternId, merkelapp, res, err) },
+            onError = { res, err -> Feil.oppgaveUtfoertByEksternIdV2(eksternId, tjeneste.merkelapp, res, err) },
         )
 
         loggInfo("Oppgave med ekstern ID '$eksternId' satt til utført.")
     }
 
     suspend fun oppgaveUtgaattByEksternId(
-        merkelapp: String,
+        tjeneste: Tjeneste,
         eksternId: String,
         nyLenke: String? = null,
     ) {
@@ -244,7 +289,7 @@ class ArbeidsgiverNotifikasjonKlient(
         OppgaveUtgaattByEksternId(
             variables =
                 OppgaveUtgaattByEksternId.Variables(
-                    merkelapp = merkelapp,
+                    merkelapp = tjeneste.merkelapp,
                     eksternId = eksternId,
                     nyLenke = nyLenke,
                 ),
@@ -259,15 +304,15 @@ class ArbeidsgiverNotifikasjonKlient(
 
     suspend fun hardDeleteSakByGrupperingsid(
         grupperingsid: String,
-        merkelapp: String,
+        tjeneste: Tjeneste,
     ) {
-        loggInfo("Forsøker å slette (hard) sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
+        loggInfo("Forsøker å slette (hard) sak med grupperingsid '$grupperingsid' og merkelapp '${tjeneste.merkelapp}'.")
 
         HardDeleteSakByGrupperingsid(
             variables =
                 HardDeleteSakByGrupperingsid.Variables(
                     grupperingsid = grupperingsid,
-                    merkelapp = merkelapp,
+                    merkelapp = tjeneste.merkelapp,
                 ),
         ).execute(
             toResult = HardDeleteSakByGrupperingsid.Result::hardDeleteSakByGrupperingsid,
@@ -275,7 +320,7 @@ class ArbeidsgiverNotifikasjonKlient(
             onError = { res, err -> Feil.hardDeleteSakByGrupperingsid(grupperingsid, res, err) },
         )
 
-        loggInfo("Slettet (hard) sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
+        loggInfo("Slettet (hard) sak med grupperingsid '$grupperingsid' og merkelapp '${tjeneste.merkelapp}'.")
     }
 
     suspend fun hardDeleteSak(id: String) {
@@ -293,7 +338,7 @@ class ArbeidsgiverNotifikasjonKlient(
     }
 
     suspend fun endreOppgavePaaminnelserByEksternId(
-        merkelapp: String,
+        tjeneste: Tjeneste,
         eksternId: String,
         paaminnelse: Paaminnelse?,
         idempotencyKey: String? = null,
@@ -303,10 +348,10 @@ class ArbeidsgiverNotifikasjonKlient(
         OppgaveEndrePaaminnelseByEksternId(
             variables =
                 OppgaveEndrePaaminnelseByEksternId.Variables(
-                    merkelapp = merkelapp,
+                    merkelapp = tjeneste.merkelapp,
                     eksternId = eksternId,
                     idempotencyKey = idempotencyKey,
-                    paaminnelse = paaminnelse?.tilPaaminnelseInput(altinn3Ressurs, sendevindu),
+                    paaminnelse = paaminnelse?.tilPaaminnelseInput(tjeneste.ressurs, sendevindu),
                 ),
         ).execute(
             toResult = OppgaveEndrePaaminnelseByEksternId.Result::oppgaveEndrePaaminnelseByEksternId,
@@ -318,7 +363,7 @@ class ArbeidsgiverNotifikasjonKlient(
     }
 
     suspend fun slettOppgavePaaminnelserByEksternId(
-        merkelapp: String,
+        tjeneste: Tjeneste,
         eksternId: String,
     ) {
         loggInfo("Forsøker å slette påminnelser for oppgave med eksternId '$eksternId'.")
@@ -326,7 +371,7 @@ class ArbeidsgiverNotifikasjonKlient(
         OppgaveEndrePaaminnelseByEksternId(
             variables =
                 OppgaveEndrePaaminnelseByEksternId.Variables(
-                    merkelapp = merkelapp,
+                    merkelapp = tjeneste.merkelapp,
                     eksternId = eksternId,
                 ),
         ).execute(
@@ -341,8 +386,8 @@ class ArbeidsgiverNotifikasjonKlient(
     suspend fun mineNotifikasjoner(
         first: Int? = null,
         after: String? = null,
-        merkelapp: String? = null,
-        merkelapper: List<String>? = null,
+        tjeneste: Tjeneste? = null,
+        tjenester: List<Tjeneste>? = null,
         grupperingsid: String? = null,
     ): NotifikasjonConnection {
         loggInfo("Forsøker å hente mine notifikasjoner.")
@@ -352,8 +397,8 @@ class ArbeidsgiverNotifikasjonKlient(
                 MineNotifikasjoner.Variables(
                     first = first,
                     after = after,
-                    merkelapp = merkelapp,
-                    merkelapper = merkelapper,
+                    merkelapp = tjeneste?.merkelapp,
+                    merkelapper = tjenester?.map { it.merkelapp },
                     grupperingsid = grupperingsid,
                 ),
         ).execute(
@@ -381,23 +426,23 @@ class ArbeidsgiverNotifikasjonKlient(
 
     suspend fun hentSakMedGrupperingsid(
         grupperingsid: String,
-        merkelapp: String,
+        tjeneste: Tjeneste,
     ): Sak {
-        loggInfo("Forsøker å hente sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
+        loggInfo("Forsøker å hente sak med grupperingsid '$grupperingsid' og merkelapp '${tjeneste.merkelapp}'.")
 
         return HentSakMedGrupperingsid(
             variables =
                 HentSakMedGrupperingsid.Variables(
                     grupperingsid = grupperingsid,
-                    merkelapp = merkelapp,
+                    merkelapp = tjeneste.merkelapp,
                 ),
         ).execute(
             toResult = HentSakMedGrupperingsid.Result::hentSakMedGrupperingsid,
             toSuccess = { it as? HentetSak },
-            onError = { res, err -> Feil.hentSakMedGrupperingsid(grupperingsid, merkelapp, res, err) },
+            onError = { res, err -> Feil.hentSakMedGrupperingsid(grupperingsid, tjeneste.merkelapp, res, err) },
         ).sak
             .also {
-                loggInfo("Hentet sak med grupperingsid '$grupperingsid' og merkelapp '$merkelapp'.")
+                loggInfo("Hentet sak med grupperingsid '$grupperingsid' og merkelapp '${tjeneste.merkelapp}'.")
             }
     }
 

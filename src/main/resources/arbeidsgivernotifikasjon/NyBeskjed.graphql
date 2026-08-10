@@ -1,0 +1,52 @@
+mutation NyBeskjed(
+    $eksternId: String!
+    $lenke: String!,
+    $tekst: String!,
+    $virksomhetsnummer: String!,
+    $merkelapp: String!,
+    $tidspunkt: ISO8601DateTime,
+    $grupperingsid: String,
+    $mottaker: MottakerInput!,
+    $eksterneVarsler: [EksterntVarselInput!]!,
+    $hardDeleteOm: ISO8601Duration
+){
+    nyBeskjed(nyBeskjed: {
+        mottakere: [$mottaker],
+        notifikasjon: {
+            lenke: $lenke,
+            tekst: $tekst,
+            merkelapp: $merkelapp
+        },
+        metadata: {
+            virksomhetsnummer: $virksomhetsnummer,
+            eksternId: $eksternId,
+            opprettetTidspunkt: $tidspunkt,
+            grupperingsid: $grupperingsid,
+            hardDelete: {
+                om: $hardDeleteOm
+            }
+        },
+        eksterneVarsler: $eksterneVarsler
+    }) {
+        __typename
+        ... on NyBeskjedVellykket {
+            id
+        }
+        ... on UgyldigMerkelapp {
+            feilmelding
+        }
+        ... on UgyldigMottaker {
+            feilmelding
+        }
+        ... on DuplikatEksternIdOgMerkelapp {
+            feilmelding
+            idTilEksisterende
+        }
+        ... on UkjentProdusent {
+            feilmelding
+        }
+        ... on UkjentRolle {
+            feilmelding
+        }
+    }
+}

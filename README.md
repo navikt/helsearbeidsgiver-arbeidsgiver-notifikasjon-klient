@@ -11,7 +11,11 @@ fun main() {
     val url = URL("https://notifikasjon-fake-produsent-api.labs.nais.io/")
     val accessTokenProvider = OAuth2TokenProvider()
 
-    val arbeidsgiverNotifikasjonKlient = ArbeidsgiverNotifikasjonKlient(url, accessTokenProvider::getToken)
+    val arbeidsgiverNotifikasjonKlient = ArbeidsgiverNotifikasjonKlient(
+        url = url,
+        getAccessToken = accessTokenProvider::getToken,
+        sendevindu = Sendevindu.NKS_AAPNINGSTID,
+    )
 
     val result = runBlocking { arbeidsgiverNotifikasjonKlient.whoami() }
     println(result)

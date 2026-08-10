@@ -224,6 +224,7 @@ class ArbeidsgiverNotifikasjonKlient(
         tidspunkt: ISO8601DateTime?,
         varslingTittel: String,
         varslingInnhold: String,
+        smsVarslingInnhold: String,
         hardDeleteOm: Duration?,
     ): ID =
         NyBeskjed(
@@ -243,7 +244,7 @@ class ArbeidsgiverNotifikasjonKlient(
                                 tjeneste = tjeneste,
                                 epostTittel = varslingTittel,
                                 epostHtmlBody = varslingInnhold,
-                                smsTekst = varslingInnhold,
+                                smsTekst = smsVarslingInnhold,
                             ),
                         ),
                     hardDeleteOm = hardDeleteOm?.tilDagerIso8601(),

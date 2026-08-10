@@ -761,6 +761,7 @@ private object Mock {
             tidspunkt = "mock tidspunkt",
             varslingTittel = "mock varslingTittel",
             varslingInnhold = "mock varslingInnhold",
+            smsVarslingInnhold = "mock smsVarslingInnhold",
             hardDeleteOm = 2.days,
         )
 

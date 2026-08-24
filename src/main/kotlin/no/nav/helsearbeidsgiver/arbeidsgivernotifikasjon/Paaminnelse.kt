@@ -7,11 +7,14 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.PaaminnelseEksterntVarselInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.PaaminnelseInput
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.inputs.PaaminnelseTidspunktInput
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 data class Paaminnelse(
     val tittel: String,
     val innhold: String,
     val tidMellomOppgaveopprettelseOgPaaminnelse: ISO8601Duration,
+    val eksaktTid: LocalDateTime? = null,
 )
 
 internal fun Paaminnelse.tilPaaminnelseInput(
@@ -35,5 +38,16 @@ internal fun Paaminnelse.tilPaaminnelseInput(
                         ),
                 ),
             ),
-        tidspunkt = PaaminnelseTidspunktInput(etterOpprettelse = tidMellomOppgaveopprettelseOgPaaminnelse),
+        tidspunkt =
+            if (eksaktTid !=
+                null
+            ) {
+                PaaminnelseTidspunktInput(konkret = eksaktTid.tilIsoString())
+            } else {
+                PaaminnelseTidspunktInput(
+                    etterOpprettelse = tidMellomOppgaveopprettelseOgPaaminnelse,
+                )
+            },
     )
+
+fun LocalDateTime.tilIsoString(): String = DateTimeFormatter.ISO_DATE_TIME.format(this)
